@@ -90,27 +90,27 @@ export default function LeaderboardPage() {
           </div>
 
           {/* Sort Options */}
-          <div className="flex justify-center gap-4 mb-8">
+          <div className="flex justify-center gap-2 mb-6 sticky top-0 z-20 bg-[#fcfbf8] py-2 shadow-sm rounded-b-xl">
             <button
               onClick={() => setSortBy("points")}
-              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+              className={`px-3 py-2 sm:px-4 rounded-lg font-medium text-sm sm:text-base transition-colors shadow-sm border border-[#e9e2ce] ${
                 sortBy === "points"
-                  ? "bg-[#fac638] text-[#1c180d]"
+                  ? "bg-[#fac638] text-[#1c180d] border-[#fac638]"
                   : "bg-[#f4f0e6] text-[#1c180d] hover:bg-[#fac638]/20"
               }`}
             >
-              <TrendingUp className="inline h-4 w-4 mr-2" />
+              <TrendingUp className="inline h-4 w-4 mr-1 sm:mr-2" />
               Most Points
             </button>
             <button
               onClick={() => setSortBy("rating")}
-              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+              className={`px-3 py-2 sm:px-4 rounded-lg font-medium text-sm sm:text-base transition-colors shadow-sm border border-[#e9e2ce] ${
                 sortBy === "rating"
-                  ? "bg-[#fac638] text-[#1c180d]"
+                  ? "bg-[#fac638] text-[#1c180d] border-[#fac638]"
                   : "bg-[#f4f0e6] text-[#1c180d] hover:bg-[#fac638]/20"
               }`}
             >
-              <Star className="inline h-4 w-4 mr-2" />
+              <Star className="inline h-4 w-4 mr-1 sm:mr-2" />
               Top Rated
             </button>
           </div>
@@ -131,45 +131,43 @@ export default function LeaderboardPage() {
               {leaderboard.map((leaderUser, index) => (
                 <Card
                   key={leaderUser.id}
-                  className={`border-[#e9e2ce] transition-all ${
+                  className={`border-[#e9e2ce] transition-all rounded-2xl shadow-md ${
                     leaderUser.id === user.id
-                      ? "bg-[#fac638]/10 border-[#fac638] shadow-md"
-                      : "bg-[#fcfbf8] hover:shadow-md"
+                      ? "bg-[#fac638]/10 border-[#fac638] ring-2 ring-[#fac638]"
+                      : "bg-[#fcfbf8] hover:shadow-lg"
                   }`}
                 >
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-4">
-                        <div className="flex items-center justify-center w-12 h-12">{getRankIcon(leaderUser.rank)}</div>
-                        <Avatar className="h-12 w-12 bg-[#f4f0e6]">
+                  <CardContent className="p-3 sm:p-6">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+                      <div className="flex flex-row items-center gap-3 w-full sm:w-auto">
+                        <div className="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12">{getRankIcon(leaderUser.rank)}</div>
+                        <Avatar className="h-10 w-10 sm:h-12 sm:w-12 bg-[#f4f0e6]">
                           <AvatarFallback className="bg-[#f4f0e6] text-[#1c180d] font-semibold">
                             {leaderUser.username?.slice(0, 2).toUpperCase() || "??"}
                           </AvatarFallback>
                         </Avatar>
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <h3 className="font-semibold text-[#1c180d]">{leaderUser.username || "Anonymous User"}</h3>
-                            {leaderUser.id === user.id && <Badge className="bg-[#fac638] text-[#1c180d]">You</Badge>}
-                            <Badge className={getRankBadgeColor(leaderUser.rank)}>Rank #{leaderUser.rank}</Badge>
+                        <div className="text-left">
+                          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1 sm:gap-2">
+                            <h3 className="font-semibold text-[#1c180d] text-base sm:text-lg">{leaderUser.username || "Anonymous User"}</h3>
+                            {leaderUser.id === user.id && <Badge className="bg-[#fac638] text-[#1c180d] text-xs sm:text-sm">You</Badge>}
+                            <Badge className={getRankBadgeColor(leaderUser.rank) + " text-xs sm:text-sm"}>Rank #{leaderUser.rank}</Badge>
                           </div>
-                          <p className="text-sm text-[#9e8747]">{leaderUser.assignmentsSolved || 0} assignments solved</p>
+                          <p className="text-xs sm:text-sm text-[#9e8747]">{leaderUser.assignmentsSolved || 0} assignments solved</p>
                         </div>
                       </div>
-                      <div className="text-right">
-                        <div className="flex items-center gap-4">
-                          <div className="text-center">
-                            <p className="text-2xl font-bold text-[#1c180d]">{leaderUser.points || 0}</p>
-                            <p className="text-xs text-[#9e8747]">Points</p>
+                      <div className="flex flex-row justify-between sm:justify-end gap-3 sm:gap-4 w-full sm:w-auto">
+                        <div className="text-center min-w-[70px]">
+                          <p className="text-xl sm:text-2xl font-bold text-[#1c180d]">{leaderUser.points || 0}</p>
+                          <p className="text-xs text-[#9e8747]">Points</p>
+                        </div>
+                        <div className="text-center min-w-[70px]">
+                          <div className="flex items-center gap-1 justify-center">
+                            <Star className="h-4 w-4 text-yellow-500 fill-current" />
+                            <span className="text-base sm:text-lg font-semibold text-[#1c180d]">
+                              {leaderUser.averageRating?.toFixed(1) || "0.0"}
+                            </span>
                           </div>
-                          <div className="text-center">
-                            <div className="flex items-center gap-1">
-                              <Star className="h-4 w-4 text-yellow-500 fill-current" />
-                              <span className="text-lg font-semibold text-[#1c180d]">
-                                {leaderUser.averageRating?.toFixed(1) || "0.0"}
-                              </span>
-                            </div>
-                            <p className="text-xs text-[#9e8747]">({leaderUser.totalRatings || 0} ratings)</p>
-                          </div>
+                          <p className="text-xs text-[#9e8747]">({leaderUser.totalRatings || 0} ratings)</p>
                         </div>
                       </div>
                     </div>
@@ -188,7 +186,8 @@ export default function LeaderboardPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                  {/* Add a border and background for each stat on mobile for clarity */}
                   <div>
                     <p className="text-2xl font-bold text-[#1c180d]">{currentUserStats?.points || 0}</p>
                     <p className="text-sm text-[#9e8747]">Points</p>

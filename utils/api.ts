@@ -166,7 +166,7 @@ export async function getUserById(id: string): Promise<any | null> {
 }
 
 // OTP verification functions
-export async function sendOTP(email: string): Promise<{ success: boolean; message?: string; error?: string; userExists?: boolean; user?: any }> {
+export async function sendOTP(email: string): Promise<{ success: boolean; message?: string; error?: string; userExists?: boolean; user?: any; otp?: string }> {
   try {
     const res = await fetch('http://localhost:4000/send-otp', {
       method: 'POST',
@@ -184,7 +184,8 @@ export async function sendOTP(email: string): Promise<{ success: boolean; messag
       success: true, 
       message: data.message, 
       userExists: data.userExists,
-      user: data.user 
+      user: data.user,
+      otp: data.otp // <-- include OTP in return value
     };
   } catch (error) {
     return { success: false, error: 'Network error while sending OTP' };

@@ -10,6 +10,7 @@ import { useAuth } from "@/context/AuthContext"
 import { toast } from "@/hooks/use-toast"
 import { sendOTP, verifyOTP, checkEmailVerified } from "@/utils/api"
 import { Loader2, Star, Trophy, ArrowRight, Sparkles, Shield, Zap, BookOpen, Award, TrendingUp, CheckCircle, XCircle, Mail, Lock } from "lucide-react"
+import { sendOtpEmail } from "@/lib/sendOtpEmail";
 
 export default function LandingPage() {
   const [email, setEmail] = useState("")
@@ -20,6 +21,7 @@ export default function LandingPage() {
   const [sendingOtp, setSendingOtp] = useState(false)
   const [verifyingOtp, setVerifyingOtp] = useState(false)
   const [countdown, setCountdown] = useState(0)
+  const [isVerified, setIsVerified] = useState(false)
   const { signInWithEmail } = useAuth()
   const router = useRouter()
 
@@ -44,22 +46,29 @@ export default function LandingPage() {
     setSendingOtp(true)
     try {
       // Check if user is already verified
-      const isVerified = await checkEmailVerified(email);
-      if (isVerified) {
+      const verified = await checkEmailVerified(email);
+      setIsVerified(verified);
+      if (verified) {
         await signInWithEmail(email);
-        router.push("/home");
-        setTimeout(() => {
-          toast({
-            title: "Welcome back! 🎉",
-            description: "You've been signed in successfully.",
-          });
-        }, 100); // Show toast after navigation
+        await router.replace("/home");
+        toast({
+          title: "Welcome back! 🎉",
+          description: "You've been signed in successfully.",
+        });
         setSendingOtp(false);
         return;
       }
       // Otherwise, proceed with OTP flow
       const result = await sendOTP(email)
-      if (result.success) {
+      if (result.success && result.otp) {
+        // Send OTP email notification via EmailJS
+        await sendOtpEmail({
+          toEmail: email,
+          userName: email.split('@')[0],
+          otpCode: result.otp,
+          subject: "OpenAssign - Email Verification OTP",
+          message: "Use the code below to verify your email address.",
+        });
         setOtpSent(true)
         setCountdown(60)
         toast({
@@ -131,7 +140,15 @@ export default function LandingPage() {
     setSendingOtp(true)
     try {
       const result = await sendOTP(email)
-      if (result.success) {
+      if (result.success && result.otp) {
+        // Send OTP email notification via EmailJS
+        await sendOtpEmail({
+          toEmail: email,
+          userName: email.split('@')[0],
+          otpCode: result.otp,
+          subject: "OpenAssign - Email Verification OTP",
+          message: "Use the code below to verify your email address.",
+        });
         setCountdown(60)
         setOtp("") // Clear OTP input after resend
         toast({
@@ -163,7 +180,7 @@ export default function LandingPage() {
     setLoading(true)
     try {
       await signInWithEmail(email)
-      router.push("/home")
+      await router.replace("/home")
       toast({
         title: "Welcome to OpenAssign! 🎉",
         description: "You've been signed in successfully. Let's get started!",
@@ -185,6 +202,7 @@ export default function LandingPage() {
     setOtpSent(false)
     setOtpVerified(false)
     setCountdown(0)
+    setIsVerified(false)
   }
 
   return (
@@ -272,27 +290,29 @@ export default function LandingPage() {
                   {otpSent ? "Verify Your Email" : "Sign In to OpenAssign"}
                 </CardTitle>
                 <CardDescription className="text-[#9e8747]">
-                  {otpSent 
-                    ? "Enter the 6-digit code sent to your email" 
-                    : "Enter your email to get started (new users will be created automatically)"
+                  {otpSent
+                    ? "Enter the 6-digit code sent to your email"
+                    : isVerified
+                      ? "Your email is already verified. Logging you in..."
+                      : "Enter your email to get started (new users will be created automatically)"
                   }
                 </CardDescription>
               </CardHeader>
               <CardContent className="pt-0">
-                {!otpSent ? (
+                {!otpSent && !isVerified ? (
                   // Email Input Step
                   <div className="space-y-6">
-                  <div className="space-y-2">
-                    <Input
-                      type="email"
-                      placeholder="your.email@university.edu"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      required
-                      className="h-12 border-[#e9e2ce] bg-white/50 focus:border-[#fac638] focus:ring-2 focus:ring-[#fac638]/20 transition-all"
-                    />
-                  </div>
-                  <Button
+                    <div className="space-y-2">
+                      <Input
+                        type="email"
+                        placeholder="your.email@university.edu"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                        className="h-12 border-[#e9e2ce] bg-white/50 focus:border-[#fac638] focus:ring-2 focus:ring-[#fac638]/20 transition-all"
+                      />
+                    </div>
+                    <Button
                       onClick={handleSendOTP}
                       className="w-full h-12 bg-gradient-to-r from-[#fac638] to-[#e6b332] text-[#1c180d] hover:from-[#e6b332] hover:to-[#fac638] font-semibold transition-all duration-300 transform hover:scale-105 shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
                       disabled={sendingOtp || !email}
@@ -310,8 +330,9 @@ export default function LandingPage() {
                       )}
                     </Button>
                   </div>
-                ) : (
-                  // OTP Verification Step
+                ) : null}
+                {/* OTP Verification Step */}
+                {otpSent && !isVerified && (
                   <div className="space-y-6">
                     <div className="space-y-2">
                       <Input
@@ -326,7 +347,6 @@ export default function LandingPage() {
                         Code sent to <span className="font-medium">{email}</span>
                       </p>
                     </div>
-                    
                     <div className="space-y-3">
                       <Button
                         onClick={handleVerifyOTP}
@@ -345,27 +365,25 @@ export default function LandingPage() {
                           </>
                         )}
                       </Button>
-                      
                       {otpVerified && (
                         <Button
                           onClick={handleSubmit}
                           className="w-full h-12 bg-green-600 hover:bg-green-700 text-white font-semibold transition-all duration-300 transform hover:scale-105 shadow-md"
-                    disabled={loading}
-                  >
-                    {loading ? (
-                      <>
-                        <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                          disabled={loading}
+                        >
+                          {loading ? (
+                            <>
+                              <Loader2 className="mr-2 h-5 w-5 animate-spin" />
                               Creating Account...
-                      </>
-                    ) : (
-                      <>
+                            </>
+                          ) : (
+                            <>
                               Create Account & Continue
-                        <ArrowRight className="ml-2 h-5 w-5" />
-                      </>
-                    )}
-                  </Button>
+                              <ArrowRight className="ml-2 h-5 w-5" />
+                            </>
+                          )}
+                        </Button>
                       )}
-                      
                       <div className="flex items-center justify-between">
                         <button
                           type="button"
@@ -374,7 +392,6 @@ export default function LandingPage() {
                         >
                           ← Back to email
                         </button>
-                        
                         <button
                           type="button"
                           onClick={handleResendOTP}
@@ -387,7 +404,13 @@ export default function LandingPage() {
                     </div>
                   </div>
                 )}
-                
+                {/* If verified, show a loading spinner and message */}
+                {isVerified && !otpSent && (
+                  <div className="flex flex-col items-center justify-center py-8">
+                    <Loader2 className="h-8 w-8 text-[#fac638] animate-spin mb-4" />
+                    <p className="text-[#9e8747] text-center">Logging you in...</p>
+                  </div>
+                )}
                 <p className="text-xs text-[#9e8747] text-center mt-4">
                   By continuing, you agree to our <a href="/terms" className="underline hover:text-[#1c180d]">Terms of Service</a> and <a href="/privacy-policy" className="underline hover:text-[#1c180d]">Privacy Policy</a>.
                 </p>

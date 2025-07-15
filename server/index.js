@@ -113,11 +113,11 @@ async function sendOTPEmail(email, otp) {
     const userName = email.split('@')[0];
     const serviceId = process.env.EMAILJS_SERVICE_ID;
     const templateId = process.env.EMAILJS_TEMPLATE_ID;
-    const privateKey = process.env.EMAILJS_PRIVATE_KEY;
+    const publicKey = process.env.EMAILJS_PUBLIC_KEY; // <-- Use public key
     const payload = {
       service_id: serviceId,
       template_id: templateId,
-      user_id: privateKey,
+      user_id: publicKey, // <-- Use public key here
       template_params: {
         user_name: userName,
         otp_code: otp,
@@ -164,29 +164,35 @@ app.post('/send-otp', async (req, res) => {
   try {
     // Check if user already exists
     const existingUser = db.prepare('SELECT * FROM users WHERE email = ?').get(email);
-    
+    if (existingUser && existingUser.emailVerified === 1) {
+      // User is already verified, do not generate OTP
+      return res.json({
+        message: 'User already verified',
+        userExists: true,
+        user: existingUser,
+        otpNeeded: false
+      });
+    }
     // Generate OTP for all users (new and existing)
     const otp = generateOTP();
     const otpId = Date.now().toString();
     const expiresAt = new Date(Date.now() + 5 * 60 * 1000).toISOString(); // 5 minutes
-    
     // Store OTP in database
     db.prepare('INSERT INTO otp_verification (id, email, otp, expiresAt, createdAt) VALUES (?, ?, ?, ?, ?)')
       .run(otpId, email, otp, expiresAt, new Date().toISOString());
-    
-    // Send OTP email
-    await sendOTPEmail(email, otp);
-    
-    // Return success with user info if exists
+    // Do NOT send OTP email from backend anymore
+    // Instead, return the OTP to the frontend for EmailJS
     res.json({ 
-      message: 'OTP sent successfully', 
+      message: 'OTP generated successfully', 
       otpId,
+      otp, // <-- Return OTP for frontend to use
       userExists: !!existingUser,
-      user: existingUser || null
+      user: existingUser || null,
+      otpNeeded: true
     });
   } catch (error) {
     console.error('Send OTP error:', error);
-    res.status(500).json({ error: 'Failed to send OTP' });
+    res.status(500).json({ error: 'Failed to generate OTP' });
   }
 });
 
