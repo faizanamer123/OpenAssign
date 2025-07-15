@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48" fill="none">
+  <defs>
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ffe59e" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#fac638" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="bg" x1="0" y1="0" x2="48" y2="48" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#fac638"/>
+      <stop offset="1" stop-color="#e6b332"/>
+    </linearGradient>
+  </defs>
+  <!-- Glowing dot -->
+  <circle cx="40" cy="8" r="10" fill="url(#glow)"/>
+  <circle cx="40" cy="8" r="6" fill="#fac638"/>
+  <!-- Main rounded square background -->
+  <rect x="4" y="4" width="40" height="40" rx="12" fill="url(#bg)"/>
+  <!-- Lucide Star icon (centered) -->
+  <polygon points="24 12 29.09 21.26 39 22.27 31 30.14 33.18 40.02 24 34.77 14.82 40.02 17 30.14 9 22.27 18.91 21.26 24 12" stroke="#1c180d" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+</svg> 

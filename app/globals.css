@@ -1,0 +1,156 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 44 33% 97%;
+    --foreground: 36 45% 11%;
+    --card: 44 33% 97%;
+    --card-foreground: 36 45% 11%;
+    --popover: 44 33% 97%;
+    --popover-foreground: 36 45% 11%;
+    --primary: 45 93% 58%;
+    --primary-foreground: 36 45% 11%;
+    --secondary: 42 21% 89%;
+    --secondary-foreground: 36 45% 11%;
+    --muted: 42 21% 89%;
+    --muted-foreground: 36 21% 47%;
+    --accent: 42 21% 89%;
+    --accent-foreground: 36 45% 11%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 42 21% 82%;
+    --input: 42 21% 82%;
+    --ring: 45 93% 58%;
+    --radius: 0.75rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: "Inter", "Public Sans", "Noto Sans", sans-serif;
+  }
+}
+
+@layer components {
+  .animate-fade-in {
+    animation: fadeIn 0.5s ease-in-out;
+  }
+
+  .animate-slide-up {
+    animation: slideUp 0.6s ease-out;
+  }
+
+  .animate-scale-in {
+    animation: scaleIn 0.4s ease-out;
+  }
+
+  .glass-effect {
+    backdrop-filter: blur(10px);
+    background: rgba(252, 251, 248, 0.8);
+    border: 1px solid rgba(233, 226, 206, 0.3);
+  }
+
+  .gradient-bg {
+    background: linear-gradient(135deg, #fcfbf8 0%, #f4f0e6 100%);
+  }
+
+  .card-hover {
+    transition: all 0.3s ease;
+  }
+
+  .card-hover:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  }
+
+  .floating-animation {
+    animation: floating 3s ease-in-out infinite;
+  }
+
+  .pulse-glow {
+    animation: pulseGlow 2s ease-in-out infinite;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes floating {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes pulseGlow {
+  0%,
+  100% {
+    box-shadow: 0 0 20px rgba(250, 198, 56, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(250, 198, 56, 0.6);
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f4f0e6;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #fac638;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #e6b332;
+}
+
+/* Responsive utilities */
+@media (max-width: 640px) {
+  .mobile-padding {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
