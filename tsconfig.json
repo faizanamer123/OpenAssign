@@ -22,6 +22,26 @@
       "@/*": ["./*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    "server/database/sqlite.js",
+    "server/controllers/userController.js",
+    "server/controllers/submissionController.js",
+    "server/controllers/otpController.js",
+    "server/controllers/notificationController.js",
+    "server/controllers/leaderboardController.js",
+    "server/controllers/assignmentController.js",
+    "server/controllers/analyticsController.js",
+    "server/routes/user.js",
+    "server/routes/submission.js",
+    "server/routes/otp.js",
+    "server/routes/notification.js",
+    "server/routes/leaderboard.js",
+    "server/routes/assignment.js",
+    "server/routes/analytics.js"
+  ],
   "exclude": ["node_modules"]
 }
