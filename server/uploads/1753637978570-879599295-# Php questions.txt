@@ -1,0 +1,71 @@
+# Php questions
+
+-- Beginner Questions
+
+1. Server side scripting language
+
+2. variables defining -> $var
+
+3. checking if var is null -> isset($var)
+
+4. define for constants
+
+5. extended for inheritance
+
+6. func_num_args() for no of args
+
+7. SUPER GLOBALS : $GLOBALS, $_SERVER, $_REQUEST, $_POST, $_GET, $_FILES, $_ENV, $_COOKIE, $_SESSION
+
+8. Get and POST 
+
+9. final class and method. final class cannot be extended, final function cannot be overridden
+
+10. require and include. require throw fatal error and include throws critical error but still execute the code
+
+11. & for passing value by reference in function. function modify(&$str){ . . . }
+
+12. Singleton provides single access to the obj. single reference
+
+13. $hash = password_hash($password, PASSWORD_DEFAULT);
+
+
+-- 1-6 years Experience Questions
+
+1. Payment gateways. web hooks 
+
+2. Url retrieval
+
+
+-- Php 7 features
+
+1. Better mem consumption
+2. Serve more concurrent users
+3. Deprecated APIs
+4. Null coalescing op (??)
+5. return and scalar type declarations in function
+6. Anonymous classes
+
+
+-- Composer in Php => dependency manager
+
+- Cookie is used to identify user. Embedded on the client side.
+- Session is used to store information to be used across multiple pages.
+- Session is stored on server side
+
+- Php filter for validating and sanitizing external data
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

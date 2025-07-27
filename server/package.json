@@ -8,6 +8,8 @@
     "dev": "nodemon index.js"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.850.0",
+    "aws-sdk": "^2.1692.0",
     "axios": "^1.10.0",
     "better-sqlite3": "^12.2.0",
     "body-parser": "^1.20.2",

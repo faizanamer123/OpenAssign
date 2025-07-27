@@ -1,45 +1,60 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Label } from "@/components/ui/label"
-import { useAuth } from "@/context/AuthContext"
-import { toast } from "@/hooks/use-toast"
-import { Loader2, Upload, Calendar } from "lucide-react"
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { useAuth } from "@/context/AuthContext";
+import { toast } from "@/hooks/use-toast";
+import { Loader2, Upload, Calendar } from "lucide-react";
 import dynamic from "next/dynamic";
-const Header = dynamic(() => import("@/components/Header"), { ssr: false, loading: () => <div className='h-16' /> });
-import { uploadAssignment } from "@/utils/api"
+const Header = dynamic(() => import("@/components/Header"), {
+  ssr: false,
+  loading: () => <div className="h-16" />,
+});
+import { uploadAssignment } from "@/utils/api";
 
 export default function UploadPage() {
-  const { user } = useAuth()
-  const router = useRouter()
-  const [loading, setLoading] = useState(false)
+  const { user } = useAuth();
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     title: "",
     description: "",
     difficulty: "",
     deadline: "",
     subject: "",
-  })
-  const [file, setFile] = useState<File | null>(null)
+  });
+  const [file, setFile] = useState<File | null>(null);
 
   useEffect(() => {
     if (!user) {
-      router.push("/")
+      router.push("/");
     }
-  }, [user, router])
+  }, [user, router]);
 
-  if (!user) return null
+  if (!user) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
     // Debug logging
     console.log("formData:", formData);
     console.log("user.id:", user.id);
@@ -56,38 +71,38 @@ export default function UploadPage() {
         title: "Error",
         description: "Please fill in all required fields.",
         variant: "destructive",
-      })
-      return
+      });
+      return;
     }
 
-    setLoading(true)
+    setLoading(true);
     try {
       await uploadAssignment({
         ...formData,
         file,
         createdBy: user.id,
         createdByUsername: user.username,
-      })
+      });
 
       toast({
         title: "Success!",
         description: "Your assignment has been uploaded successfully.",
-      })
-      router.push("/activity")
+      });
+      // router.push("/activity")
     } catch (error) {
       toast({
         title: "Error",
         description: "Failed to upload assignment. Please try again.",
         variant: "destructive",
-      })
+      });
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const handleInputChange = (field: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }))
-  }
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  };
 
   return (
     <div className="min-h-screen bg-[#fcfbf8]">
@@ -96,15 +111,22 @@ export default function UploadPage() {
       <div className="px-4 py-8 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-2xl">
           <div className="mb-8">
-            <h1 className="text-3xl font-bold text-[#1c180d] mb-2">Upload Assignment</h1>
-            <p className="text-[#9e8747]">Share your assignment anonymously and get help from the community.</p>
+            <h1 className="text-3xl font-bold text-[#1c180d] mb-2">
+              Upload Assignment
+            </h1>
+            <p className="text-[#9e8747]">
+              Share your assignment anonymously and get help from the community.
+            </p>
           </div>
 
           <Card className="border-[#e9e2ce] bg-[#fcfbf8]">
             <CardHeader>
-              <CardTitle className="text-[#1c180d]">Assignment Details</CardTitle>
+              <CardTitle className="text-[#1c180d]">
+                Assignment Details
+              </CardTitle>
               <CardDescription className="text-[#9e8747]">
-                Fill out the form below to submit your assignment. All submissions are anonymous.
+                Fill out the form below to submit your assignment. All
+                submissions are anonymous.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -131,7 +153,9 @@ export default function UploadPage() {
                     id="description"
                     placeholder="Provide a detailed description of your assignment, including any specific requirements or guidelines"
                     value={formData.description}
-                    onChange={(e) => handleInputChange("description", e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("description", e.target.value)
+                    }
                     className="border-[#e9e2ce] bg-[#fcfbf8] focus:border-[#fac638] min-h-32"
                     required
                   />
@@ -142,14 +166,24 @@ export default function UploadPage() {
                     <Label htmlFor="subject" className="text-[#1c180d]">
                       Subject Area
                     </Label>
-                    <Select value={formData.subject} onValueChange={(value) => handleInputChange("subject", value)}>
-                      <SelectTrigger id="subject" className="border-[#e9e2ce] bg-[#fcfbf8] focus:border-[#fac638]">
+                    <Select
+                      value={formData.subject}
+                      onValueChange={(value) =>
+                        handleInputChange("subject", value)
+                      }
+                    >
+                      <SelectTrigger
+                        id="subject"
+                        className="border-[#e9e2ce] bg-[#fcfbf8] focus:border-[#fac638]"
+                      >
                         <SelectValue placeholder="Select subject area" />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="mathematics">Mathematics</SelectItem>
                         <SelectItem value="science">Science</SelectItem>
-                        <SelectItem value="computer-science">Computer Science</SelectItem>
+                        <SelectItem value="computer-science">
+                          Computer Science
+                        </SelectItem>
                         <SelectItem value="physics">Physics</SelectItem>
                         <SelectItem value="chemistry">Chemistry</SelectItem>
                         <SelectItem value="biology">Biology</SelectItem>
@@ -167,9 +201,14 @@ export default function UploadPage() {
                     </Label>
                     <Select
                       value={formData.difficulty}
-                      onValueChange={(value) => handleInputChange("difficulty", value)}
+                      onValueChange={(value) =>
+                        handleInputChange("difficulty", value)
+                      }
                     >
-                      <SelectTrigger id="difficulty" className="border-[#e9e2ce] bg-[#fcfbf8] focus:border-[#fac638]">
+                      <SelectTrigger
+                        id="difficulty"
+                        className="border-[#e9e2ce] bg-[#fcfbf8] focus:border-[#fac638]"
+                      >
                         <SelectValue placeholder="Select difficulty" />
                       </SelectTrigger>
                       <SelectContent>
@@ -190,7 +229,9 @@ export default function UploadPage() {
                       id="deadline"
                       type="datetime-local"
                       value={formData.deadline}
-                      onChange={(e) => handleInputChange("deadline", e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("deadline", e.target.value)
+                      }
                       className="border-[#e9e2ce] bg-[#fcfbf8] focus:border-[#fac638]"
                       required
                     />
@@ -204,8 +245,12 @@ export default function UploadPage() {
                   </Label>
                   <div className="border-2 border-dashed border-[#e9e2ce] rounded-lg p-6 text-center">
                     <Upload className="mx-auto h-8 w-8 text-[#9e8747] mb-2" />
-                    <p className="text-sm text-[#1c180d] mb-2">Upload your assignment file</p>
-                    <p className="text-xs text-[#9e8747] mb-4">Supported formats: PDF, DOC, DOCX, TXT (Max 10MB)</p>
+                    <p className="text-sm text-[#1c180d] mb-2">
+                      Upload your assignment file
+                    </p>
+                    <p className="text-xs text-[#9e8747] mb-4">
+                      Supported formats: PDF, DOC, DOCX, TXT (Max 10MB)
+                    </p>
                     <Input
                       id="file"
                       type="file"
@@ -214,7 +259,11 @@ export default function UploadPage() {
                       className="border-[#e9e2ce] bg-[#fcfbf8]"
                     />
                   </div>
-                  {file && <p className="text-sm text-[#1c180d]">Selected: {file.name}</p>}
+                  {file && (
+                    <p className="text-sm text-[#1c180d]">
+                      Selected: {file.name}
+                    </p>
+                  )}
                 </div>
 
                 <div className="flex gap-4">
@@ -247,5 +296,5 @@ export default function UploadPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }

@@ -1,5 +1,8 @@
 const { db } = require("../database/sqlite");
-
+const { s3 } = require("../aws/s3Client");
+const fs = require("fs");
+const path = require("path");
+const { uploadFileToS3 } = require("../aws/s3Utils");
 const getAssignments = (req, res) => {
   // Remove expired, unsolved assignments
   const now = new Date().toISOString();
@@ -24,7 +27,7 @@ const getAssignmentById = (req, res) => {
   res.json(row);
 };
 
-const createAssignment = (req, res) => {
+const createAssignment = async (req, res) => {
   // Validate fields manually since express-validator won't work with multipart/form-data
   const {
     title,
@@ -50,6 +53,10 @@ const createAssignment = (req, res) => {
   let fileUrl = "";
   if (req.file) {
     fileUrl = `/uploads/${req.file.filename}`;
+    await uploadFileToS3(
+      path.join(__dirname, "../uploads", req.file.filename),
+      req.file.filename
+    );
   }
 
   const id = Date.now().toString();
