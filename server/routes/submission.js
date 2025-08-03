@@ -3,6 +3,7 @@ const {
   getSubmissions,
   createSubmission,
   rateSubmission,
+  downloadSubmission,
 } = require("../controllers/submissionController");
 const multer = require("multer");
 const path = require("path");
@@ -29,5 +30,6 @@ const upload = multer({ storage });
 router.get("/", getSubmissions);
 router.post("/", upload.single("file"), createSubmission);
 router.patch("/:id/rate", rateSubmission);
+router.get("/download", downloadSubmission);
 
 module.exports = router;

@@ -10,4 +10,8 @@ AWS.config.update({
 
 const s3 = new AWS.S3();
 
-module.exports = { s3 };
+const awsFolders = {
+  assignments: "assignments",
+  submissions: "submissions",
+};
+module.exports = { s3, awsFolders };

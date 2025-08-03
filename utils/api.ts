@@ -1,4 +1,7 @@
-import type { Assignment, Submission, User } from "@/types/assignment";
+import type { Assignment } from "@/types/assignment";
+import type { Submission } from "@/types/submission";
+import type { User } from "@/types/user";
+import type { Notification } from "@/types/notification";
 
 const API_BASE = "http://localhost:4000";
 
@@ -15,10 +18,6 @@ export async function uploadAssignment(data: any): Promise<any> {
         formData.append(key, String(value)); // Force all non-file fields to string
       }
     });
-    // Debug: Log all FormData entries
-    for (let pair of formData.entries()) {
-      console.log(pair[0] + ": " + pair[1]);
-    }
     body = formData;
 
     const res = await fetch("http://localhost:4000/assignments", {

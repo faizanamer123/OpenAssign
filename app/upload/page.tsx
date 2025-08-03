@@ -88,7 +88,7 @@ export default function UploadPage() {
         title: "Success!",
         description: "Your assignment has been uploaded successfully.",
       });
-      // router.push("/activity")
+      router.replace("/activity");
     } catch (error) {
       toast({
         title: "Error",

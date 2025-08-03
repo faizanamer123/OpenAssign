@@ -1,4 +1,7 @@
 const { db } = require("../database/sqlite");
+const { uploadFileToS3, getFileFromS3 } = require("../aws/s3Utils");
+const { awsFolders } = require("../aws/s3Client");
+const path = require("path");
 
 const getSubmissions = (req, res) => {
   const { assignmentId, userId } = req.query;
@@ -42,14 +45,21 @@ const createSubmission = async (req, res) => {
   }
 
   let fileUrl = "";
+  let awsfileKey = "";
+  let awsFileUrl = "";
   if (req.file) {
     fileUrl = `/uploads/${req.file.filename}`;
+    awsFileUrl = await uploadFileToS3(
+      path.join(__dirname, "../uploads", req.file.filename),
+      `${awsFolders.submissions}/${req.file.filename}`
+    );
+    awsfileKey = `${awsFolders.submissions}/${req.file.filename}`;
   }
 
   const id = Date.now().toString();
 
   db.prepare(
-    `INSERT INTO submissions (id, assignmentId, submittedBy, submittedByUsername, fileUrl, explanation, submittedAt, rating, ratedBy) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
+    `INSERT INTO submissions (id, assignmentId, submittedBy, submittedByUsername, fileUrl, explanation, submittedAt, rating, ratedBy, awsfileKey, awsfileUrl) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
   ).run(
     id,
     assignmentId,
@@ -59,41 +69,12 @@ const createSubmission = async (req, res) => {
     explanation,
     new Date().toISOString(),
     rating || null,
-    ratedBy || null
+    ratedBy || null,
+    awsfileKey,
+    awsFileUrl
   );
 
   const row = db.prepare("SELECT * FROM submissions WHERE id = ?").get(id);
-
-  // Notify assignment creator
-  try {
-    const assignment = db
-      .prepare("SELECT * FROM assignments WHERE id = ?")
-      .get(assignmentId);
-
-    if (assignment) {
-      const creator = db
-        .prepare("SELECT * FROM users WHERE id = ?")
-        .get(assignment.createdBy);
-
-      if (creator && creator.email) {
-        const assignmentUrl = `http://localhost:3000/assignment/${assignment.id}`;
-        const subject = `Your assignment "${assignment.title}" has been solved!`;
-        const message = `Hi ${creator.username},\n\nGood news! Your assignment "${assignment.title}" has received a new solution.\n\nYou can review and download the solution here: ${assignmentUrl}\n\nThank you for using OpenAssign!\n\nBest regards,\nThe OpenAssign Team`;
-        const html = `
-          <div style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto; background: #fcfbf8; border-radius: 8px; border: 1px solid #e9e2ce; padding: 32px;">
-            <h2 style="color: #1c180d;">🎉 Your assignment has been solved!</h2>
-            <p style="color: #9e8747;">Hi <b>${creator.username}</b>,</p>
-            <p style="color: #1c180d;">Good news! Your assignment <b>\"${assignment.title}\"</b> has received a new solution.</p>
-            <a href="${assignmentUrl}" style="display: inline-block; margin: 24px 0; padding: 12px 24px; background: linear-gradient(90deg, #fac638, #e6b332); color: #1c180d; border-radius: 6px; text-decoration: none; font-weight: bold;">View Solution</a>
-            <p style="color: #9e8747;">Thank you for using <b>OpenAssign</b>!<br/>Best regards,<br/>The OpenAssign Team</p>
-          </div>
-        `;
-        // TODO: Add actual email sending logic
-      }
-    }
-  } catch (e) {
-    console.error("Failed to send solved notification email:", e);
-  }
 
   res.status(201).json(row);
 };
@@ -146,8 +127,44 @@ const rateSubmission = (req, res) => {
   res.json({ success: true });
 };
 
+const downloadSubmission = (req, res) => {
+  const { email, fileId } = req.query;
+
+  if (!email || !fileId) {
+    return res.status(400).send("Missing email or fileId");
+  }
+
+  const query = db.prepare("SELECT * FROM users WHERE email = ?");
+  const user = query.get(email);
+
+  if (!user) {
+    return res.status(400).send("User not found");
+  }
+
+  const fileQuery = db.prepare(
+    "SELECT awsfileKey FROM submissions WHERE id = ?"
+  );
+  const submission = fileQuery.get(fileId);
+
+  if (!submission) {
+    return res.status(404).send("Submissions not found");
+  }
+
+  if (!submission.awsfileKey) {
+    return res.status(404).send("Submission has no file attached");
+  }
+
+  try {
+    getFileFromS3(submission.awsfileKey, res);
+  } catch (error) {
+    console.error("Error in getFileFromS3:", error);
+    res.status(500).send("Error retrieving file from S3");
+  }
+};
+
 module.exports = {
   getSubmissions,
   createSubmission,
   rateSubmission,
+  downloadSubmission,
 };

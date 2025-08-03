@@ -51,6 +51,8 @@ import {
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
 import { da } from "date-fns/locale";
+import { getFileTypeInfo } from "@/utils/file-type";
+import { Submission } from "@/types/submission";
 
 export default function AssignmentDetailPage() {
   const params = useParams();
@@ -62,8 +64,7 @@ export default function AssignmentDetailPage() {
   const [showSubmitDialog, setShowSubmitDialog] = useState(false);
   const [solution, setSolution] = useState("");
   const [solutionFile, setSolutionFile] = useState<File | null>(null);
-  const [assignmentFile, setAssignmentFile] = useState<File | null>(null);
-  const [submissions, setSubmissions] = useState<any[]>([]);
+  const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [ratingDialog, setRatingDialog] = useState<{
     open: boolean;
     submissionId: string | null;
@@ -72,10 +73,12 @@ export default function AssignmentDetailPage() {
   const [selectedRating, setSelectedRating] = useState<number>(5);
   const [leaderboard, setLeaderboard] = useState<any[]>([]);
   const [editDescription, setEditDescription] = useState("");
+  const [downloadLoader, setDownloadLoader] = useState(false);
 
   const loadAssignment = async (id: string) => {
     try {
       const data = await getAssignment(id);
+      console.log(data);
       setAssignment(data);
     } catch (error) {
       console.error("Failed to load assignment:", error);
@@ -217,28 +220,12 @@ export default function AssignmentDetailPage() {
 
   function getFileTypeIcon(filename: string) {
     if (!filename) return null;
-    const ext = filename.split(".").pop()?.toLowerCase();
-    switch (ext) {
-      case "pdf":
-        return <span className="inline-block text-red-500 font-bold">PDF</span>;
-      case "doc":
-      case "docx":
-        return (
-          <span className="inline-block text-blue-700 font-bold">DOC</span>
-        );
-      case "txt":
-        return (
-          <span className="inline-block text-gray-500 font-bold">TXT</span>
-        );
-      case "zip":
-        return (
-          <span className="inline-block text-yellow-600 font-bold">ZIP</span>
-        );
-      default:
-        return (
-          <span className="inline-block text-gray-400 font-bold">FILE</span>
-        );
-    }
+    const fileInfo = getFileTypeInfo(filename);
+    return (
+      <span className={`inline-block ${fileInfo.color} font-bold`}>
+        {fileInfo.icon}
+      </span>
+    );
   }
 
   if (loading) {
@@ -275,29 +262,50 @@ export default function AssignmentDetailPage() {
     !isExpired &&
     assignment.createdBy !== user.id;
 
-  async function handleDownload(): Promise<void> {
-    if (!assignment?.fileUrl || !user?.email) return;
+  async function handleDownload(
+    url: string,
+    query: URLSearchParams
+  ): Promise<void> {
+    setDownloadLoader(true);
+    const response = await fetch(`${url}?${query.toString()}`);
 
-    // Build the query string
-    const query = new URLSearchParams({
-      email: user.email,
-      filePath: assignment.fileUrl,
-    });
-    const response = await fetch(
-      `http://localhost:4000/assignments/download?${query.toString()}`
-    );
+    if (!response.ok) {
+      console.error("Failed to download file");
+      setDownloadLoader(false);
+      return;
+    }
 
-    const data = await response.blob();
-    const downloadUrl = window.URL.createObjectURL(data);
+    const blob = await response.blob();
+    const downloadUrl = window.URL.createObjectURL(blob);
+
     const a = document.createElement("a");
     a.href = downloadUrl;
 
-    a.download = assignment.fileUrl.split("/").pop() ?? "unknown"; // Extracts filename from the path
+    // Get filename from Content-Disposition header or use assignment title
+    const contentDisposition = response.headers.get("content-disposition");
+    let fileName = "downloaded-file";
+
+    if (contentDisposition) {
+      const filenameMatch = contentDisposition.match(/filename="([^"]+)"/);
+      if (filenameMatch) {
+        fileName = filenameMatch[1];
+      }
+      // } else {
+      //   // Fallback: use assignment title with appropriate extension
+      //   const fileExtension = assignment.awsfileUrl.split(".").pop() || "";
+      //   fileName = `${assignment.title.replace(
+      //     /[^a-zA-Z0-9]/g,
+      //     "_"
+      //   )}.${fileExtension}`;
+    }
+
+    a.download = fileName;
     document.body.appendChild(a);
     a.click();
-    console.log(data);
+    a.remove();
 
-    // Create a temporary <a> to trigger the download
+    window.URL.revokeObjectURL(downloadUrl); // Cleanup
+    setDownloadLoader(false);
   }
 
   return (
@@ -476,17 +484,30 @@ export default function AssignmentDetailPage() {
                   <span>Posted by {assignment.createdByUsername}</span>
                 </div>
               </div>
-
+              <div className="h-8"></div>
               {/* Assignment File Download */}
-              {assignment?.fileUrl && (
+              {assignment?.awsfileUrl && (
                 <Button
                   type="button"
-                  onClick={() => handleDownload()}
+                  onClick={() =>
+                    handleDownload(
+                      "http://localhost:4000/assignments/download",
+                      new URLSearchParams({
+                        email: user.email,
+                        fileId: assignment.id,
+                      })
+                    )
+                  }
                   className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#fac638] to-[#e6b332] text-[#1c180d] rounded-lg font-semibold shadow hover:from-[#e6b332] hover:to-[#fac638] transition-all duration-200 mb-4"
                 >
-                  <Download className="h-5 w-5" />
-                  {getFileTypeIcon(assignment.fileUrl)}
-                  Download Assignment File
+                  {downloadLoader ? (
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                  ) : (
+                    <>
+                      <Download className="h-5 w-5" />
+                      Download Assignment File
+                    </>
+                  )}
                 </Button>
               )}
             </CardContent>
@@ -692,19 +713,31 @@ export default function AssignmentDetailPage() {
                                   Rate Solution
                                 </Button>
                               )}
+                            <div className="h-8"></div>
                             {/* Submission File Download */}
                             {submission.fileUrl && (
-                              <a
-                                href={`http://localhost:4000/files/${submission.fileUrl}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="inline-flex items-center gap-2 px-3 py-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded font-medium shadow hover:from-blue-600 hover:to-blue-500 transition-all duration-200 mt-2"
-                                download
+                              <Button
+                                type="button"
+                                onClick={() =>
+                                  handleDownload(
+                                    "http://localhost:4000/submissions/download",
+                                    new URLSearchParams({
+                                      email: user.email,
+                                      fileId: submission.id,
+                                    })
+                                  )
+                                }
+                                className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#fac638] to-[#e6b332] text-[#1c180d] rounded-lg font-semibold shadow hover:from-[#e6b332] hover:to-[#fac638] transition-all duration-200 mb-4"
                               >
-                                <Download className="h-4 w-4" />
-                                {getFileTypeIcon(submission.fileUrl)}
-                                Download Solution
-                              </a>
+                                {downloadLoader ? (
+                                  <Loader2 className="h-5 w-5 animate-spin" />
+                                ) : (
+                                  <>
+                                    <Download className="h-5 w-5" />
+                                    Download Solution
+                                  </>
+                                )}
+                              </Button>
                             )}
                           </div>
                           <div className="ml-4">

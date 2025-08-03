@@ -1,8 +1,8 @@
 const { db } = require("../database/sqlite");
-const { s3 } = require("../aws/s3Client");
+const { awsFolders } = require("../aws/s3Client");
 const fs = require("fs");
 const path = require("path");
-const { uploadFileToS3 } = require("../aws/s3Utils");
+const { uploadFileToS3, getFileFromS3 } = require("../aws/s3Utils");
 const getAssignments = (req, res) => {
   // Remove expired, unsolved assignments
   const now = new Date().toISOString();
@@ -50,19 +50,21 @@ const createAssignment = async (req, res) => {
     return res.status(400).json({ error: "Missing required fields" });
   }
 
-  let fileUrl = "";
+  let awsFileUrl = "-";
+  let awsfileKey = null;
+
   if (req.file) {
-    fileUrl = `/uploads/${req.file.filename}`;
-    await uploadFileToS3(
+    awsFileUrl = await uploadFileToS3(
       path.join(__dirname, "../uploads", req.file.filename),
-      req.file.filename
+      `${awsFolders.assignments}/${req.file.filename}`
     );
+    awsfileKey = `${awsFolders.assignments}/${req.file.filename}`;
   }
 
   const id = Date.now().toString();
 
   db.prepare(
-    `INSERT INTO assignments (id, title, description, difficulty, deadline, status, createdBy, createdByUsername, subject, fileUrl, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+    `INSERT INTO assignments (id, title, description, difficulty, deadline, status, createdBy, createdByUsername, subject, awsfileUrl, awsfileKey, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
   ).run(
     id,
     title,
@@ -73,7 +75,8 @@ const createAssignment = async (req, res) => {
     createdBy,
     createdByUsername,
     subject,
-    fileUrl,
+    awsFileUrl,
+    awsfileKey,
     new Date().toISOString()
   );
 
@@ -83,10 +86,10 @@ const createAssignment = async (req, res) => {
 };
 
 const downloadAssignmentFile = (req, res) => {
-  const { email, filePath } = req.query;
+  const { email, fileId } = req.query;
 
-  if (!filePath) {
-    return res.status(400).send("Missing filePath");
+  if (!email || !fileId) {
+    return res.status(400).send("Missing email or fileId");
   }
 
   const query = db.prepare("SELECT * FROM users WHERE email = ?");
@@ -96,12 +99,25 @@ const downloadAssignmentFile = (req, res) => {
     return res.status(400).send("User not found");
   }
 
-  return res.download(`./${filePath}`, (err) => {
-    if (err) {
-      console.error("Download error:", err);
-      return res.status(500).json({ error: "Failed to download file" });
-    }
-  });
+  const fileQuery = db.prepare(
+    "SELECT awsfileKey FROM assignments WHERE id = ?"
+  );
+  const assignment = fileQuery.get(fileId);
+
+  if (!assignment) {
+    return res.status(404).send("Assignment not found");
+  }
+
+  if (!assignment.awsfileKey) {
+    return res.status(404).send("Assignment has no file attached");
+  }
+
+  try {
+    getFileFromS3(assignment.awsfileKey, res);
+  } catch (error) {
+    console.error("Error in getFileFromS3:", error);
+    res.status(500).send("Error retrieving file from S3");
+  }
 };
 
 module.exports = {
