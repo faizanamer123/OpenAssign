@@ -13,7 +13,9 @@ export async function uploadAssignment(data: any): Promise<any> {
     const formData = new FormData();
     Object.entries(data).forEach(([key, value]) => {
       if (key === "file") {
-        if (value) formData.append("file", value);
+        if (value instanceof File || value instanceof Blob) {
+          formData.append("file", value);
+        }
       } else if (value !== undefined && value !== null) {
         formData.append(key, String(value)); // Force all non-file fields to string
       }
@@ -63,7 +65,9 @@ export async function submitSolution(data: any): Promise<any> {
       const formData = new FormData();
       Object.entries(data).forEach(([key, value]) => {
         if (key === "file") {
-          if (value) formData.append("file", value);
+          if (value instanceof File || value instanceof Blob) {
+            formData.append("file", value);
+          }
         } else if (value !== undefined && value !== null) {
           formData.append(key, String(value));
         }
@@ -88,7 +92,7 @@ export async function submitSolution(data: any): Promise<any> {
 }
 
 // Submissions
-export async function getSubmissions(params = {}): Promise<any[]> {
+export async function getSubmissions(params: Record<string, string> = {}): Promise<any[]> {
   const url = new URL("http://localhost:4000/submissions");
   Object.entries(params).forEach(([k, v]) => url.searchParams.append(k, v));
   try {
@@ -99,6 +103,7 @@ export async function getSubmissions(params = {}): Promise<any[]> {
     return [];
   }
 }
+
 export async function uploadSubmission(data: any): Promise<any> {
   try {
     const res = await fetch("http://localhost:4000/submissions", {
@@ -112,8 +117,9 @@ export async function uploadSubmission(data: any): Promise<any> {
     throw error;
   }
 }
+
 // Notifications
-export async function getNotifications(params = {}): Promise<any[]> {
+export async function getNotifications(params: Record<string, string> = {}): Promise<any[]> {
   const url = new URL("http://localhost:4000/notifications");
   Object.entries(params).forEach(([k, v]) => url.searchParams.append(k, v));
   try {
@@ -124,6 +130,7 @@ export async function getNotifications(params = {}): Promise<any[]> {
     return [];
   }
 }
+
 export async function createNotification(data: any): Promise<any> {
   try {
     const res = await fetch("http://localhost:4000/notifications", {
@@ -137,6 +144,7 @@ export async function createNotification(data: any): Promise<any> {
     throw error;
   }
 }
+
 export async function markNotificationRead(id: string): Promise<any> {
   try {
     const res = await fetch(`http://localhost:4000/notifications/${id}/read`, {
@@ -148,6 +156,7 @@ export async function markNotificationRead(id: string): Promise<any> {
     throw error;
   }
 }
+
 // Users
 export async function getUsers(): Promise<any[]> {
   try {
@@ -158,6 +167,7 @@ export async function getUsers(): Promise<any[]> {
     return [];
   }
 }
+
 export async function getUserById(id: string): Promise<any | null> {
   try {
     const res = await fetch(`http://localhost:4000/users/${id}`);
@@ -249,6 +259,7 @@ export async function createUser(data: any): Promise<any> {
     throw error;
   }
 }
+
 export async function getLeaderboard(
   sort: "points" | "rating" = "points"
 ): Promise<any[]> {
