@@ -1,9 +1,4 @@
-import type { Assignment } from "@/types/assignment";
-import type { Submission } from "@/types/submission";
-import type { User } from "@/types/user";
-import type { Notification } from "@/types/notification";
-
-const API_BASE = "http://localhost:4000";
+const API_BASE = process.env.API_BASE || "http://localhost:3000";
 
 export async function uploadAssignment(data: any): Promise<any> {
   try {
@@ -22,7 +17,7 @@ export async function uploadAssignment(data: any): Promise<any> {
     });
     body = formData;
 
-    const res = await fetch("http://localhost:4000/assignments", {
+    const res = await fetch(`${API_BASE}/assignments`, {
       method: "POST",
       body,
       // headers left empty so browser sets Content-Type
@@ -37,7 +32,7 @@ export async function uploadAssignment(data: any): Promise<any> {
 // Assignments
 export async function getAssignments(): Promise<any[]> {
   try {
-    const res = await fetch("http://localhost:4000/assignments");
+    const res = await fetch(`${API_BASE}/assignments`);
     if (!res.ok) throw new Error("Failed to fetch assignments");
     return await res.json();
   } catch {
@@ -47,7 +42,7 @@ export async function getAssignments(): Promise<any[]> {
 
 export async function getAssignment(id: string): Promise<any | null> {
   try {
-    const res = await fetch(`http://localhost:4000/assignments/${id}`);
+    const res = await fetch(`${API_BASE}/assignments/${id}`);
     if (!res.ok) throw new Error("Failed to fetch assignment");
     return await res.json();
   } catch {
@@ -79,7 +74,7 @@ export async function submitSolution(data: any): Promise<any> {
       headers["Content-Type"] = "application/json";
     }
 
-    const res = await fetch("http://localhost:4000/submissions", {
+    const res = await fetch(`${API_BASE}/submissions`, {
       method: "POST",
       body,
       headers,
@@ -92,8 +87,10 @@ export async function submitSolution(data: any): Promise<any> {
 }
 
 // Submissions
-export async function getSubmissions(params: Record<string, string> = {}): Promise<any[]> {
-  const url = new URL("http://localhost:4000/submissions");
+export async function getSubmissions(
+  params: Record<string, string> = {}
+): Promise<any[]> {
+  const url = new URL(`${API_BASE}/submissions`);
   Object.entries(params).forEach(([k, v]) => url.searchParams.append(k, v));
   try {
     const res = await fetch(url.toString());
@@ -106,7 +103,7 @@ export async function getSubmissions(params: Record<string, string> = {}): Promi
 
 export async function uploadSubmission(data: any): Promise<any> {
   try {
-    const res = await fetch("http://localhost:4000/submissions", {
+    const res = await fetch(`${API_BASE}/submissions`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
@@ -119,8 +116,10 @@ export async function uploadSubmission(data: any): Promise<any> {
 }
 
 // Notifications
-export async function getNotifications(params: Record<string, string> = {}): Promise<any[]> {
-  const url = new URL("http://localhost:4000/notifications");
+export async function getNotifications(
+  params: Record<string, string> = {}
+): Promise<any[]> {
+  const url = new URL(`${API_BASE}/notifications`);
   Object.entries(params).forEach(([k, v]) => url.searchParams.append(k, v));
   try {
     const res = await fetch(url.toString());
@@ -133,7 +132,7 @@ export async function getNotifications(params: Record<string, string> = {}): Pro
 
 export async function createNotification(data: any): Promise<any> {
   try {
-    const res = await fetch("http://localhost:4000/notifications", {
+    const res = await fetch(`${API_BASE}/notifications`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
@@ -147,7 +146,7 @@ export async function createNotification(data: any): Promise<any> {
 
 export async function markNotificationRead(id: string): Promise<any> {
   try {
-    const res = await fetch(`http://localhost:4000/notifications/${id}/read`, {
+    const res = await fetch(`${API_BASE}/notifications/${id}/read`, {
       method: "PATCH",
     });
     if (!res.ok) throw new Error("Failed to mark notification as read");
@@ -160,7 +159,7 @@ export async function markNotificationRead(id: string): Promise<any> {
 // Users
 export async function getUsers(): Promise<any[]> {
   try {
-    const res = await fetch("http://localhost:4000/users");
+    const res = await fetch(`${API_BASE}/users`);
     if (!res.ok) throw new Error("Failed to fetch users");
     return await res.json();
   } catch {
@@ -170,7 +169,7 @@ export async function getUsers(): Promise<any[]> {
 
 export async function getUserById(id: string): Promise<any | null> {
   try {
-    const res = await fetch(`http://localhost:4000/users/${id}`);
+    const res = await fetch(`${API_BASE}/users/${id}`);
     if (!res.ok) throw new Error("Failed to fetch user");
     return await res.json();
   } catch {
@@ -188,7 +187,7 @@ export async function sendOTP(email: string): Promise<{
   otp?: string;
 }> {
   try {
-    const res = await fetch("http://localhost:4000/otp/send-otp", {
+    const res = await fetch(`${API_BASE}/otp/send-otp`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email }),
@@ -223,7 +222,7 @@ export async function verifyOTP(
   user?: any;
 }> {
   try {
-    const res = await fetch("http://localhost:4000/otp/verify-otp", {
+    const res = await fetch(`${API_BASE}/otp/verify-otp`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, otp }),
@@ -248,7 +247,7 @@ export async function verifyOTP(
 
 export async function createUser(data: any): Promise<any> {
   try {
-    const res = await fetch("http://localhost:4000/users", {
+    const res = await fetch(`${API_BASE}/users`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
@@ -264,7 +263,7 @@ export async function getLeaderboard(
   sort: "points" | "rating" = "points"
 ): Promise<any[]> {
   try {
-    const res = await fetch(`http://localhost:4000/leaderboard?sort=${sort}`);
+    const res = await fetch(`${API_BASE}/leaderboard?sort=${sort}`);
     if (!res.ok) throw new Error("Failed to fetch leaderboard");
     return await res.json();
   } catch {
@@ -278,14 +277,11 @@ export async function rateSubmission(
   raterId: string
 ): Promise<any> {
   try {
-    const res = await fetch(
-      `http://localhost:4000/submissions/${submissionId}/rate`,
-      {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ rating, raterId }),
-      }
-    );
+    const res = await fetch(`${API_BASE}/submissions/${submissionId}/rate`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ rating, raterId }),
+    });
     if (!res.ok) throw new Error("Failed to rate submission");
     return await res.json();
   } catch (error) {
@@ -334,7 +330,7 @@ export async function getAnalytics() {
 
 export async function checkEmailVerified(email: string): Promise<boolean> {
   try {
-    const res = await fetch("http://localhost:4000/users");
+    const res = await fetch(`${API_BASE}/users`);
     if (!res.ok) return false;
     const users = await res.json();
     const user = users.find((u: any) => u.email === email);

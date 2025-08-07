@@ -54,6 +54,8 @@ import { da } from "date-fns/locale";
 import { getFileTypeInfo } from "@/utils/file-type";
 import { Submission } from "@/types/submission";
 
+const BASE_API = process.env.API_BASE || "http://localhost:3000";
+
 export default function AssignmentDetailPage() {
   const params = useParams();
   const router = useRouter();
@@ -218,16 +220,6 @@ export default function AssignmentDetailPage() {
     }
   };
 
-  function getFileTypeIcon(filename: string) {
-    if (!filename) return null;
-    const fileInfo = getFileTypeInfo(filename);
-    return (
-      <span className={`inline-block ${fileInfo.color} font-bold`}>
-        {fileInfo.icon}
-      </span>
-    );
-  }
-
   if (loading) {
     return (
       <div className="min-h-screen bg-[#fcfbf8]">
@@ -290,13 +282,6 @@ export default function AssignmentDetailPage() {
       if (filenameMatch) {
         fileName = filenameMatch[1];
       }
-      // } else {
-      //   // Fallback: use assignment title with appropriate extension
-      //   const fileExtension = assignment.awsfileUrl.split(".").pop() || "";
-      //   fileName = `${assignment.title.replace(
-      //     /[^a-zA-Z0-9]/g,
-      //     "_"
-      //   )}.${fileExtension}`;
     }
 
     a.download = fileName;
@@ -491,7 +476,7 @@ export default function AssignmentDetailPage() {
                   type="button"
                   onClick={() =>
                     handleDownload(
-                      "http://localhost:4000/assignments/download",
+                      `${BASE_API}/assignments/download`,
                       new URLSearchParams({
                         email: user.email,
                         fileId: assignment.id,
@@ -720,7 +705,7 @@ export default function AssignmentDetailPage() {
                                 type="button"
                                 onClick={() =>
                                   handleDownload(
-                                    "http://localhost:4000/submissions/download",
+                                    `${BASE_API}/submissions/download`,
                                     new URLSearchParams({
                                       email: user.email,
                                       fileId: submission.id,

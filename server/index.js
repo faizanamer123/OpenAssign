@@ -18,7 +18,7 @@ const submissionRoutes = require("./routes/submission");
 const otpRoutes = require("./routes/otp");
 
 const app = express();
-const PORT = 4000;
+const PORT = process.env.PORT || 3000;
 
 // CORS should be the very first middleware
 app.use(
@@ -51,12 +51,18 @@ app.use("/notifications", notificationRoutes);
 app.use("/submissions", submissionRoutes);
 app.use("/otp", otpRoutes);
 
+// --- Root route ---
+app.get("/", (req, res) => {
+  console.log("Root route hit");
+  res.send("Welcome to the OpenAssign API!");
+});
+
 // --- Error handling middleware ---
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({ error: "Internal Server Error" });
 });
 
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`Server running on http://0.0.0.0:${PORT}`);
 });
