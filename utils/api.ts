@@ -1,4 +1,6 @@
-const API_BASE = process.env.API_BASE || "http://localhost:3000";
+import { getApiBaseUrl } from '../config/api';
+
+const API_BASE = getApiBaseUrl();
 
 export async function uploadAssignment(data: any): Promise<any> {
   try {
