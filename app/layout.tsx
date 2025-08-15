@@ -20,7 +20,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+        <link rel="icon" href="/OpenAssign.png"  type="image/png" />
       </head>
       <body className={inter.className}>
         <AuthProvider>

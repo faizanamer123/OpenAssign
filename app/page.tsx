@@ -17,13 +17,13 @@ import { toast } from "@/hooks/use-toast";
 import { sendOTP, verifyOTP, checkEmailVerified } from "@/utils/api";
 import {
   Loader2,
-  Star,
   Trophy,
   ArrowRight,
   Sparkles,
   Shield,
   Zap,
   BookOpen,
+  PartyPopper,
   Award,
   TrendingUp,
   CheckCircle,
@@ -32,6 +32,7 @@ import {
   Lock,
 } from "lucide-react";
 import { sendOtpEmail } from "@/lib/sendOtpEmail";
+import Logo from "@/components/ui/Logo";
 
 export default function LandingPage() {
   const [email, setEmail] = useState("");
@@ -72,9 +73,17 @@ export default function LandingPage() {
       if (verified) {
         await signInWithEmail(email);
         await router.replace("/home");
+        // toast({
+        //   title: "Welcome back! 🎉",
+        //   description: "You've been signed in successfully.",
+        // });
         toast({
-          title: "Welcome back! 🎉",
-          description: "You've been signed in successfully.",
+          description: (
+            <div className="flex items-center gap-2">
+              <PartyPopper className="w-5 h-5 text-yellow-500" />
+              <span>You've been signed in successfully.</span>
+            </div>
+          ),
         });
         setSendingOtp(false);
         return;
@@ -92,10 +101,19 @@ export default function LandingPage() {
         });
         setOtpSent(true);
         setCountdown(60);
-        toast({
-          title: "OTP Sent! 📧",
-          description: "Check your email for the verification code.",
-        });
+        // toast({
+        //   title: "OTP Sent! 📧",
+        //   description: "Check your email for the verification code.",
+        // });
+      toast({
+        title: (
+          <div className="flex items-center gap-2">
+            <Mail className="w-5 h-5 text-yellow-500" />
+            <span>OTP Sent!</span>
+          </div>
+        ),
+        description: "Check your email for the verification code.",
+      });
       } else {
         toast({
           title: "Failed to send OTP",
@@ -133,9 +151,17 @@ export default function LandingPage() {
         await signInWithEmail(email);
         router.push("/home");
         setTimeout(() => {
-          toast({
-            title: "Welcome! 🎉",
-            description: "You've been signed in successfully.",
+          // toast({
+          //   title: "Welcome! 🎉",
+          //   description: "You've been signed in successfully.",
+          // });
+        toast({
+            description: (
+              <div className="flex items-center gap-2">
+                <PartyPopper className="w-5 h-5 text-yellow-500" />
+                <span>You've been signed in successfully.</span>
+              </div>
+            ),
           });
         }, 100);
       } else {
@@ -172,10 +198,15 @@ export default function LandingPage() {
         });
         setCountdown(60);
         setOtp(""); // Clear OTP input after resend
-        toast({
-          title: "OTP Resent! 📧",
-          description: "Check your email for the new verification code.",
-        });
+      toast({
+        title: (
+          <div className="flex items-center gap-2">
+            <Mail className="w-5 h-5 text-yellow-500" />
+            <span>OTP Sent!</span>
+          </div>
+        ),
+        description: "Check your email for the verification code.",
+      });
       } else {
         toast({
           title: "Failed to resend OTP",
@@ -202,10 +233,19 @@ export default function LandingPage() {
     try {
       await signInWithEmail(email);
       await router.replace("/home");
+      // toast({
+      //   title: "Welcome to OpenAssign! 🎉",
+      //   description: "You've been signed in successfully. Let's get started!",
+      // });
       toast({
-        title: "Welcome to OpenAssign! 🎉",
-        description: "You've been signed in successfully. Let's get started!",
-      });
+      title: (
+        <div className="flex items-center gap-2">
+          <PartyPopper className="w-5 h-5 text-yellow-500" />
+          <span>Welcome to OpenAssign!</span>
+        </div>
+      ),
+      description: "You've been signed in successfully. Let's get started!",
+    });
     } catch (error) {
       toast({
         title: "Oops! Something went wrong",
@@ -244,17 +284,7 @@ export default function LandingPage() {
       {/* Header */}
       <header className="relative z-10 glass-effect border-b border-[#f4f0e6]/50 px-4 sm:px-6 lg:px-10 py-4">
         <div className="flex items-center justify-between max-w-7xl mx-auto">
-          <div className="flex items-center gap-3 text-[#1c180d]">
-            <div className="relative">
-              <div className="size-8 bg-gradient-to-br from-[#fac638] to-[#e6b332] rounded-lg flex items-center justify-center shadow-lg">
-                <Star className="w-5 h-5 text-[#1c180d]" />
-              </div>
-              <div className="absolute -top-1 -right-1 w-3 h-3 bg-[#fac638] rounded-full pulse-glow"></div>
-            </div>
-            <h1 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-[#1c180d] to-[#9e8747] bg-clip-text text-transparent">
-              OpenAssign
-            </h1>
-          </div>
+          <Logo href="/" variant="large" logoSize={56} />
         </div>
       </header>
 
@@ -393,7 +423,7 @@ export default function LandingPage() {
                           setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))
                         }
                         maxLength={6}
-                        className="h-12 border-[#e9e2ce] bg-white/50 focus:border-[#fac638] focus:ring-2 focus:ring-[#fac638]/20 transition-all text-center text-lg font-mono"
+                        className="h-12 border[#e9e2ce] bg-white/50 focus:border-[#fac638] focus:ring-2 focus:ring-[#fac638]/20 transition-all text-center text-lg font-mono"
                       />
                       <p className="text-sm text-[#9e8747] text-center">
                         Code sent to{" "}
@@ -522,10 +552,10 @@ export default function LandingPage() {
             ].map((feature, i) => (
               <Card
                 key={feature.title}
-                className={`border-[#e9e2ce]/50 bg-white/70 backdrop-blur-md card-hover animate-slide-up rounded-2xl shadow-md hover:shadow-xl transition-shadow duration-300 group`}
+                className={`border-[#e9e2ce]/50 bg:white/70 backdrop-blur-md card-hover animate-slide-up rounded-2xl shadow-md hover:shadow-xl transition-shadow duration-300 group`}
                 style={{ animationDelay: `${0.2 + i * 0.2}s` }}
               >
-                <CardContent className="p-8 text-center">
+                <CardContent className="px-8 py-8 text-center">
                   <div
                     className={`mx-auto w-16 h-16 bg-gradient-to-br ${feature.color} rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform shadow-lg`}
                   >
@@ -557,3 +587,5 @@ export default function LandingPage() {
     </div>
   );
 }
+
+

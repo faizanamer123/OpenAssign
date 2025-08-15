@@ -8,7 +8,13 @@ export async function uploadAssignment(data: any): Promise<any> {
 
     // Use FormData for all fields (file optional)
     const formData = new FormData();
-    Object.entries(data).forEach(([key, value]) => {
+    // Normalize deadline to ISO string to prevent server-side deletion of "expired" uploads
+    const normalized: Record<string, any> = { ...data };
+    if (normalized.deadline) {
+      const d = new Date(normalized.deadline);
+      if (!Number.isNaN(d.getTime())) normalized.deadline = d.toISOString();
+    }
+    Object.entries(normalized).forEach(([key, value]) => {
       if (key === "file") {
         if (value instanceof File || value instanceof Blob) {
           formData.append("file", value);

@@ -1,33 +1,69 @@
+"use client";
+
 import React from "react";
 import Link from "next/link";
-import { Star } from "lucide-react";
+import Image from "next/image";
+import { useAuth } from "@/context/AuthContext";
 
 interface LogoProps {
   className?: string;
   textClassName?: string;
-  iconSize?: number;
-  dotSize?: number;
+  logoSize?: number;
   href?: string;
+  showText?: boolean;
+  variant?: "default" | "compact" | "large";
 }
 
 export default function Logo({
   className = "",
   textClassName = "",
-  iconSize = 8,
-  dotSize = 3,
-  href = "/home",
+  logoSize = 44,
+  href,
+  showText = true,
+  variant = "default",
 }: LogoProps) {
+  const { user } = useAuth();
+  
+  // Determine the appropriate href based on authentication state
+  const getHref = () => {
+    if (href) return href; // If href is explicitly provided, use it
+    return user ? "/home" : "/"; // If logged in, go to home; if not, go to landing
+  };
+
+  const getTextSize = () => {
+    switch (variant) {
+      case "compact":
+        return "text-base";
+      case "large":
+        return "text-xl sm:text-2xl";
+      default:
+        return "text-lg sm:text-xl";
+    }
+  };
+
   return (
-    <Link href={href} className={`flex items-center gap-3 text-[#1c180d] group ${className}`} aria-label="OpenAssign Home">
-      <div className="relative">
-        <div className={`size-${iconSize} bg-gradient-to-br from-[#fac638] to-[#e6b332] rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform`}>
-          <Star className="w-5 h-5 text-[#1c180d]" />
-        </div>
-        <div className={`absolute -top-1 -right-1 w-${dotSize} h-${dotSize} bg-[#fac638] rounded-full pulse-glow`}></div>
+    <Link
+      href={getHref()}
+      className={`flex items-center text-[#1c180d] group transition-all duration-200 hover:scale-105 ${className}`}
+      aria-label="OpenAssign Home"
+    >
+      <div className="relative flex-shrink-0">
+        <Image
+          src="/OpenAssign.svg"
+          alt="OpenAssign Logo"
+          width={logoSize}
+          height={logoSize}
+          className="block drop-shadow-sm group-hover:drop-shadow-md transition-all duration-200"
+          priority
+        />
       </div>
-      <span className={`text-xl font-bold bg-gradient-to-r from-[#1c180d] to-[#9e8747] bg-clip-text text-transparent ${textClassName}`}>
-        OpenAssign
-      </span>
+      {showText && (
+        <span
+          className={`-ml-1 font-bold bg-gradient-to-r from-[#1c180d] to-[#9e8747] bg-clip-text text-transparent ${getTextSize()} ${textClassName}`}
+        >
+          OpenAssign
+        </span>
+      )}
     </Link>
   );
-} 
+}

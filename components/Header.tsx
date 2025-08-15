@@ -16,9 +16,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetDescription } from "@/components/ui/sheet"
-import { Search, Bell, Star, Upload, LogOut, Activity, Trophy, Menu, User, Settings, HelpCircle, BarChart2 } from "lucide-react"
+import { Search, Bell, Upload, LogOut, Activity, Trophy, Menu, User, Settings, HelpCircle, BarChart2 } from "lucide-react"
 import { useAuth } from "@/context/AuthContext"
-import { getNotifications } from "@/utils/api";
+import { getNotifications, getLeaderboard } from "@/utils/api"
+import Logo from "@/components/ui/Logo"
 
 export default function Header() {
   const { user, signOut } = useAuth()
@@ -27,6 +28,7 @@ export default function Header() {
   const [searchTerm, setSearchTerm] = useState("")
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [unreadCount, setUnreadCount] = useState(0);
+  const [userStats, setUserStats] = useState({ points: 0, rank: 0 });
 
   useEffect(() => {
     async function fetchNotifs() {
@@ -36,6 +38,27 @@ export default function Header() {
       }
     }
     fetchNotifs();
+  }, [user]);
+
+  useEffect(() => {
+    async function fetchUserStats() {
+      if (user) {
+        try {
+          const leaderboard = await getLeaderboard("points");
+          const userEntry = leaderboard.find((u: any) => u.id === user.id);
+          if (userEntry) {
+            const rank = leaderboard.findIndex((u: any) => u.id === user.id) + 1;
+            setUserStats({
+              points: userEntry.points || 0,
+              rank: rank
+            });
+          }
+        } catch (error) {
+          console.error("Failed to fetch user stats:", error);
+        }
+      }
+    }
+    fetchUserStats();
   }, [user]);
 
   const handleSignOut = async () => {
@@ -66,22 +89,12 @@ export default function Header() {
     <header className="sticky top-0 z-50 glass-effect border-b border-[#f4f0e6]/50 px-4 sm:px-6 lg:px-10 py-4">
       <div className="flex items-center justify-between max-w-7xl mx-auto">
         {/* Logo */}
-        <Link href="/home" className="flex items-center gap-3 text-[#1c180d] group">
-          <div className="relative">
-            <div className="size-8 bg-gradient-to-br from-[#fac638] to-[#e6b332] rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
-              <Star className="w-5 h-5 text-[#1c180d]" />
-            </div>
-            <div className="absolute -top-1 -right-1 w-3 h-3 bg-[#fac638] rounded-full pulse-glow"></div>
-          </div>
-          <h1 className="text-xl font-bold bg-gradient-to-r from-[#1c180d] to-[#9e8747] bg-clip-text text-transparent">
-            OpenAssign
-          </h1>
-        </Link>
+        <Logo href="/home" variant="default" logoSize={48} />
 
         {/* Desktop Navigation */}
         <nav className="hidden lg:flex items-center gap-1">
           {navItems.map((item) => (
-            <Link key={item.href} href={item.href}>
+            <Link key={item.href} href={item.href} prefetch={false}>
               <Button
                 variant="ghost"
                 className={`text-sm font-medium transition-all duration-200 ${
@@ -100,7 +113,7 @@ export default function Header() {
         {/* Right Section */}
         <div className="flex items-center gap-3">
           {/* Upload Button */}
-          <Link href="/upload">
+          <Link href="/upload" prefetch={false}>
             <Button className="bg-gradient-to-r from-[#fac638] to-[#e6b332] text-[#1c180d] hover:from-[#e6b332] hover:to-[#fac638] font-semibold transition-all duration-300 transform hover:scale-105 hidden sm:flex">
               <Upload className="h-4 w-4 mr-2" />
               Upload
@@ -108,7 +121,7 @@ export default function Header() {
           </Link>
 
           {/* Notifications */}
-          <Link href="/notifications">
+          <Link href="/notifications" prefetch={false}>
             <Button variant="ghost" size="icon" className="text-[#1c180d] hover:bg-[#f4f0e6]/50 relative">
               <Bell className="h-5 w-5" />
               {unreadCount > 0 && (
@@ -130,7 +143,7 @@ export default function Header() {
                 </Avatar>
                 <div className="text-left hidden lg:block">
                   <div className="text-sm font-semibold">{user.username}</div>
-                  <div className="text-xs text-[#9e8747]">{user.points || 0} points</div>
+                  <div className="text-xs text-[#9e8747]">{userStats.points || 0} points</div>
                 </div>
               </Button>
             </DropdownMenuTrigger>
@@ -144,31 +157,31 @@ export default function Header() {
                   </Avatar>
                   <div>
                     <div className="font-semibold text-[#1c180d]">{user.username}</div>
-                    <div className="text-sm text-[#9e8747]">{user.points || 0} points • Rank #15</div>
+                    <div className="text-sm text-[#9e8747]">{userStats.points || 0} points • Rank #{userStats.rank}</div>
                   </div>
                 </div>
               </div>
 
               <DropdownMenuItem asChild>
-                <Link href="/activity" className="flex items-center gap-2 cursor-pointer">
+                <Link href="/activity" prefetch={false} className="flex items-center gap-2 cursor-pointer">
                   <Activity className="h-4 w-4" />
                   My Activity
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
-                <Link href="/leaderboard" className="flex items-center gap-2 cursor-pointer">
+                <Link href="/leaderboard" prefetch={false} className="flex items-center gap-2 cursor-pointer">
                   <Trophy className="h-4 w-4" />
                   Leaderboard
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
-                <Link href="/analytics" className="flex items-center gap-2 cursor-pointer">
+                <Link href="/analytics" prefetch={false} className="flex items-center gap-2 cursor-pointer">
                   <BarChart2 className="h-4 w-4" />
                   Analytics
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
-                <Link href="/notifications" className="flex items-center gap-2 cursor-pointer">
+                <Link href="/notifications" prefetch={false} className="flex items-center gap-2 cursor-pointer">
                   <Bell className="h-4 w-4" />
                   Notifications
                   {unreadCount > 0 && (
@@ -210,14 +223,14 @@ export default function Header() {
                   </Avatar>
                   <div>
                     <div className="font-semibold text-[#1c180d]">{user.username}</div>
-                    <div className="text-sm text-[#9e8747]">{user.points || 0} points</div>
+                    <div className="text-sm text-[#9e8747]">{userStats.points || 0} points</div>
                   </div>
                 </div>
               </div>
 
               {/* Mobile Navigation */}
               <nav className="space-y-2 mb-6">
-                <Link href="/upload" onClick={() => setMobileMenuOpen(false)}>
+                <Link href="/upload" prefetch={false} onClick={() => setMobileMenuOpen(false)}>
                   <Button className="w-full justify-start bg-gradient-to-r from-[#fac638] to-[#e6b332] text-[#1c180d] hover:from-[#e6b332] hover:to-[#fac638] font-semibold">
                     <Upload className="h-4 w-4 mr-2" />
                     Upload Assignment
@@ -225,7 +238,7 @@ export default function Header() {
                 </Link>
 
                 {navItems.map((item) => (
-                  <Link key={item.href} href={item.href} onClick={() => setMobileMenuOpen(false)}>
+                  <Link key={item.href} href={item.href} prefetch={false} onClick={() => setMobileMenuOpen(false)}>
                     <Button
                       variant="ghost"
                       className={`w-full justify-start ${
@@ -240,7 +253,7 @@ export default function Header() {
                   </Link>
                 ))}
 
-                <Link href="/notifications" onClick={() => setMobileMenuOpen(false)}>
+                <Link href="/notifications" prefetch={false} onClick={() => setMobileMenuOpen(false)}>
                   <Button
                     variant="ghost"
                     className="w-full justify-start text-[#9e8747] hover:text-[#1c180d] hover:bg-[#f4f0e6]/50"

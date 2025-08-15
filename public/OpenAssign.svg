@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1024 1024">
+  <defs>
+    <!-- Enhanced gradient with smoother transitions -->
+    <linearGradient id="goldGradient" x1="654.28" y1="416.02" x2="766.78" y2="283.87" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ffd700"/>
+      <stop offset="0.3" stop-color="#ffcc00"/>
+      <stop offset="0.7" stop-color="#e6b332"/>
+      <stop offset="1" stop-color="#cc9900"/>
+    </linearGradient>
+    
+    <!-- Subtle shadow gradient for depth -->
+    <linearGradient id="shadowGradient" x1="0%" y1="0%" x2="100%" y2="100%" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#000000" stop-opacity="0.3"/>
+      <stop offset="1" stop-color="#000000" stop-opacity="0.1"/>
+    </linearGradient>
+    
+    <!-- Main element gradient -->
+    <linearGradient id="mainGradient" x1="0%" y1="0%" x2="100%" y2="100%" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#2a2a2c"/>
+      <stop offset="0.5" stop-color="#1b1b1d"/>
+      <stop offset="1" stop-color="#0f0f10"/>
+    </linearGradient>
+    
+    <!-- Subtle highlight -->
+    <linearGradient id="highlightGradient" x1="0%" y1="0%" x2="100%" y2="0%" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.1"/>
+      <stop offset="0.5" stop-color="#ffffff" stop-opacity="0.05"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+    
+    <!-- Drop shadow filter -->
+    <filter id="dropShadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="2" dy="4" stdDeviation="3" flood-color="#000000" flood-opacity="0.3"/>
+    </filter>
+    
+    <!-- Subtle glow filter -->
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+      <feMerge> 
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Background removed for transparency -->
+  
+  <!-- Main shape with enhanced styling -->
+  <path d="M735.35,471l-5.5,140.22a230.74,230.74,0,0,1-52.23,67.25c-86.82,76.87-217.39,77.07-306,2.24l-79-66.74V418.72l50.87-64.61c140.23-165,280.46-27.5,280.46-27.5L585.71,412.4l0-.4H427l8.82,188.08h191L588.82,471Z" 
+        fill="url(#mainGradient)" 
+        stroke="url(#highlightGradient)" 
+        stroke-width="1" 
+        filter="url(#dropShadow)"/>
+  
+  <!-- Highlight overlay for depth -->
+  <path d="M735.35,471l-5.5,140.22a230.74,230.74,0,0,1-52.23,67.25c-86.82,76.87-217.39,77.07-306,2.24l-79-66.74V418.72l50.87-64.61c140.23-165,280.46-27.5,280.46-27.5L585.71,412.4l0-.4H427l8.82,188.08h191L588.82,471Z" 
+        fill="url(#highlightGradient)" 
+        opacity="0.3"/>
+  
+  <!-- Golden accent element with enhanced styling -->
+  <path d="M605,463H712s-16.48-104.85,76-208L640,318l-38,86Z" 
+        fill="url(#goldGradient)" 
+        stroke="#ffaa00" 
+        stroke-width="0.5" 
+        filter="url(#glow)"/>
+  
+  <!-- Subtle highlight on golden element -->
+  <path d="M605,463H712s-16.48-104.85,76-208L640,318l-38,86Z" 
+        fill="url(#highlightGradient)" 
+        opacity="0.4"/>
+</svg>
