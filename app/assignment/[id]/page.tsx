@@ -76,6 +76,7 @@ export default function AssignmentDetailPage() {
   const [leaderboard, setLeaderboard] = useState<any[]>([]);
   const [editDescription, setEditDescription] = useState("");
   const [downloadLoader, setDownloadLoader] = useState(false);
+  const [isDragOver, setIsDragOver] = useState(false);
 
   const loadAssignment = async (id: string) => {
     try {
@@ -292,6 +293,43 @@ export default function AssignmentDetailPage() {
     window.URL.revokeObjectURL(downloadUrl); // Cleanup
     setDownloadLoader(false);
   }
+
+  // Drag and drop handlers
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
+    
+    const files = Array.from(e.dataTransfer.files);
+    if (files.length > 0) {
+      const file = files[0];
+      
+      // Validate file size (10MB) - only size restriction, no type restriction
+      if (file.size > 10 * 1024 * 1024) {
+        toast({
+          title: "File Too Large",
+          description: "Please upload a file smaller than 10MB.",
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      setSolutionFile(file);
+      toast({
+        title: "File Uploaded",
+        description: `${file.name} has been uploaded successfully.`,
+      });
+    }
+  };
 
   return (
     <div className="min-h-screen bg-[#fcfbf8]">
@@ -554,13 +592,24 @@ export default function AssignmentDetailPage() {
                         <Label htmlFor="file">
                           Upload Solution File (Optional)
                         </Label>
-                        <div className="border-2 border-dashed border-[#e9e2ce] rounded-lg p-6 text-center">
-                          <Upload className="mx-auto h-8 w-8 text-[#9e8747] mb-2" />
+                        <div 
+                          className={`border-2 border-dashed rounded-lg p-6 text-center transition-all duration-200 ${
+                            isDragOver 
+                              ? 'border-[#fac638] bg-[#fac638]/5' 
+                              : 'border-[#e9e2ce]'
+                          }`}
+                          onDragOver={handleDragOver}
+                          onDragLeave={handleDragLeave}
+                          onDrop={handleDrop}
+                        >
+                          <Upload className={`mx-auto h-8 w-8 mb-2 transition-colors ${
+                            isDragOver ? 'text-[#fac638]' : 'text-[#9e8747]'
+                          }`} />
                           <p className="text-sm text-[#1c180d] mb-2">
-                            Upload your solution file
+                            {isDragOver ? 'Drop your file here' : 'Drag & drop or click to upload'}
                           </p>
                           <p className="text-xs text-[#9e8747] mb-4">
-                            PDF, DOC, DOCX, TXT (Max 10MB)
+                            All file types supported (Max 10MB)
                           </p>
                           <Input
                             id="file"
@@ -572,9 +621,20 @@ export default function AssignmentDetailPage() {
                           />
                         </div>
                         {solutionFile && (
-                          <p className="text-sm text-[#1c180d]">
-                            Selected: {solutionFile.name}
-                          </p>
+                          <div className="flex items-center gap-2 p-3 bg-green-50 border border-green-200 rounded-lg">
+                            <Upload className="h-4 w-4 text-green-600" />
+                            <p className="text-sm text-green-800 font-medium">
+                              {solutionFile.name}
+                            </p>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => setSolutionFile(null)}
+                              className="ml-auto h-6 w-6 p-0 text-green-600 hover:text-green-800"
+                            >
+                              ×
+                            </Button>
+                          </div>
                         )}
                       </div>
 

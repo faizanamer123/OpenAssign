@@ -79,7 +79,6 @@ export default function Header() {
   const navItems = [
     { href: "/browse", label: "Browse", icon: Search },
     { href: "/leaderboard", label: "Leaderboard", icon: Trophy },
-    { href: "/analytics", label: "Analytics", icon: BarChart2 },
     { href: "/activity", label: "Activity", icon: Activity },
   ]
 
@@ -174,12 +173,7 @@ export default function Header() {
                   Leaderboard
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link href="/analytics" prefetch={false} className="flex items-center gap-2 cursor-pointer">
-                  <BarChart2 className="h-4 w-4" />
-                  Analytics
-                </Link>
-              </DropdownMenuItem>
+
               <DropdownMenuItem asChild>
                 <Link href="/notifications" prefetch={false} className="flex items-center gap-2 cursor-pointer">
                   <Bell className="h-4 w-4" />

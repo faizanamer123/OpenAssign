@@ -47,15 +47,38 @@ export default function HomePage() {
       setLoadingStats(true);
       const assignments = await getAssignments();
       const submissions = await getSubmissions();
-      setRecentUploads(assignments.slice(-3).reverse());
-      setRecentSubmissions(submissions.slice(-3).reverse());
+      
+      // Get user's assignments and submissions
+      const userAssignments = assignments.filter(a => a.createdBy === user?.id);
+      const userSubmissions = submissions.filter(s => s.submittedBy === user?.id);
+      
+      // Combine and sort by date (latest first)
+      const allActivities = [
+        ...userAssignments.map(a => ({
+          ...a,
+          type: 'upload',
+          date: new Date(a.createdAt),
+          displayDate: a.createdAt
+        })),
+        ...userSubmissions.map(s => ({
+          ...s,
+          type: 'submission',
+          date: new Date(s.submittedAt),
+          displayDate: s.submittedAt
+        }))
+      ].sort((a, b) => b.date.getTime() - a.date.getTime()).slice(0, 6);
+      
+      setRecentUploads(allActivities.filter(a => a.type === 'upload'));
+      setRecentSubmissions(allActivities.filter(a => a.type === 'submission'));
+      
       // Fetch notifications for the current user (if logged in)
       if (user) {
         const notifs = await getNotifications({ userId: user.id });
         setNotifications(notifs);
       }
-      // Stats (global)
-      const solved = submissions.length;
+      // Stats (user-specific)
+      const userSolvedAssignments = userSubmissions.length; // User's solved assignments
+      const userUploadedAssignments = userAssignments.length; // User's uploaded assignments
       const leaderboard = await getLeaderboard();
       // Find current user's rank if logged in
       let rank = 0, points = 0;
@@ -65,8 +88,8 @@ export default function HomePage() {
         points = userEntry ? userEntry.points : 0;
       }
       setStats({
-        totalAssignments: assignments.length,
-        solvedAssignments: solved,
+        totalAssignments: userUploadedAssignments, // User's uploaded assignments
+        solvedAssignments: userSolvedAssignments, // User's solved assignments
         points: points,
         rank: rank,
       });
@@ -121,7 +144,7 @@ export default function HomePage() {
                   <Upload className="h-6 w-6 text-white" />
                 </div>
                 <div className="text-2xl sm:text-3xl font-bold text-[#1c180d]">{stats.totalAssignments}</div>
-                <div className="text-xs sm:text-sm text-[#9e8747]">Uploaded</div>
+                <div className="text-xs sm:text-sm text-[#9e8747]">My Uploads</div>
               </CardContent>
             </Card>
 
@@ -134,7 +157,7 @@ export default function HomePage() {
                   <BookOpen className="h-6 w-6 text-white" />
                 </div>
                 <div className="text-2xl sm:text-3xl font-bold text-[#1c180d]">{stats.solvedAssignments}</div>
-                <div className="text-xs sm:text-sm text-[#9e8747]">Solved</div>
+                <div className="text-xs sm:text-sm text-[#9e8747]">My Solutions</div>
               </CardContent>
             </Card>
 
@@ -240,33 +263,73 @@ export default function HomePage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {recentUploads.map((a) => (
-                  <div key={a.id} className="flex items-center gap-4 p-4 bg-[#f4f0e6]/50 rounded-lg">
-                    <div className="w-10 h-10 bg-gradient-to-br from-[#fac638] to-[#e6b332] rounded-lg flex items-center justify-center">
-                      <Upload className="h-5 w-5 text-[#1c180d]" />
-                    </div>
-                    <div className="flex-1">
-                      <p className="font-medium text-[#1c180d]">Uploaded "{a.title}"</p>
-                      <p className="text-sm text-[#9e8747]">{a.status === "solved" ? "Solved" : "Waiting for solutions"} • {new Date(a.createdAt).toLocaleDateString()}</p>
-                    </div>
-                    <Badge className={a.status === "solved" ? "bg-green-100 text-green-800" : "bg-yellow-100 text-yellow-800"}>{a.status === "solved" ? "Solved" : "Pending"}</Badge>
-                  </div>
-                ))}
-                {recentSubmissions.map((s) => (
-                  <div key={s.id} className="flex items-center gap-4 p-4 bg-[#f4f0e6]/50 rounded-lg">
-                    <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-green-600 rounded-lg flex items-center justify-center">
-                      <BookOpen className="h-5 w-5 text-white" />
-                    </div>
-                    <div className="flex-1">
-                      <p className="font-medium text-[#1c180d]">Solved assignment</p>
-                      <p className="text-sm text-[#9e8747]">{s.rating ? `Rated ${s.rating}/5` : "Awaiting rating"} • {new Date(s.submittedAt).toLocaleDateString()}</p>
-                    </div>
-                    <Badge className={s.rating ? "bg-green-100 text-green-800" : "bg-yellow-100 text-yellow-800"}>{s.rating ? `+${s.rating * 3} pts` : "Pending"}</Badge>
-                  </div>
-                ))}
-                {recentUploads.length === 0 && recentSubmissions.length === 0 && (
-                  <div className="text-center text-[#9e8747] py-8">No recent activity yet.</div>
-                )}
+                {(() => {
+                  // Combine and sort all activities by date (latest first)
+                  const allActivities = [
+                    ...recentUploads.map(a => ({
+                      ...a,
+                      type: 'upload',
+                      date: new Date(a.createdAt)
+                    })),
+                    ...recentSubmissions.map(s => ({
+                      ...s,
+                      type: 'submission',
+                      date: new Date(s.submittedAt)
+                    }))
+                  ].sort((a, b) => b.date.getTime() - a.date.getTime());
+
+                  if (allActivities.length === 0) {
+                    return (
+                      <div className="text-center text-[#9e8747] py-8">No recent activity yet.</div>
+                    );
+                  }
+
+                  return allActivities.map((activity) => {
+                    if (activity.type === 'upload') {
+                      return (
+                        <div key={activity.id} className="flex items-center gap-4 p-4 bg-[#f4f0e6]/50 rounded-lg">
+                          <div className="w-10 h-10 bg-gradient-to-br from-[#fac638] to-[#e6b332] rounded-lg flex items-center justify-center">
+                            <Upload className="h-5 w-5 text-[#1c180d]" />
+                          </div>
+                          <div className="flex-1">
+                            <p className="font-medium text-[#1c180d]">Uploaded "{activity.title}"</p>
+                            <p className="text-sm text-[#9e8747]">
+                              {activity.status === "solved" ? "Solved" : "Waiting for solutions"} • {new Date(activity.createdAt).toLocaleDateString()}
+                            </p>
+                          </div>
+                          <Badge className={
+                            activity.status === "solved" 
+                              ? "bg-green-100 text-green-800" 
+                              : "bg-yellow-100 text-yellow-800"
+                          }>
+                            {activity.status === "solved" ? "Solved" : "Pending"}
+                          </Badge>
+                        </div>
+                      );
+                    } else {
+                      return (
+                        <div key={activity.id} className="flex items-center gap-4 p-4 bg-[#f4f0e6]/50 rounded-lg">
+                          <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-green-600 rounded-lg flex items-center justify-center">
+                            <BookOpen className="h-5 w-5 text-white" />
+                          </div>
+                          <div className="flex-1">
+                            <p className="font-medium text-[#1c180d]">Solved assignment</p>
+                            <p className="text-sm text-[#9e8747]">
+                              {activity.rating ? `Rated ${activity.rating}/5` : "Awaiting rating"} • {new Date(activity.submittedAt).toLocaleDateString()}
+                            </p>
+                          </div>
+                          <Badge className={
+                            activity.rating 
+                              ? "bg-green-100 text-green-800" 
+                              : "bg-yellow-100 text-yellow-800"
+                          }>
+                            {activity.rating ? `+${activity.rating * 3} pts` : "Pending"}
+                          </Badge>
+                        </div>
+                      );
+                    }
+                  });
+                })()}
               </div>
             </CardContent>
           </Card>
