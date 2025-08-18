@@ -1,3 +1,5 @@
+import { METHODS } from "http";
+
 const adjectives = [
   "Clever",
   "Bright",
@@ -31,7 +33,7 @@ const adjectives = [
   "Magic",
   "Noble",
   "Royal",
-]
+];
 
 const nouns = [
   "Tiger",
@@ -66,12 +68,48 @@ const nouns = [
   "Nebula",
   "Cosmos",
   "Universe",
-]
+];
 
 export function generateUsername(): string {
-  const adjective = adjectives[Math.floor(Math.random() * adjectives.length)]
-  const noun = nouns[Math.floor(Math.random() * nouns.length)]
-  const number = Math.floor(Math.random() * 999) + 1
+  const adjective = adjectives[Math.floor(Math.random() * adjectives.length)];
+  const noun = nouns[Math.floor(Math.random() * nouns.length)];
+  const number = Math.floor(Math.random() * 999) + 1;
 
-  return `${adjective}${noun}${number}`
+  return `${adjective}${noun}${number}`;
+}
+const NINJA_API = process.env.NEXT_PUBLIC_NINGA_API;
+console.log(NINJA_API);
+export async function produceUsername(): Promise<string> {
+  console.log("issue here");
+  // If no API key is provided, use the local generator
+  if (!NINJA_API) {
+    return generateUsername();
+  }
+
+  try {
+    const res = await fetch("https://api.api-ninjas.com/v1/randomuser", {
+      method: "GET",
+      headers: {
+        "X-Api-Key": NINJA_API,
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!res.ok) {
+      console.warn(
+        "API Ninjas request failed, falling back to local generator"
+      );
+      return generateUsername();
+    }
+
+    const data = await res.json();
+    console.log(data.username);
+    return data.username;
+  } catch (error) {
+    console.warn(
+      "Error fetching from API Ninjas, falling back to local generator:",
+      error
+    );
+    return generateUsername();
+  }
 }
