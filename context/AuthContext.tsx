@@ -3,8 +3,8 @@
 import type React from "react";
 
 import { createContext, useContext, useEffect, useState } from "react";
-import type { User } from "@/types/assignment";
-import { generateUsername } from "@/utils/usernameGenerator";
+import type { User } from "@/types/user";
+import { generateUsername, produceUsername } from "@/utils/usernameGenerator";
 import { getUsers, createUser } from "@/utils/api";
 
 interface AuthContextType {
@@ -43,7 +43,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         let username: string = "";
         let taken = true;
         while (taken) {
-          username = generateUsername();
+          username = await produceUsername();
+          console.log(username);
           taken = users.some((u: any) => u.username === username);
         }
         userObj = await createUser({
