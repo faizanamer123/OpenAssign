@@ -267,22 +267,22 @@ export default function LandingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#fcfbf8] via-[#f8f5e8] to-[#f4f0e6] overflow-hidden animate-fade-in">
+    <div className="min-h-screen reddit-dark-bg overflow-hidden animate-fade-in">
       {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-[#fac638]/20 rounded-full blur-3xl floating-animation"></div>
+        <div className="absolute top-20 left-10 w-72 h-72 bg-[#4ade80]/15 rounded-full blur-3xl floating-animation"></div>
         <div
-          className="absolute top-40 right-20 w-96 h-96 bg-[#fac638]/10 rounded-full blur-3xl floating-animation"
+          className="absolute top-40 right-20 w-96 h-96 bg-[#9333ea]/8 rounded-full blur-3xl floating-animation"
           style={{ animationDelay: "1s" }}
         ></div>
         <div
-          className="absolute bottom-20 left-1/3 w-80 h-80 bg-[#fac638]/16 rounded-full blur-3xl floating-animation"
+          className="absolute bottom-20 left-1/3 w-80 h-80 bg-[#06b6d4]/12 rounded-full blur-3xl floating-animation"
           style={{ animationDelay: "2s" }}
         ></div>
       </div>
 
       {/* Header */}
-      <header className="relative z-10 glass-effect border-b border-[#f4f0e6]/50 px-4 sm:px-6 lg:px-10 py-4">
+      <header className="relative z-10 px-4 sm:px-6 lg:px-10 py-4">
         <div className="flex items-center justify-between max-w-7xl mx-auto">
           <Logo href="/" variant="large" logoSize={56} />
         </div>
@@ -292,21 +292,21 @@ export default function LandingPage() {
       <div className="relative z-10 px-4 py-12 sm:px-6 sm:py-20 lg:px-8">
         <div className="mx-auto max-w-6xl">
           <div className="text-center animate-slide-up">
-            <div className="inline-flex items-center gap-2 bg-[#fac638]/20 border border-[#fac638]/30 rounded-full px-4 py-2 mb-8 shadow-sm">
-              <Sparkles className="w-4 h-4 text-[#fac638] animate-bounce" />
-              <span className="text-sm font-medium text-[#1c180d]">
+            <div className="inline-flex items-center gap-2 bg-[#4ade80]/20 border border-[#4ade80]/30 rounded-full px-4 py-2 mb-8 shadow-sm neon-border">
+              <Sparkles className="w-4 h-4 text-[#4ade80] animate-bounce" />
+              <span className="text-sm font-medium text-white">
                 100% Anonymous • Secure • Rewarding
               </span>
             </div>
 
-            <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold tracking-tight text-[#1c180d] mb-6 drop-shadow-lg">
+            <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold tracking-tight text-white mb-6 drop-shadow-lg">
               <span className="block">Anonymous</span>
-              <span className="block bg-gradient-to-r from-[#fac638] to-[#e6b332] bg-clip-text text-transparent animate-gradient-x">
+              <span className="block bg-gradient-to-r from-[#4ade80] to-[#9333ea] bg-clip-text text-transparent animate-gradient-x">
                 Assignment Platform
               </span>
             </h1>
 
-            <p className="mt-6 text-lg sm:text-xl leading-8 text-[#9e8747] max-w-3xl mx-auto">
+            <p className="mt-6 text-lg sm:text-xl leading-8 text-gray-300 max-w-3xl mx-auto">
               Upload assignments to get help or solve others' assignments to
               earn points and recognition. Join a thriving community of students
               helping each other succeed.
@@ -318,37 +318,37 @@ export default function LandingPage() {
                 className="text-center animate-scale-in"
                 style={{ animationDelay: "0.2s" }}
               >
-                <div className="text-2xl sm:text-3xl font-bold text-[#1c180d] drop-shadow">
+                <div className="text-2xl sm:text-3xl font-bold text-white drop-shadow">
                   1,200+
                 </div>
-                <div className="text-sm text-[#9e8747]">Students</div>
+                <div className="text-sm text-gray-300">Students</div>
               </div>
               <div
                 className="text-center animate-scale-in"
                 style={{ animationDelay: "0.4s" }}
               >
-                <div className="text-2xl sm:text-3xl font-bold text-[#1c180d] drop-shadow">
+                <div className="text-2xl sm:text-3xl font-bold text-white drop-shadow">
                   850+
                 </div>
-                <div className="text-sm text-[#9e8747]">Assignments</div>
+                <div className="text-sm text-gray-300">Assignments</div>
               </div>
               <div
                 className="text-center animate-scale-in"
                 style={{ animationDelay: "0.6s" }}
               >
-                <div className="text-2xl sm:text-3xl font-bold text-[#1c180d] drop-shadow">
+                <div className="text-2xl sm:text-3xl font-bold text-white drop-shadow">
                   95%
                 </div>
-                <div className="text-sm text-[#9e8747]">Success Rate</div>
+                <div className="text-sm text-gray-300">Success Rate</div>
               </div>
               <div
                 className="text-center animate-scale-in"
                 style={{ animationDelay: "0.8s" }}
               >
-                <div className="text-2xl sm:text-3xl font-bold text-[#1c180d] drop-shadow">
+                <div className="text-2xl sm:text-3xl font-bold text-white drop-shadow">
                   4.9★
                 </div>
-                <div className="text-sm text-[#9e8747]">Rating</div>
+                <div className="text-sm text-gray-300">Rating</div>
               </div>
             </div>
           </div>
@@ -358,19 +358,19 @@ export default function LandingPage() {
             className="mt-16 flex justify-center animate-scale-in"
             style={{ animationDelay: "1s" }}
           >
-            <Card className="w-full max-w-md border-2 border-[#fac638] border-opacity-40 bg-white/90 backdrop-blur-lg shadow-2xl card-hover rounded-2xl">
+            <Card className="w-full max-w-md study-card shadow-2xl card-hover">
               <CardHeader className="text-center pb-4">
-                <div className="mx-auto w-16 h-16 bg-gradient-to-br from-[#fac638] to-[#e6b332] rounded-2xl flex items-center justify-center mb-4 shadow-lg">
+                <div className="mx-auto w-16 h-16 bg-gradient-to-br from-[#4ade80] to-[#22c55e] rounded-2xl flex items-center justify-center mb-4 shadow-lg">
                   {otpSent ? (
-                    <Lock className="w-8 h-8 text-[#1c180d]" />
+                    <Lock className="w-8 h-8 text-white" />
                   ) : (
-                    <Mail className="w-8 h-8 text-[#1c180d]" />
+                    <Mail className="w-8 h-8 text-white" />
                   )}
                 </div>
-                <CardTitle className="text-2xl text-[#1c180d]">
+                <CardTitle className="text-2xl text-white">
                   {otpSent ? "Verify Your Email" : "Sign In to OpenAssign"}
                 </CardTitle>
-                <CardDescription className="text-[#9e8747]">
+                <CardDescription className="text-gray-300">
                   {otpSent
                     ? "Enter the 6-digit code sent to your email"
                     : isVerified
@@ -389,12 +389,12 @@ export default function LandingPage() {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         required
-                        className="h-12 border-[#e9e2ce] bg-white/50 focus:border-[#fac638] focus:ring-2 focus:ring-[#fac638]/20 transition-all"
+                        className="h-12 border-[#4ade80]/30 bg-[#1a1a1f]/50 focus:border-[#4ade80] focus:ring-2 focus:ring-[#4ade80]/20 transition-all text-white"
                       />
                     </div>
                     <Button
                       onClick={handleSendOTP}
-                      className="w-full h-12 bg-gradient-to-r from-[#fac638] to-[#e6b332] text-[#1c180d] hover:from-[#e6b332] hover:to-[#fac638] font-semibold transition-all duration-300 transform hover:scale-105 shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="w-full h-12 duolingo-button font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
                       disabled={sendingOtp || !email}
                     >
                       {sendingOtp ? (
@@ -423,17 +423,17 @@ export default function LandingPage() {
                           setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))
                         }
                         maxLength={6}
-                        className="h-12 border[#e9e2ce] bg-white/50 focus:border-[#fac638] focus:ring-2 focus:ring-[#fac638]/20 transition-all text-center text-lg font-mono"
+                        className="h-12 border-[#4ade80]/30 bg-[#1a1a1f]/50 focus:border-[#4ade80] focus:ring-2 focus:ring-[#4ade80]/20 transition-all text-center text-lg font-mono text-white"
                       />
-                      <p className="text-sm text-[#9e8747] text-center">
+                      <p className="text-sm text-gray-300 text-center">
                         Code sent to{" "}
-                        <span className="font-medium">{email}</span>
+                        <span className="font-medium text-white">{email}</span>
                       </p>
                     </div>
                     <div className="space-y-3">
                       <Button
                         onClick={handleVerifyOTP}
-                        className="w-full h-12 bg-gradient-to-r from-[#fac638] to-[#e6b332] text-[#1c180d] hover:from-[#e6b332] hover:to-[#fac638] font-semibold transition-all duration-300 transform hover:scale-105 shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="w-full h-12 duolingo-button font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
                         disabled={verifyingOtp || otp.length !== 6}
                       >
                         {verifyingOtp ? (
@@ -451,7 +451,7 @@ export default function LandingPage() {
                       {otpVerified && (
                         <Button
                           onClick={handleSubmit}
-                          className="w-full h-12 bg-green-600 hover:bg-green-700 text-white font-semibold transition-all duration-300 transform hover:scale-105 shadow-md"
+                          className="w-full h-12 duolingo-button font-semibold"
                           disabled={loading}
                         >
                           {loading ? (
@@ -471,7 +471,7 @@ export default function LandingPage() {
                         <button
                           type="button"
                           onClick={resetForm}
-                          className="text-sm text-[#9e8747] hover:text-[#1c180d] transition-colors"
+                          className="text-sm text-gray-300 hover:text-white transition-colors px-3 py-1 rounded-lg hover:bg-[#4ade80]/10"
                         >
                           ← Back to email
                         </button>
@@ -479,7 +479,7 @@ export default function LandingPage() {
                           type="button"
                           onClick={handleResendOTP}
                           disabled={countdown > 0}
-                          className="text-sm text-[#fac638] hover:text-[#e6b332] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="text-sm text-[#4ade80] hover:text-[#22c55e] transition-colors disabled:opacity-50 disabled:cursor-not-allowed px-3 py-1 rounded-lg hover:bg-[#4ade80]/10"
                         >
                           {countdown > 0
                             ? `Resend in ${countdown}s`
@@ -492,96 +492,96 @@ export default function LandingPage() {
                 {/* If verified, show a loading spinner and message */}
                 {isVerified && !otpSent && (
                   <div className="flex flex-col items-center justify-center py-8">
-                    <Loader2 className="h-8 w-8 text-[#fac638] animate-spin mb-4" />
-                    <p className="text-[#9e8747] text-center">
+                    <Loader2 className="h-8 w-8 text-[#4ade80] animate-spin mb-4" />
+                    <p className="text-gray-300 text-center">
                       Logging you in...
                     </p>
                   </div>
                 )}
-                <p className="text-xs text-[#9e8747] text-center mt-4">
-                  By continuing, you agree to our{" "}
-                  <a href="/terms" className="underline hover:text-[#1c180d]">
-                    Terms of Service
-                  </a>{" "}
-                  and{" "}
-                  <a
-                    href="/privacy-policy"
-                    className="underline hover:text-[#1c180d]"
-                  >
-                    Privacy Policy
-                  </a>
-                  .
-                </p>
+                                 <p className="text-xs text-gray-400 text-center mt-4">
+                   By continuing, you agree to our{" "}
+                   <a href="/terms" className="underline hover:text-[#4ade80] transition-colors">
+                     Terms of Service
+                   </a>{" "}
+                   and{" "}
+                   <a
+                     href="/privacy-policy"
+                     className="underline hover:text-[#4ade80] transition-colors"
+                   >
+                     Privacy Policy
+                   </a>
+                   .
+                 </p>
               </CardContent>
             </Card>
           </div>
 
-          {/* Features Grid */}
-          <div className="mt-24 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[
-              {
-                icon: <Shield className="h-8 w-8 text-white" />,
-                title: "100% Anonymous",
-                color: "from-blue-500 to-blue-600",
-              },
-              {
-                icon: <Trophy className="h-8 w-8 text-white" />,
-                title: "Earn Points & Recognition",
-                color: "from-green-500 to-green-600",
-              },
-              {
-                icon: <Zap className="h-8 w-8 text-white" />,
-                title: "Instant Notifications",
-                color: "from-purple-500 to-purple-600",
-              },
-              {
-                icon: <BookOpen className="h-8 w-8 text-white" />,
-                title: "All Subjects",
-                color: "from-orange-500 to-orange-600",
-              },
-              {
-                icon: <Award className="h-8 w-8 text-white" />,
-                title: "Quality Solutions",
-                color: "from-pink-500 to-pink-600",
-              },
-              {
-                icon: <TrendingUp className="h-8 w-8 text-white" />,
-                title: "Track Progress",
-                color: "from-indigo-500 to-indigo-600",
-              },
-            ].map((feature, i) => (
-              <Card
-                key={feature.title}
-                className={`border-[#e9e2ce]/50 bg:white/70 backdrop-blur-md card-hover animate-slide-up rounded-2xl shadow-md hover:shadow-xl transition-shadow duration-300 group`}
-                style={{ animationDelay: `${0.2 + i * 0.2}s` }}
-              >
-                <CardContent className="px-8 py-8 text-center">
-                  <div
-                    className={`mx-auto w-16 h-16 bg-gradient-to-br ${feature.color} rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform shadow-lg`}
-                  >
-                    {feature.icon}
-                  </div>
-                  <h3 className="text-xl font-semibold text-[#1c180d] mb-3">
-                    {feature.title}
-                  </h3>
-                  <p className="text-[#9e8747] leading-relaxed">
-                    {feature.title === "100% Anonymous" &&
-                      "Complete privacy with unique anonymous usernames. Your identity stays protected while you help others."}
-                    {feature.title === "Earn Points & Recognition" &&
-                      "Solve assignments to earn points, climb the leaderboard, and build your reputation in the community."}
-                    {feature.title === "Instant Notifications" &&
-                      "Get notified when your assignments are solved or when you receive ratings for your solutions."}
-                    {feature.title === "All Subjects" &&
-                      "From Mathematics to Computer Science, get help with assignments across all academic disciplines."}
-                    {feature.title === "Quality Solutions" &&
-                      "Rate and review solutions to ensure high-quality help. Build trust through our community-driven system."}
-                    {feature.title === "Track Progress" &&
-                      "Monitor your uploaded assignments and submitted solutions with detailed activity tracking."}
-                  </p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+                     {/* Features Grid */}
+           <div className="mt-24 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+             {[
+               {
+                 icon: <Shield className="h-8 w-8 text-white" />,
+                 title: "100% Anonymous",
+                 color: "from-[#4ade80] to-[#22c55e]",
+               },
+               {
+                 icon: <Trophy className="h-8 w-8 text-white" />,
+                 title: "Earn Points & Recognition",
+                 color: "from-[#9333ea] to-[#7c3aed]",
+               },
+               {
+                 icon: <Zap className="h-8 w-8 text-white" />,
+                 title: "Instant Notifications",
+                 color: "from-[#06b6d4] to-[#0891b2]",
+               },
+               {
+                 icon: <BookOpen className="h-8 w-8 text-white" />,
+                 title: "All Subjects",
+                 color: "from-[#ec4899] to-[#db2777]",
+               },
+               {
+                 icon: <Award className="h-8 w-8 text-white" />,
+                 title: "Quality Solutions",
+                 color: "from-[#4ade80] to-[#22c55e]",
+               },
+               {
+                 icon: <TrendingUp className="h-8 w-8 text-white" />,
+                 title: "Track Progress",
+                 color: "from-[#9333ea] to-[#7c3aed]",
+               },
+             ].map((feature, i) => (
+                               <Card
+                  key={feature.title}
+                  className={`study-card card-hover animate-slide-up shadow-md hover:shadow-xl transition-shadow duration-300 group`}
+                  style={{ animationDelay: `${0.2 + i * 0.2}s` }}
+                >
+                 <CardContent className="px-8 py-8 text-center">
+                   <div
+                     className={`mx-auto w-16 h-16 bg-gradient-to-br ${feature.color} rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform shadow-lg`}
+                   >
+                     {feature.icon}
+                   </div>
+                   <h3 className="text-xl font-semibold text-white mb-3">
+                     {feature.title}
+                   </h3>
+                   <p className="text-gray-300 leading-relaxed">
+                     {feature.title === "100% Anonymous" &&
+                       "Complete privacy with unique anonymous usernames. Your identity stays protected while you help others."}
+                     {feature.title === "Earn Points & Recognition" &&
+                       "Solve assignments to earn points, climb the leaderboard, and build your reputation in the community."}
+                     {feature.title === "Instant Notifications" &&
+                       "Get notified when your assignments are solved or when you receive ratings for your solutions."}
+                     {feature.title === "All Subjects" &&
+                       "From Mathematics to Computer Science, get help with assignments across all academic disciplines."}
+                     {feature.title === "Quality Solutions" &&
+                       "Rate and review solutions to ensure high-quality help. Build trust through our community-driven system."}
+                     {feature.title === "Track Progress" &&
+                       "Monitor your uploaded assignments and submitted solutions with detailed activity tracking."}
+                   </p>
+                 </CardContent>
+               </Card>
+             ))}
+           </div>
         </div>
       </div>
     </div>

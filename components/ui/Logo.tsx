@@ -24,10 +24,10 @@ export default function Logo({
 }: LogoProps) {
   const { user } = useAuth();
   
-  // Determine the appropriate href based on authentication state
+  // Always redirect to landing page (/) regardless of auth state
   const getHref = () => {
     if (href) return href; // If href is explicitly provided, use it
-    return user ? "/home" : "/"; // If logged in, go to home; if not, go to landing
+    return "/"; // Always go to landing page
   };
 
   const getTextSize = () => {
@@ -44,7 +44,7 @@ export default function Logo({
   return (
     <Link
       href={getHref()}
-      className={`flex items-center text-[#1c180d] group transition-all duration-200 hover:scale-105 ${className}`}
+      className={`flex items-center text-white group transition-all duration-200 hover:scale-105 ${className}`}
       aria-label="OpenAssign Home"
     >
       <div className="relative flex-shrink-0">
@@ -59,7 +59,7 @@ export default function Logo({
       </div>
       {showText && (
         <span
-          className={`-ml-1 font-bold bg-gradient-to-r from-[#1c180d] to-[#9e8747] bg-clip-text text-transparent ${getTextSize()} ${textClassName}`}
+          className={`-ml-1 font-bold study-vibe-text ${getTextSize()} ${textClassName}`}
         >
           OpenAssign
         </span>

@@ -300,11 +300,12 @@
 // }
 
 
+
 "use client";
 
 import type React from "react";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -347,6 +348,7 @@ export default function UploadPage() {
   });
   const [file, setFile] = useState<File | null>(null);
   const [dragActive, setDragActive] = useState(false);
+  const dateInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!user) {
@@ -408,25 +410,23 @@ export default function UploadPage() {
   };
 
   const handleFileSelect = (selectedFile: File) => {
-    const validTypes = ['.pdf', '.doc', '.docx', '.txt'];
-    const fileExtension = '.' + selectedFile.name.split('.').pop()?.toLowerCase();
-    
-    if (!validTypes.includes(fileExtension)) {
+    // Check file size (increased to 50MB for larger files like videos, presentations, etc.)
+    if (selectedFile.size > 50 * 1024 * 1024) { // 50MB
       toast({
-        title: "Invalid file type",
-        description: "Please upload a PDF, DOC, DOCX, or TXT file.",
+        title: "File too large",
+        description: "Please upload a file smaller than 50MB.",
         variant: "destructive",
       });
       return;
     }
 
-    if (selectedFile.size > 10 * 1024 * 1024) { // 10MB
+    // Optional: Warn about very large files
+    if (selectedFile.size > 25 * 1024 * 1024) { // 25MB
       toast({
-        title: "File too large",
-        description: "Please upload a file smaller than 10MB.",
-        variant: "destructive",
+        title: "Large file detected",
+        description: `Uploading ${selectedFile.name} (${(selectedFile.size / 1024 / 1024).toFixed(1)}MB). This may take a while.`,
+        variant: "default",
       });
-      return;
     }
 
     setFile(selectedFile);
@@ -452,27 +452,43 @@ export default function UploadPage() {
     }
   };
 
+  // Function to handle calendar icon click
+  const handleCalendarClick = () => {
+    if (dateInputRef.current) {
+      dateInputRef.current.focus();
+      dateInputRef.current.showPicker?.();
+    }
+  };
+
+  // Function to set quick deadline options
+  const setQuickDeadline = (days: number) => {
+    const now = new Date();
+    now.setDate(now.getDate() + days);
+    const isoString = now.toISOString().slice(0, 16);
+    handleInputChange("deadline", isoString);
+  };
+
   return (
-    <div className="min-h-screen bg-[#fcfbf8]">
+    <div className="min-h-screen reddit-dark-bg">
       <Header />
 
       <div className="px-4 py-8 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-2xl">
           <div className="mb-8">
-            <h1 className="text-3xl font-bold text-[#1c180d] mb-2">
+            <h1 className="text-3xl font-bold text-white mb-2">
               Upload Assignment
             </h1>
-            <p className="text-[#9e8747]">
+            <p className="text-gray-300">
               Share your assignment anonymously and get help from the community.
             </p>
           </div>
 
-          <Card className="border-[#e9e2ce] bg-[#fcfbf8]">
+          <Card className="study-card">
             <CardHeader>
-              <CardTitle className="text-[#1c180d]">
+              <CardTitle className="text-white">
                 Assignment Details
               </CardTitle>
-              <CardDescription className="text-[#9e8747]">
+              <CardDescription className="text-gray-300">
                 Fill out the form below to submit your assignment. All
                 submissions are anonymous.
               </CardDescription>
@@ -480,7 +496,7 @@ export default function UploadPage() {
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="space-y-2">
-                  <Label htmlFor="title" className="text-[#1c180d]">
+                  <Label htmlFor="title" className="text-white">
                     Assignment Title *
                   </Label>
                   <Input
@@ -488,13 +504,13 @@ export default function UploadPage() {
                     placeholder="Enter the title of your assignment"
                     value={formData.title}
                     onChange={(e) => handleInputChange("title", e.target.value)}
-                    className="border-[#e9e2ce] bg-[#fcfbf8] focus:border-[#fac638]"
+                    className="border-[#4ade80]/30 bg-[#1a1a1b]/50 text-white focus:border-[#4ade80] placeholder:text-gray-400"
                     required
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="description" className="text-[#1c180d]">
+                  <Label htmlFor="description" className="text-white">
                     Description *
                   </Label>
                   <Textarea
@@ -504,14 +520,14 @@ export default function UploadPage() {
                     onChange={(e) =>
                       handleInputChange("description", e.target.value)
                     }
-                    className="border-[#e9e2ce] bg-[#fcfbf8] focus:border-[#fac638] min-h-32"
+                    className="border-[#4ade80]/30 bg-[#1a1a1b]/50 text-white focus:border-[#4ade80] placeholder:text-gray-400 min-h-32"
                     required
                   />
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="subject" className="text-[#1c180d]">
+                    <Label htmlFor="subject" className="text-white">
                       Subject Area
                     </Label>
                     <Select
@@ -522,7 +538,7 @@ export default function UploadPage() {
                     >
                       <SelectTrigger
                         id="subject"
-                        className="border-[#e9e2ce] bg-[#fcfbf8] focus:border-[#fac638]"
+                        className="border-[#4ade80]/30 bg-[#1a1a1b]/50 text-white focus:border-[#4ade80] data-[placeholder]:text-gray-400"
                       >
                         <SelectValue placeholder="Select subject area" />
                       </SelectTrigger>
@@ -544,7 +560,7 @@ export default function UploadPage() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="difficulty" className="text-[#1c180d]">
+                    <Label htmlFor="difficulty" className="text-white">
                       Difficulty Level *
                     </Label>
                     <Select
@@ -555,7 +571,7 @@ export default function UploadPage() {
                     >
                       <SelectTrigger
                         id="difficulty"
-                        className="border-[#e9e2ce] bg-[#fcfbf8] focus:border-[#fac638]"
+                        className="border-[#4ade80]/30 bg-[#1a1a1b]/50 text-white focus:border-[#4ade80] data-[placeholder]:text-gray-400"
                       >
                         <SelectValue placeholder="Select difficulty" />
                       </SelectTrigger>
@@ -569,63 +585,133 @@ export default function UploadPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="deadline" className="text-[#1c180d]">
+                  <Label htmlFor="deadline" className="text-white">
                     Deadline *
                   </Label>
                   <div className="relative">
                     <Input
+                      ref={dateInputRef}
                       id="deadline"
                       type="datetime-local"
                       value={formData.deadline}
                       onChange={(e) =>
                         handleInputChange("deadline", e.target.value)
                       }
-                      className="border-[#e9e2ce] bg-[#fcfbf8] focus:border-[#fac638]"
+                      className="border-[#4ade80]/30 bg-[#1a1a1b]/50 text-white focus:border-[#4ade80] pr-10"
                       required
                     />
-                    <Calendar className="absolute right-3 top-3 h-4 w-4 text-[#9e8747]" />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleCalendarClick}
+                      className="absolute right-1 top-1 h-8 w-8 p-0 hover:bg-[#4ade80]/10"
+                    >
+                      <Calendar className="h-4 w-4 text-gray-300 hover:text-[#4ade80]" />
+                    </Button>
+                  </div>
+                  
+                  {/* Quick deadline buttons */}
+                  <div className="flex gap-2 mt-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setQuickDeadline(1)}
+                      className="text-xs px-3 py-1 h-auto border-[#4ade80]/30 text-gray-300 hover:text-white hover:border-[#4ade80]"
+                    >
+                      Tomorrow
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setQuickDeadline(3)}
+                      className="text-xs px-3 py-1 h-auto border-[#4ade80]/30 text-gray-300 hover:text-white hover:border-[#4ade80]"
+                    >
+                      3 Days
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setQuickDeadline(7)}
+                      className="text-xs px-3 py-1 h-auto border-[#4ade80]/30 text-gray-300 hover:text-white hover:border-[#4ade80]"
+                    >
+                      1 Week
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setQuickDeadline(14)}
+                      className="text-xs px-3 py-1 h-auto border-[#4ade80]/30 text-gray-300 hover:text-white hover:border-[#4ade80]"
+                    >
+                      2 Weeks
+                    </Button>
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="file" className="text-[#1c180d]">
+                  <Label htmlFor="file" className="text-white">
                     Assignment File (Optional)
                   </Label>
                   <div 
                     className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors ${
                       dragActive 
-                        ? 'border-[#fac638] bg-[#fac638]/10' 
-                        : 'border-[#e9e2ce]'
+                        ? 'border-[#4ade80] bg-[#4ade80]/10' 
+                        : 'border-[#4ade80]/30'
                     }`}
                     onDragEnter={handleDrag}
                     onDragLeave={handleDrag}
                     onDragOver={handleDrag}
                     onDrop={handleDrop}
                   >
-                    <Upload className="mx-auto h-8 w-8 text-[#9e8747] mb-2" />
-                    <p className="text-sm text-[#1c180d] mb-2">
+                    <Upload className={`mx-auto h-8 w-8 mb-2 transition-colors ${
+                      dragActive ? 'text-[#4ade80]' : 'text-gray-300'
+                    }`} />
+                    <p className="text-sm text-white mb-2">
                       {dragActive ? 'Drop your file here' : 'Drag & drop your file here or click to browse'}
                     </p>
-                    <p className="text-xs text-[#9e8747] mb-4">
-                      Supported formats: PDF, DOC, DOCX, TXT (Max 10MB)
+                    <p className="text-xs text-gray-300 mb-4">
+                      Supports all file formats (Max 50MB) - Documents, Images, Videos, Archives, Code files, etc.
                     </p>
                     <Input
                       id="file"
                       type="file"
-                      accept=".pdf,.doc,.docx,.txt"
+                      accept="*/*"
                       onChange={(e) => {
                         const selectedFile = e.target.files?.[0];
                         if (selectedFile) {
                           handleFileSelect(selectedFile);
                         }
                       }}
-                      className="border-[#e9e2ce] bg-[#fcfbf8]"
+                      className="border-[#4ade80]/30 bg-[#1a1a1b]/50"
                     />
                   </div>
                   {file && (
-                    <p className="text-sm text-[#1c180d]">
-                      Selected: {file.name}
-                    </p>
+                    <div className="flex items-center justify-between gap-2 p-3 bg-green-500/10 border border-green-500/30 rounded-lg">
+                      <div className="flex items-center gap-2">
+                        <Upload className="h-4 w-4 text-green-400" />
+                        <div>
+                          <p className="text-sm text-green-400 font-medium">
+                            Selected: {file.name}
+                          </p>
+                          <p className="text-xs text-gray-300">
+                            Size: {(file.size / 1024 / 1024).toFixed(2)} MB • Type: {file.type || 'Unknown'}
+                          </p>
+                        </div>
+                      </div>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setFile(null)}
+                        className="text-red-400 hover:text-red-300 hover:bg-red-500/10 h-auto p-1"
+                      >
+                        ✕
+                      </Button>
+                    </div>
                   )}
                 </div>
 
@@ -634,14 +720,14 @@ export default function UploadPage() {
                     type="button"
                     variant="outline"
                     onClick={() => router.back()}
-                    className="flex-1 border-[#e9e2ce] text-[#1c180d] hover:bg-[#f4f0e6]"
+                    className="flex-1 duolingo-button-secondary"
                   >
                     Cancel
                   </Button>
                   <Button
                     type="submit"
                     disabled={loading}
-                    className="flex-1 bg-[#fac638] text-[#1c180d] hover:bg-[#fac638]/90"
+                    className="flex-1 duolingo-button"
                   >
                     {loading ? (
                       <>

@@ -7,9 +7,11 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Trophy, Star, Award, TrendingUp, BarChart2, PieChart, Users, BookOpen, Clock, Target, Zap, Upload } from "lucide-react"
 import dynamic from "next/dynamic";
 import Logo from "@/components/ui/Logo";
+import GemIcon from "@/components/ui/GemIcon";
 const Header = dynamic(() => import("@/components/Header"), { ssr: false, loading: () => <div className='h-16' /> });
 import { useAuth } from "@/context/AuthContext"
 import { getLeaderboard, getAnalytics } from "@/utils/api"
+import { getRatingBadge, getGemDisplay } from "@/utils/ratingBadge"
 
 interface LeaderboardUser {
   id: string
@@ -52,7 +54,12 @@ export default function LeaderboardPage() {
     setLoading(true)
     try {
       const data = await getLeaderboard(sortBy)
-      setLeaderboard(data)
+      // Filter out users who haven't solved any assignments or earned points
+      const filteredData = data.filter((user: LeaderboardUser) => 
+        (user.assignmentsSolved && user.assignmentsSolved > 0) || 
+        (user.points && user.points > 0)
+      )
+      setLeaderboard(filteredData)
     } catch (error) {
       setLeaderboard([])
       console.error("Failed to load leaderboard:", error)
@@ -101,22 +108,22 @@ export default function LeaderboardPage() {
       case 3:
         return <Logo className="opacity-60" logoSize={60} showText={false} />
       default:
-        return <span className="text-lg font-bold text-[#9e8747]">#{rank}</span>
+        return <span className="text-lg font-bold text-gray-300">#{rank}</span>
     }
   }
 
-  const getRankBadgeColor = (rank: number) => {
-    switch (rank) {
-      case 1:
-        return "bg-yellow-100 text-yellow-800"
-      case 2:
-        return "bg-gray-100 text-gray-800"
-      case 3:
-        return "bg-amber-100 text-amber-800"
-      default:
-        return "bg-blue-100 text-blue-800"
-    }
+ const getRankBadgeColor = (rank: number) => {
+  switch (rank) {
+    case 1:
+      return "bg-gradient-to-r from-emerald-500/25 to-green-400/25 text-emerald-200 border border-emerald-400/50 shadow-lg shadow-emerald-500/30 backdrop-blur-sm"
+    case 2:
+      return "bg-gradient-to-r from-green-600/20 to-emerald-600/20 text-green-300 border border-green-500/40 shadow-lg shadow-green-500/25 backdrop-blur-sm"
+    case 3:
+      return "bg-gradient-to-r from-green-700/15 to-green-800/15 text-green-400 border border-green-600/35 shadow-lg shadow-green-600/20 backdrop-blur-sm"
+    default:
+      return "bg-gradient-to-r from-green-800/10 to-green-900/10 text-green-500 border border-green-700/25 shadow-md shadow-green-700/15 backdrop-blur-sm"
   }
+}
 
   if (!user) return null
 
@@ -124,31 +131,31 @@ export default function LeaderboardPage() {
   const currentUserStats = leaderboard.find((u) => u.id === user.id);
 
   return (
-    <div className="min-h-screen bg-[#fcfbf8]">
+    <div className="min-h-screen reddit-dark-bg">
       <Header />
 
       <div className="px-4 py-8 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-6xl">
           <div className="mb-8 text-center">
-            <h1 className="text-3xl font-bold text-[#1c180d] mb-2 flex items-center justify-center gap-2">
-              <Trophy className="w-8 h-8 text-[#fac638] inline-block align-middle" aria-label="Leaderboard" />
+            <h1 className="text-3xl font-bold text-white mb-2 flex items-center justify-center gap-2">
+              <Trophy className="w-8 h-8 text-[#4ade80] inline-block align-middle" aria-label="Leaderboard" />
               Leaderboard & Analytics
             </h1>
-            <p className="text-[#9e8747]">Top contributors and community insights in our anonymous assignment solving platform</p>
+            <p className="text-gray-300">Top contributors and community insights in our anonymous assignment solving platform</p>
           </div>
 
           {/* Analytics Overview Section */}
           {!analyticsLoading && analyticsData && (
             <div className="mb-8">
-              <h2 className="text-xl font-semibold text-[#1c180d] mb-4 flex items-center gap-2">
-                <BarChart2 className="h-5 w-5 text-[#fac638]" /> Community Overview
+              <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
+                <BarChart2 className="h-5 w-5 text-[#4ade80]" /> Community Overview
               </h2>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                 {/* Success Rate Card */}
-                <Card className="bg-white/90 border-[#e9e2ce] hover:shadow-lg transition-all duration-300 group analytics-card">
+                <Card className="study-card hover:shadow-lg transition-all duration-300 group analytics-card">
                   <CardHeader className="pb-3">
-                    <CardTitle className="flex items-center gap-2 text-[#1c180d] text-sm">
-                      <Target className="h-4 w-4 text-purple-500" /> Success Rate
+                    <CardTitle className="flex items-center gap-2 text-white text-sm">
+                      <Target className="h-4 w-4 text-[#9333ea]" /> Success Rate
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="pt-0">
@@ -159,7 +166,7 @@ export default function LeaderboardPage() {
                             cx="50"
                             cy="50"
                             r="40"
-                            stroke="#e9e2ce"
+                            stroke="#4ade80"
                             strokeWidth="8"
                             fill="transparent"
                             className="opacity-30"
@@ -181,22 +188,22 @@ export default function LeaderboardPage() {
                         </svg>
                         <div className="absolute inset-0 flex items-center justify-center">
                           <div className="text-center">
-                            <div className="text-2xl font-bold text-[#1c180d] group-hover:text-purple-600 transition-colors">
+                            <div className="text-2xl font-bold text-white group-hover:text-[#9333ea] transition-colors">
                               {analyticsData.totalAssignments > 0 ? Math.round((analyticsData.solvedAssignments / analyticsData.totalAssignments) * 100) : 0}%
                             </div>
                           </div>
                         </div>
                       </div>
-                      <div className="text-[#9e8747] text-sm text-center">Assignments solved</div>
+                      <div className="text-gray-300 text-sm text-center">Assignments solved</div>
                     </div>
                   </CardContent>
                 </Card>
 
                 {/* Average Rating Card */}
-                <Card className="bg-white/90 border-[#e9e2ce] hover:shadow-lg transition-all duration-300 group analytics-card">
+                 <Card className="study-card hover:shadow-lg transition-all duration-300 group analytics-card">
                   <CardHeader className="pb-3">
-                    <CardTitle className="flex items-center gap-2 text-[#1c180d] text-sm">
-                      <PieChart className="h-4 w-4 text-pink-500" /> Avg Rating
+                     <CardTitle className="flex items-center gap-2 text-white text-sm">
+                       <PieChart className="h-4 w-4 text-[#ec4899]" /> Avg Rating
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="pt-0">
@@ -207,7 +214,7 @@ export default function LeaderboardPage() {
                             cx="50"
                             cy="50"
                             r="40"
-                            stroke="#e9e2ce"
+                             stroke="#4ade80"
                             strokeWidth="8"
                             fill="transparent"
                             className="opacity-30"
@@ -229,22 +236,22 @@ export default function LeaderboardPage() {
                         </svg>
                         <div className="absolute inset-0 flex items-center justify-center">
                           <div className="text-center">
-                            <div className="text-2xl font-bold text-[#1c180d] group-hover:text-pink-600 transition-colors">
+                             <div className="text-2xl font-bold text-white group-hover:text-[#ec4899] transition-colors">
                               {analyticsData.averageRating.toFixed(1)}★
                             </div>
                           </div>
                         </div>
                       </div>
-                      <div className="text-[#9e8747] text-sm text-center">Community rating</div>
+                       <div className="text-gray-300 text-sm text-center">Community rating</div>
                     </div>
                   </CardContent>
                 </Card>
 
                 {/* Avg Submission Speed Card */}
-                <Card className="bg-white/90 border-[#e9e2ce] hover:shadow-lg transition-all duration-300 group analytics-card">
+                 <Card className="study-card hover:shadow-lg transition-all duration-300 group analytics-card">
                   <CardHeader className="pb-3">
-                    <CardTitle className="flex items-center gap-2 text-[#1c180d] text-sm">
-                      <Clock className="h-4 w-4 text-blue-500" /> Avg Speed
+                     <CardTitle className="flex items-center gap-2 text-white text-sm">
+                       <Clock className="h-4 w-4 text-[#06b6d4]" /> Avg Speed
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="pt-0">
@@ -255,7 +262,7 @@ export default function LeaderboardPage() {
                             cx="50"
                             cy="50"
                             r="40"
-                            stroke="#e9e2ce"
+                             stroke="#4ade80"
                             strokeWidth="8"
                             fill="transparent"
                             className="opacity-30"
@@ -292,23 +299,23 @@ export default function LeaderboardPage() {
                         </svg>
                         <div className="absolute inset-0 flex items-center justify-center">
                           <div className="text-center">
-                            <div className="text-2xl font-bold text-[#1c180d] group-hover:text-blue-600 transition-colors">
+                             <div className="text-2xl font-bold text-white group-hover:text-[#06b6d4] transition-colors">
                               {analyticsData.avgSubmissionSpeed > 0 ? `${analyticsData.avgSubmissionSpeed.toFixed(1)}` : '--'}
                             </div>
-                            <div className="text-xs text-[#9e8747]">hrs</div>
+                             <div className="text-xs text-gray-300">hrs</div>
                           </div>
                         </div>
                       </div>
-                      <div className="text-[#9e8747] text-sm text-center">Avg solve time</div>
+                       <div className="text-gray-300 text-sm text-center">Avg solve time</div>
                     </div>
                   </CardContent>
                 </Card>
 
                 {/* Community Rating Distribution Card */}
-                <Card className="bg-white/90 border-[#e9e2ce] hover:shadow-lg transition-all duration-300 group analytics-card">
+                 <Card className="study-card hover:shadow-lg transition-all duration-300 group analytics-card">
                   <CardHeader className="pb-3">
-                    <CardTitle className="flex items-center gap-2 text-[#1c180d] text-sm">
-                      <Star className="h-4 w-4 text-green-500" /> Top Ratings
+                     <CardTitle className="flex items-center gap-2 text-white text-sm">
+                       <Star className="h-4 w-4 text-[#4ade80]" /> Top Ratings
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="pt-0">
@@ -319,7 +326,7 @@ export default function LeaderboardPage() {
                             cx="50"
                             cy="50"
                             r="40"
-                            stroke="#e9e2ce"
+                             stroke="#4ade80"
                             strokeWidth="8"
                             fill="transparent"
                             className="opacity-30"
@@ -354,7 +361,7 @@ export default function LeaderboardPage() {
                         </svg>
                         <div className="absolute inset-0 flex items-center justify-center">
                           <div className="text-center">
-                            <div className="text-2xl font-bold text-[#1c180d] group-hover:text-green-600 transition-colors">
+                             <div className="text-2xl font-bold text-white group-hover:text-[#4ade80] transition-colors">
                               {(() => {
                                 const totalRatings = analyticsData.ratingsDist?.reduce((sum: number, item: any) => sum + (item.count || 0), 0) || 0;
                                 const fiveStarRatings = analyticsData.ratingsDist?.find((item: any) => item.rating === 5)?.count || 0;
@@ -364,7 +371,7 @@ export default function LeaderboardPage() {
                           </div>
                         </div>
                       </div>
-                      <div className="text-[#9e8747] text-sm text-center">5-star ratings</div>
+                       <div className="text-gray-300 text-sm text-center">5-star ratings</div>
                     </div>
                   </CardContent>
                 </Card>
@@ -394,16 +401,56 @@ export default function LeaderboardPage() {
             </div>
           )}
 
-          <hr className="my-6 border-[#e9e2ce]" />
+                     <hr className="my-6 border-[#4ade80]/30" />
+
+          {/* Rating Tiers Info */}
+          <div className="mb-6">
+            <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
+              <Star className="h-5 w-5 text-[#4ade80]" />
+              Rating Tiers
+            </h3>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+              <div className="text-center p-3 rounded-lg bg-gradient-to-br from-[#cd7f32]/20 to-[#b8860b]/20 border border-[#cd7f32]/30">
+                <div className="text-xs font-bold text-[#cd7f32] mb-1">BRONZE</div>
+                <div className="text-xs text-gray-300">3.0+ stars</div>
+                <div className="text-xs text-gray-400">3 rubies</div>
+              </div>
+              <div className="text-center p-3 rounded-lg bg-gradient-to-br from-[#b87333]/20 to-[#a0522d]/20 border border-[#b87333]/30">
+                <div className="text-xs font-bold text-[#b87333] mb-1">COPPER</div>
+                <div className="text-xs text-gray-300">3.5+ stars</div>
+                <div className="text-xs text-gray-400">7 rubies</div>
+              </div>
+              <div className="text-center p-3 rounded-lg bg-gradient-to-br from-[#c0c0c0]/20 to-[#a8a8a8]/20 border border-[#c0c0c0]/30">
+                <div className="text-xs font-bold text-[#a8a8a8] mb-1">SILVER</div>
+                <div className="text-xs text-gray-300">4.0+ stars</div>
+                <div className="text-xs text-gray-400">1 emerald</div>
+              </div>
+              <div className="text-center p-3 rounded-lg bg-gradient-to-br from-[#ffd700]/20 to-[#ffb347]/20 border border-[#ffd700]/30">
+                <div className="text-xs font-bold text-[#ffb347] mb-1">GOLD</div>
+                <div className="text-xs text-gray-300">4.5+ stars</div>
+                <div className="text-xs text-gray-400">3 emeralds</div>
+              </div>
+              <div className="text-center p-3 rounded-lg bg-gradient-to-br from-[#e5e4e2]/20 to-[#b8b8b8]/20 border border-[#e5e4e2]/30">
+                <div className="text-xs font-bold text-[#b8b8b8] mb-1">PLATINUM</div>
+                <div className="text-xs text-gray-300">4.5+ stars</div>
+                <div className="text-xs text-gray-400">5 emeralds</div>
+              </div>
+            </div>
+            <div className="text-center mt-3">
+              <p className="text-xs text-gray-400">
+                💎 1 Emerald = 10 Rubies | 🔴 Rubies for lower tiers, 💎 Emeralds for higher tiers
+              </p>
+            </div>
+          </div>
 
           {/* Sort Options */}
-          <div className="flex justify-center gap-2 mb-6 sticky top-0 z-20 bg-[#fcfbf8] py-2 shadow-sm rounded-b-xl">
+           <div className="flex justify-center gap-2 mb-6 sticky top-0 z-20 reddit-dark-bg py-2 shadow-sm rounded-b-xl backdrop-blur-sm">
             <button
               onClick={() => setSortBy("points")}
-              className={`px-3 py-2 sm:px-4 rounded-lg font-medium text-sm sm:text-base transition-colors shadow-sm border border-[#e9e2ce] ${
+               className={`duolingo-button ${
                 sortBy === "points"
-                  ? "bg-[#fac638] text-[#1c180d] border-[#fac638]"
-                  : "bg-[#f4f0e6] text-[#1c180d] hover:bg-[#fac638]/20"
+                   ? "shadow-lg shadow-green-500/25"
+                   : "duolingo-button-secondary"
               }`}
             >
               <TrendingUp className="inline h-4 w-4 mr-1 sm:mr-2" />
@@ -411,10 +458,10 @@ export default function LeaderboardPage() {
             </button>
             <button
               onClick={() => setSortBy("rating")}
-              className={`px-3 py-2 sm:px-4 rounded-lg font-medium text-sm sm:text-base transition-colors shadow-sm border border-[#e9e2ce] ${
+               className={`duolingo-button ${
                 sortBy === "rating"
-                  ? "bg-[#fac638] text-[#1c180d] border-[#fac638]"
-                  : "bg-[#f4f0e6] text-[#1c180d] hover:bg-[#fac638]/20"
+                   ? "duolingo-button-purple shadow-lg shadow-purple-500/25"
+                   : "duolingo-button-secondary"
               }`}
             >
               <Star className="inline h-4 w-4 mr-1 sm:mr-2" />
@@ -425,58 +472,94 @@ export default function LeaderboardPage() {
           {/* Leaderboard */}
           {loading ? (
             <div className="text-center py-12">
-              <p className="text-[#9e8747]">Loading leaderboard...</p>
+               <p className="text-gray-300">Loading leaderboard...</p>
             </div>
           ) : leaderboard.length === 0 ? (
             <div className="text-center py-12">
-              <p className="text-[#9e8747]">
-                No data available yet. Start solving assignments to appear on the leaderboard!
-              </p>
+              <div className="mb-6">
+                <Trophy className="w-20 h-20 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-white mb-2">Leaderboard is Empty</h3>
+                <p className="text-gray-300 mb-4">
+                  No users have qualified for the leaderboard yet. Users need to solve at least one assignment or earn points to appear here.
+                </p>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-2xl mx-auto">
+                <div className="p-4 rounded-lg bg-gradient-to-br from-green-500/10 to-green-600/10 border border-green-500/20">
+                  <h4 className="font-semibold text-white mb-2">How to Qualify</h4>
+                  <ul className="text-sm text-gray-300 text-left space-y-1">
+                    <li>• Solve at least one assignment</li>
+                    <li>• Earn points through contributions</li>
+                    <li>• Get rated by other users</li>
+                  </ul>
+                </div>
+                <div className="p-4 rounded-lg bg-gradient-to-br from-blue-500/10 to-cyan-500/10 border border-blue-500/20">
+                  <h4 className="font-semibold text-white mb-2">Get Started</h4>
+                  <ul className="text-sm text-gray-300 text-left space-y-1">
+                    <li>• Browse available assignments</li>
+                    <li>• Upload your own assignments</li>
+                    <li>• Rate other submissions</li>
+                  </ul>
+                </div>
+              </div>
             </div>
           ) : (
             <div className="space-y-4">
               {leaderboard.map((leaderUser, index) => (
                 <Card
                   key={leaderUser.id}
-                  className={`border-[#e9e2ce] transition-all rounded-2xl shadow-md ${
+                   className={`study-card transition-all duration-300 rounded-2xl shadow-md group ${
                     leaderUser.id === user.id
-                      ? "bg-[#fac638]/10 border-[#fac638] ring-2 ring-[#fac638]"
-                      : "bg-[#fcfbf8] hover:shadow-lg"
+                       ? "border-[#4ade80] ring-2 ring-[#4ade80] shadow-lg shadow-green-500/20"
+                       : "hover:shadow-xl hover:scale-[1.02] hover:border-green-400/30 hover:shadow-green-500/10"
                   }`}
                 >
                   <CardContent className="p-3 sm:p-6">
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
                       <div className="flex flex-row items-center gap-3 w-full sm:w-auto">
                         <div className="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12">{getRankIcon(leaderUser.rank)}</div>
-                        <Avatar className="h-10 w-10 sm:h-12 sm:w-12 bg-[#f4f0e6]">
-                          <AvatarFallback className="bg-[#f4f0e6] text-[#1c180d] font-semibold">
+                         <Avatar className="h-10 w-10 sm:h-12 sm:w-12 bg-gradient-to-br from-[#4ade80] to-[#22c55e] group-hover:shadow-lg group-hover:shadow-green-500/30 transition-all duration-300">
+                           <AvatarFallback className="bg-gradient-to-br from-[#4ade80] to-[#22c55e] text-white font-semibold group-hover:from-green-400 group-hover:to-green-600 transition-all duration-300">
                             {leaderUser.username?.slice(0, 2).toUpperCase() || "??"}
                           </AvatarFallback>
                         </Avatar>
                         <div className="text-left">
                           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1 sm:gap-2">
-                            <h3 className="font-semibold text-[#1c180d] text-base sm:text-lg">{leaderUser.username || "Anonymous User"}</h3>
-                            {leaderUser.id === user.id && <Badge className="bg-[#fac638] text-[#1c180d] text-xs sm:text-sm">You</Badge>}
+                             <h3 className="font-semibold text-white text-base sm:text-lg">{leaderUser.username || "Anonymous User"}</h3>
+                             {leaderUser.id === user.id && <Badge className="bg-[#4ade80] text-white text-xs sm:text-sm">You</Badge>}
                             <Badge className={getRankBadgeColor(leaderUser.rank) + " text-xs sm:text-sm"}>Rank #{leaderUser.rank}</Badge>
                           </div>
-                          <p className="text-xs sm:text-sm text-[#9e8747]">{leaderUser.assignmentsSolved || 0} assignments solved</p>
+                           <p className="text-xs sm:text-sm text-gray-300">{leaderUser.assignmentsSolved || 0} assignments solved</p>
                         </div>
                       </div>
                       <div className="flex flex-row justify-between sm:justify-end gap-3 sm:gap-4 w-full sm:w-auto">
                         <div className="text-center min-w-[70px]">
-                          <p className="text-xl sm:text-2xl font-bold text-[#1c180d]">{Number.isFinite(Number(leaderUser.points)) ? Number(leaderUser.points) : 0}</p>
-                          <p className="text-xs text-[#9e8747]">Points</p>
+                           <p className="text-xl sm:text-2xl font-bold text-white">{Number.isFinite(Number(leaderUser.points)) ? Number(leaderUser.points) : 0}</p>
+                           <p className="text-xs text-gray-300">Points</p>
                         </div>
                         <div className="text-center min-w-[70px]">
-                          <div className="flex items-center gap-1 justify-center">
-                            <Star className="h-4 w-4 text-yellow-500 fill-current" />
-                            <span className="text-base sm:text-lg font-semibold text-[#1c180d]">{
-                              Number.isFinite(Number(leaderUser.averageRating))
-                                ? Number(leaderUser.averageRating).toFixed(1)
-                                : "0.0"
-                            }</span>
+                          <div className="flex items-center gap-1 justify-center mb-1">
+                            {(() => {
+                              const rating = Number.isFinite(Number(leaderUser.averageRating)) ? Number(leaderUser.averageRating) : 0;
+                              const badge = getRatingBadge(rating);
+                              return (
+                                <div className={badge.className}>
+                                  <span className="text-xs font-bold">{badge.displayText}</span>
+                                  <span className="text-xs flex items-center gap-1">
+                                    {badge.emeralds > 0 ? (
+                                      <>
+                                        {badge.emeralds} <GemIcon type="emerald" size={12} />
+                                      </>
+                                    ) : (
+                                      <>
+                                        {badge.rubies} <GemIcon type="ruby" size={12} />
+                                      </>
+                                    )}
+                                  </span>
+                                </div>
+                              );
+                            })()}
                           </div>
-                          <p className="text-xs text-[#9e8747]">({Number.isFinite(Number(leaderUser.totalRatings)) ? Number(leaderUser.totalRatings) : 0} ratings)</p>
+                          <p className="text-xs text-gray-300">({Number.isFinite(Number(leaderUser.totalRatings)) ? Number(leaderUser.totalRatings) : 0} ratings)</p>
                         </div>
                       </div>
                     </div>
@@ -488,36 +571,97 @@ export default function LeaderboardPage() {
 
           {/* Your Stats */}
           {user && (
-            <Card className="border-[#e9e2ce] bg-[#fcfbf8] mt-8">
+             <Card className="study-card mt-8 border-[#4ade80]/20 shadow-lg shadow-green-500/10">
               <CardHeader>
-                <CardTitle className="text-[#1c180d]">Your Statistics</CardTitle>
-                <CardDescription className="text-[#9e8747]">
+                 <CardTitle className="text-white flex items-center gap-2">
+                   <TrendingUp className="h-5 w-5 text-[#4ade80]" />
+                   Your Statistics
+                 </CardTitle>
+                 <CardDescription className="text-gray-300">
                   Keep solving assignments to improve your ranking!
                 </CardDescription>
               </CardHeader>
               <CardContent>
+                {currentUserStats ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 text-center">
-                  <div>
-                    <p className="text-2xl font-bold text-[#1c180d]">{currentUserStats?.points || 0}</p>
-                    <p className="text-sm text-[#9e8747]">Points</p>
+                  <div className="p-4 rounded-lg bg-gradient-to-br from-green-500/10 to-green-600/10 border border-green-500/20 hover:shadow-lg hover:shadow-green-500/20 transition-all duration-300">
+                     <p className="text-2xl font-bold text-white">{currentUserStats?.points || 0}</p>
+                     <p className="text-sm text-gray-300">Points</p>
                   </div>
-                  <div>
-                    <p className="text-2xl font-bold text-[#1c180d]">
-                      {currentUserStats?.averageRating?.toFixed(1) || "0.0"}
-                    </p>
-                    <p className="text-sm text-[#9e8747]">Avg Rating</p>
+                  <div className="p-4 rounded-lg bg-gradient-to-br from-amber-500/10 to-orange-500/10 border border-amber-500/20 hover:shadow-lg hover:shadow-amber-500/20 transition-all duration-300">
+                     <div className="flex flex-col items-center gap-2">
+                       {(() => {
+                         const rating = currentUserStats?.averageRating || 0;
+                         const badge = getRatingBadge(rating);
+                         return (
+                           <div className={badge.className}>
+                             <span className="text-xs font-bold">{badge.displayText}</span>
+                               <span className="text-xs flex items-center gap-1">
+                                 {badge.emeralds > 0 ? (
+                                   <>
+                                     {badge.emeralds} <GemIcon type="emerald" size={12} />
+                                   </>
+                                 ) : (
+                                   <>
+                                     {badge.rubies} <GemIcon type="ruby" size={12} />
+                                   </>
+                                 )}
+                               </span>
+                           </div>
+                         );
+                       })()}
+                       <p className="text-sm text-gray-300">Avg Rating</p>
+                     </div>
                   </div>
-                  <div>
-                    <p className="text-2xl font-bold text-[#1c180d]">{currentUserStats?.totalRatings || 0}</p>
-                    <p className="text-sm text-[#9e8747]">Total Ratings</p>
+                  <div className="p-4 rounded-lg bg-gradient-to-br from-blue-500/10 to-cyan-500/10 border border-blue-500/20 hover:shadow-lg hover:shadow-blue-500/20 transition-all duration-300">
+                     <p className="text-2xl font-bold text-white">{currentUserStats?.totalRatings || 0}</p>
+                     <p className="text-sm text-gray-300">Total Ratings</p>
                   </div>
-                  <div>
-                    <p className="text-2xl font-bold text-[#1c180d]">
+                  <div className="p-4 rounded-lg bg-gradient-to-br from-purple-500/10 to-pink-500/10 border border-purple-500/20 hover:shadow-lg hover:shadow-purple-500/20 transition-all duration-300">
+                     <p className="text-2xl font-bold text-white">
                       {currentUserStats?.rank || "Unranked"}
                     </p>
-                    <p className="text-sm text-[#9e8747]">Your Rank</p>
+                     <p className="text-sm text-gray-300">Your Rank</p>
                   </div>
                 </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <div className="mb-4">
+                      <BookOpen className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                      <h3 className="text-lg font-semibold text-white mb-2">Not on Leaderboard Yet</h3>
+                      <p className="text-gray-300 mb-4">
+                        You need to solve at least one assignment or earn points to appear on the leaderboard.
+                      </p>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
+                      <div className="p-4 rounded-lg bg-gradient-to-br from-green-500/10 to-green-600/10 border border-green-500/20">
+                        <p className="text-2xl font-bold text-white">0</p>
+                        <p className="text-sm text-gray-300">Points</p>
+                      </div>
+                      <div className="p-4 rounded-lg bg-gradient-to-br from-blue-500/10 to-cyan-500/10 border border-blue-500/20">
+                        <p className="text-2xl font-bold text-white">0</p>
+                        <p className="text-sm text-gray-300">Assignments Solved</p>
+                      </div>
+                      <div className="p-4 rounded-lg bg-gradient-to-br from-purple-500/10 to-pink-500/10 border border-purple-500/20">
+                        <p className="text-2xl font-bold text-white">--</p>
+                        <p className="text-sm text-gray-300">Rating</p>
+                      </div>
+                    </div>
+                    <div className="mt-6">
+                      <p className="text-sm text-gray-400 mb-3">Start your journey by:</p>
+                      <div className="flex flex-col sm:flex-row gap-2 justify-center">
+                        <Badge className="bg-[#4ade80] text-white px-3 py-1">
+                          <Upload className="w-3 h-3 mr-1" />
+                          Upload an assignment
+                        </Badge>
+                        <Badge className="bg-[#8b5cf6] text-white px-3 py-1">
+                          <BookOpen className="w-3 h-3 mr-1" />
+                          Solve assignments
+                        </Badge>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
           )}

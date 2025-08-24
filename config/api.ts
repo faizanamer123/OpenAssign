@@ -1,4 +1,4 @@
 // Get API base URL - prioritize environment variable, fallback to production
 export const getApiBaseUrl = () => {
-  return process.env.NEXT_PUBLIC_API_BASE || "http://localhost:3000";
+  return process.env.NEXT_PUBLIC_API_BASE; //|| "http://localhost:3000";
 }; 

@@ -74,7 +74,7 @@ export default function Terms() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-card to-muted px-4 py-8">
+    <div className="min-h-screen reddit-dark-bg px-4 py-8">
       {/* Header Section */}
       <div className="mb-12">
         <div className="flex justify-start mb-8">
@@ -88,25 +88,23 @@ export default function Terms() {
         </div>
         
         <div className="text-center max-w-4xl mx-auto">
-          <h1 className="text-5xl font-black text-foreground mb-6 tracking-tight">
-            <span className="bg-gradient-to-r from-foreground via-foreground/80 to-foreground bg-clip-text text-transparent">
+          <h1 className="text-5xl font-black text-white mb-6 tracking-tight">
+            <span className="study-vibe-text">
               Terms & Conditions
             </span>
           </h1>
           
           <div className="relative">
-            <p className="text-foreground text-xl leading-relaxed font-medium max-w-3xl mx-auto">
-              Welcome to <span className="font-bold text-primary">OpenAssign</span>. 
+            <p className="text-gray-300 text-xl leading-relaxed font-medium max-w-3xl mx-auto">
+              Welcome to <span className="font-bold text-[#4ade80]">OpenAssign</span>. 
               By accessing or using our platform, you agree to comply with the following 
               terms and conditions. Please read them carefully to understand your rights 
               and responsibilities as a valued member of our community.
             </p>
-            <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-24 h-1 bg-gradient-to-r from-transparent via-primary to-transparent rounded-full"></div>
+            <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-24 h-1 bg-gradient-to-r from-transparent via-[#4ade80] to-transparent rounded-full"></div>
           </div>
         </div>
       </div>
-
-
 
       {/* Main Content */}
       <div className="max-w-5xl mx-auto">
@@ -114,18 +112,18 @@ export default function Terms() {
           {sections.map((section, index) => (
             <div 
               key={index}
-              className="group bg-card/95 backdrop-blur-sm rounded-3xl shadow-lg hover:shadow-xl border border-border hover:border-primary/30 transition-all duration-500 overflow-hidden"
+              className="group study-card shadow-lg hover:shadow-xl transition-all duration-500 overflow-hidden"
             >
               <div className="p-8 md:p-10">
                 <div className="flex items-center mb-6">
-                  <div className="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-primary/10 to-primary/5 rounded-2xl flex items-center justify-center mr-6 group-hover:scale-110 transition-transform duration-300">
-                    <section.icon className="text-2xl text-primary" />
+                  <div className="flex-shrink-0 w-16 h-16 soft-icon flex items-center justify-center mr-6">
+                    <section.icon className="text-2xl text-[#4ade80]" />
                   </div>
                   <div>
-                    <h2 className="text-2xl font-bold text-foreground mb-2 group-hover:text-primary transition-colors duration-300">
+                    <h2 className="text-2xl font-bold text-white mb-2 group-hover:text-[#4ade80] transition-colors duration-300">
                       {index + 1}. {section.title}
                     </h2>
-                    <div className="w-12 h-1 bg-gradient-to-r from-primary to-primary/50 rounded-full"></div>
+                    <div className="w-12 h-1 bg-gradient-to-r from-[#4ade80] to-[#4ade80]/50 rounded-full"></div>
                   </div>
                 </div>
                 
@@ -133,10 +131,10 @@ export default function Terms() {
                   {section.items.map((item, itemIndex) => (
                     <div 
                       key={itemIndex}
-                      className="flex items-start space-x-4 group/item hover:bg-primary/5 p-3 rounded-xl transition-colors duration-200"
+                      className="flex items-start space-x-4 group/item hover:bg-[#4ade80]/5 p-3 rounded-xl transition-colors duration-200"
                     >
-                      <div className="flex-shrink-0 w-2 h-2 bg-primary rounded-full mt-3 group-hover/item:scale-125 transition-transform duration-200"></div>
-                      <p className="text-muted-foreground leading-relaxed text-lg font-medium group-hover/item:text-foreground transition-colors duration-200">
+                      <div className="flex-shrink-0 w-2 h-2 bg-[#4ade80] rounded-full mt-3 group-hover/item:scale-125 transition-transform duration-200"></div>
+                      <p className="text-gray-300 leading-relaxed text-lg font-medium group-hover/item:text-white transition-colors duration-200">
                         {item}
                       </p>
                     </div>
@@ -145,12 +143,10 @@ export default function Terms() {
               </div>
               
               {/* Decorative bottom border */}
-              <div className="h-1 bg-gradient-to-r from-transparent via-primary/20 to-transparent"></div>
+              <div className="h-1 bg-gradient-to-r from-transparent via-[#4ade80]/20 to-transparent"></div>
             </div>
           ))}
         </div>
-
-
       </div>
     </div>
   );

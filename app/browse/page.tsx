@@ -27,6 +27,7 @@ const Header = dynamic(() => import("@/components/Header"), {
 });
 import { useAuth } from "@/context/AuthContext";
 import { getAssignments } from "@/utils/api";
+import { getRatingBadge, getGemDisplay } from "@/utils/ratingBadge";
 import type { Assignment } from "@/types/assignment";
 
 export default function BrowsePage() {
@@ -92,26 +93,26 @@ export default function BrowsePage() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "pending":
-        return "bg-yellow-100 text-yellow-800";
+        return "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30";
       case "in_progress":
-        return "bg-blue-100 text-blue-800";
+        return "bg-blue-500/20 text-blue-400 border border-blue-500/30";
       case "solved":
-        return "bg-green-100 text-green-800";
+        return "bg-green-500/20 text-green-400 border border-green-500/30";
       default:
-        return "bg-gray-100 text-gray-800";
+        return "bg-gray-500/20 text-gray-400 border border-gray-500/30";
     }
   };
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
       case "easy":
-        return "bg-green-100 text-green-800";
+        return "bg-green-500/20 text-green-400 border border-green-500/30";
       case "medium":
-        return "bg-yellow-100 text-yellow-800";
+        return "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30";
       case "hard":
-        return "bg-red-100 text-red-800";
+        return "bg-red-500/20 text-red-400 border border-red-500/30";
       default:
-        return "bg-gray-100 text-gray-800";
+        return "bg-gray-500/20 text-gray-400 border border-gray-500/30";
     }
   };
 
@@ -132,36 +133,36 @@ export default function BrowsePage() {
   if (!user) return null;
 
   return (
-    <div className="min-h-screen bg-[#fcfbf8]">
+    <div className="min-h-screen reddit-dark-bg">
       <Header />
 
       <div className="px-4 py-8 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-6xl">
           <div className="mb-8">
-            <h1 className="text-3xl font-bold text-[#1c180d] mb-2">
+            <h1 className="text-3xl font-bold text-white mb-2">
               Browse Assignments
             </h1>
-            <p className="text-[#9e8747]">
+            <p className="text-gray-300">
               Find assignments to solve and earn points. Help your fellow
               students while building your reputation.
             </p>
           </div>
 
           {/* Search and Filters */}
-          <Card className="border-[#e9e2ce] bg-[#fcfbf8] mb-8">
+          <Card className="study-card mb-8">
             <CardContent className="p-6">
               <div className="flex flex-col md:flex-row gap-4">
                 <div className="flex-1 relative">
-                  <Search className="absolute left-3 top-3 h-4 w-4 text-[#9e8747]" />
+                  <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                   <Input
                     placeholder="Search assignments..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10 border-[#e9e2ce] bg-[#fcfbf8] focus:border-[#fac638]"
+                    className="pl-10 border-[#4ade80]/30 bg-[#1a1a1f]/50 focus:border-[#4ade80] text-white"
                   />
                 </div>
                 <Select value={statusFilter} onValueChange={setStatusFilter}>
-                  <SelectTrigger className="w-full md:w-40 border-[#e9e2ce] bg-[#fcfbf8]">
+                  <SelectTrigger className="w-full md:w-40 border-[#4ade80]/30 bg-[#1a1a1f]/50">
                     <SelectValue placeholder="Status" />
                   </SelectTrigger>
                   <SelectContent>
@@ -175,7 +176,7 @@ export default function BrowsePage() {
                   value={difficultyFilter}
                   onValueChange={setDifficultyFilter}
                 >
-                  <SelectTrigger className="w-full md:w-40 border-[#e9e2ce] bg-[#fcfbf8]">
+                  <SelectTrigger className="w-full md:w-40 border-[#4ade80]/30 bg-[#1a1a1f]/50">
                     <SelectValue placeholder="Difficulty" />
                   </SelectTrigger>
                   <SelectContent>
@@ -192,11 +193,11 @@ export default function BrowsePage() {
           {/* Assignment Grid */}
           {loading ? (
             <div className="text-center py-12">
-              <p className="text-[#9e8747]">Loading assignments...</p>
+              <p className="text-gray-300">Loading assignments...</p>
             </div>
           ) : filteredAssignments.length === 0 ? (
             <div className="text-center py-12">
-              <p className="text-[#9e8747]">
+              <p className="text-gray-300">
                 No assignments found matching your criteria.
               </p>
             </div>
@@ -205,7 +206,7 @@ export default function BrowsePage() {
               {filteredAssignments.map((assignment) => (
                 <Card
                   key={assignment.id}
-                  className="border-[#e9e2ce] bg-[#fcfbf8] hover:shadow-lg transition-shadow"
+                  className="study-card hover:shadow-lg transition-shadow"
                 >
                   <CardHeader>
                     <div className="flex justify-between items-start mb-2">
@@ -218,24 +219,24 @@ export default function BrowsePage() {
                         {assignment.difficulty}
                       </Badge>
                     </div>
-                    <CardTitle className="text-[#1c180d] text-lg line-clamp-2">
+                    <CardTitle className="text-white text-lg line-clamp-2">
                       {assignment.title || "No Title"}
                     </CardTitle>
-                    <CardDescription className="text-[#9e8747] line-clamp-3">
+                    <CardDescription className="text-gray-300 line-clamp-3">
                       {assignment.description || "No Description"}
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-3">
-                      <div className="flex items-center gap-2 text-sm text-[#9e8747]">
+                      <div className="flex items-center gap-2 text-sm text-gray-300">
                         <BookOpen className="h-4 w-4" />
                         <span>{assignment.subject || "General"}</span>
                       </div>
-                      <div className="flex items-center gap-2 text-sm text-[#9e8747]">
+                      <div className="flex items-center gap-2 text-sm text-gray-300">
                         <Clock className="h-4 w-4" />
                         <span>{formatTimeLeft(assignment.deadline)}</span>
                       </div>
-                      <div className="flex items-center gap-2 text-sm text-[#9e8747]">
+                      <div className="flex items-center gap-2 text-sm text-gray-300">
                         <User className="h-4 w-4" />
                         <span>
                           Posted by{" "}
@@ -244,7 +245,7 @@ export default function BrowsePage() {
                       </div>
                       <div className="h-8"></div>
                       <Link href={`/assignment/${assignment.id}`}>
-                        <Button className="w-full bg-[#fac638] text-[#1c180d] hover:bg-[#fac638]/90">
+                        <Button className="w-full duolingo-button">
                           {assignment.status === "solved"
                             ? "View Solution"
                             : "View & Solve"}
