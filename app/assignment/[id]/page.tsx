@@ -56,7 +56,7 @@ import { Submission } from "@/types/submission";
 import { getRatingBadge, getGemDisplay } from "@/utils/ratingBadge";
 import GemIcon from "@/components/ui/GemIcon";
 
-const BASE_API = process.env.API_BASE || "http://localhost:3000";
+const BASE_API = process.env.NEXT_PUBLIC_API_BASE;
 
 export default function AssignmentDetailPage() {
   const params = useParams();

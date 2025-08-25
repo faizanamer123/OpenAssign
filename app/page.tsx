@@ -80,7 +80,7 @@ export default function LandingPage() {
         toast({
           description: (
             <div className="flex items-center gap-2">
-              <PartyPopper className="w-5 h-5 text-yellow-500" />
+              <PartyPopper className="w-5 h-5 text-green-600" />
               <span>You've been signed in successfully.</span>
             </div>
           ),
@@ -108,7 +108,7 @@ export default function LandingPage() {
       toast({
         title: (
           <div className="flex items-center gap-2">
-            <Mail className="w-5 h-5 text-yellow-500" />
+            <Mail className="w-5 h-5 text-green-600" />
             <span>OTP Sent!</span>
           </div>
         ),
@@ -158,7 +158,7 @@ export default function LandingPage() {
         toast({
             description: (
               <div className="flex items-center gap-2">
-                <PartyPopper className="w-5 h-5 text-yellow-500" />
+                <PartyPopper className="w-5 h-5 text-green-600" />
                 <span>You've been signed in successfully.</span>
               </div>
             ),
@@ -201,7 +201,7 @@ export default function LandingPage() {
       toast({
         title: (
           <div className="flex items-center gap-2">
-            <Mail className="w-5 h-5 text-yellow-500" />
+            <Mail className="w-5 h-5 text-green-600" />
             <span>OTP Sent!</span>
           </div>
         ),
@@ -240,7 +240,7 @@ export default function LandingPage() {
       toast({
       title: (
         <div className="flex items-center gap-2">
-          <PartyPopper className="w-5 h-5 text-yellow-500" />
+          <PartyPopper className="w-5 h-5 text-green-600" />
           <span>Welcome to OpenAssign!</span>
         </div>
       ),
