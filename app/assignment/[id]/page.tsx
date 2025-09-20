@@ -55,6 +55,7 @@ import { getFileTypeInfo } from "@/utils/file-type";
 import { Submission } from "@/types/submission";
 import { getRatingBadge, getGemDisplay } from "@/utils/ratingBadge";
 import GemIcon from "@/components/ui/GemIcon";
+import DiscussionSection from "@/components/DiscussionSection";
 
 const BASE_API = process.env.NEXT_PUBLIC_API_BASE;
 
@@ -850,6 +851,14 @@ export default function AssignmentDetailPage() {
               </CardContent>
             </Card>
           )}
+
+          {/* Discussion Section */}
+          <DiscussionSection
+            assignmentId={assignment.id}
+            currentUserId={user.id}
+            currentUsername={user.username}
+          />
+
           {/* Rating Dialog */}
           <Dialog
             open={ratingDialog.open}
