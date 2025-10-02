@@ -55,6 +55,7 @@ import { getFileTypeInfo } from "@/utils/file-type";
 import { Submission } from "@/types/submission";
 import { getRatingBadge, getGemDisplay } from "@/utils/ratingBadge";
 import GemIcon from "@/components/ui/GemIcon";
+import DiscussionSection from "@/components/DiscussionSection";
 
 const BASE_API = process.env.NEXT_PUBLIC_API_BASE;
 
@@ -604,12 +605,12 @@ export default function AssignmentDetailPage() {
                       <div className="space-y-2">
                         <Label htmlFor="solution">Solution Explanation</Label>
                         <Textarea
-                          id="solution"
-                          placeholder="Explain your solution here..."
-                          value={solution}
-                          onChange={(e) => setSolution(e.target.value)}
-                          className="min-h-32 border-[#e9e2ce] bg-[#fcfbf8] focus:border-[#fac638]"
-                        />
+                            id="solution"
+                            placeholder="Explain your solution here..."
+                            value={solution}
+                            onChange={(e) => setSolution(e.target.value)}
+                            className="min-h-32 w-full rounded-lg border border-[#4ade80]/30 bg-[#1a1a1b]/50 px-4 py-3 text-sm text-white placeholder:text-gray-400 focus:border-[#4ade80] focus:ring-1 focus:ring-[#4ade80] focus:outline-none transition-all duration-200"
+                          />
                       </div>
 
                       <div className="space-y-2">
@@ -850,6 +851,14 @@ export default function AssignmentDetailPage() {
               </CardContent>
             </Card>
           )}
+
+          {/* Discussion Section */}
+          <DiscussionSection
+            assignmentId={assignment.id}
+            currentUserId={user.id}
+            currentUsername={user.username}
+          />
+
           {/* Rating Dialog */}
           <Dialog
             open={ratingDialog.open}
@@ -898,7 +907,6 @@ export default function AssignmentDetailPage() {
                         </span>
                       </div>
                       <div className="text-center">
-                        <div className="text-sm font-semibold text-gray-700">{tier.rating}+ stars</div>
                         <div className="text-xs text-gray-500">{tier.description}</div>
                       </div>
                   </button>

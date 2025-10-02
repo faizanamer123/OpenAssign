@@ -532,6 +532,38 @@
   animation: shimmer 2s infinite;
 }
 
+/* Discussion section specific styles - Override global green with orange */
+/* Only apply to textareas within discussion components */
+[data-discussion-section] .discussion-textarea,
+.discussion-textarea {
+  --tw-ring-color: rgb(249 115 22 / 0.2) !important; /* Orange ring */
+  --tw-ring-offset-color: rgb(249 115 22 / 0.2) !important; /* Orange ring offset */
+  --tw-ring-opacity: 0.2 !important;
+}
+
+[data-discussion-section] .discussion-textarea:focus,
+.discussion-textarea:focus {
+  --tw-ring-color: rgb(249 115 22 / 0.2) !important;
+  --tw-ring-offset-color: rgb(249 115 22 / 0.2) !important;
+  --tw-ring-opacity: 0.2 !important;
+  outline-color: rgb(249 115 22) !important; /* Orange outline */
+  border-color: rgb(249 115 22) !important; /* Orange border */
+}
+
+[data-discussion-section] .discussion-textarea:focus-visible,
+.discussion-textarea:focus-visible {
+  --tw-ring-color: rgb(249 115 22 / 0.2) !important;
+  --tw-ring-offset-color: rgb(249 115 22 / 0.2) !important;
+  --tw-ring-opacity: 0.2 !important;
+  outline-color: rgb(249 115 22) !important;
+  border-color: rgb(249 115 22) !important;
+}
+
+[data-discussion-section] .discussion-textarea:hover,
+.discussion-textarea:hover {
+  border-color: rgb(249 115 22 / 0.5) !important; /* Orange border on hover */
+}
+
 /* Responsive utilities */
 @media (max-width: 640px) {
   .mobile-padding {

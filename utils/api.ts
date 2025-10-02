@@ -360,3 +360,57 @@ export async function checkEmailVerified(email: string): Promise<boolean> {
     return false;
   }
 }
+
+// Discussion functions
+export async function getDiscussionComments(
+  assignmentId: string,
+  userId: string
+): Promise<any[]> {
+  try {
+    const url = new URL(`${API_BASE}/discussion/all`);
+    url.searchParams.append('assignmentId', assignmentId);
+    url.searchParams.append('userId', userId);
+    
+    const res = await fetch(url.toString());
+    if (!res.ok) {
+      if (res.status === 404) {
+        console.warn("Discussion API endpoint not found, returning empty array");
+        return [];
+      }
+      throw new Error("Failed to fetch discussion comments");
+    }
+    return await res.json();
+  } catch (error) {
+    console.error("Error fetching discussion comments:", error);
+    // Return empty array instead of throwing to prevent app crashes
+    return [];
+  }
+}
+
+export async function createDiscussionComment(data: {
+  assignmentId: string;
+  userId: string;
+  content: string;
+  parentId?: string;
+}): Promise<any> {
+  try {
+    const res = await fetch(`${API_BASE}/discussion/create`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) {
+      if (res.status === 404) {
+        throw new Error("Discussion API endpoint not implemented yet");
+      }
+      throw new Error("Failed to create discussion comment");
+    }
+    const result = await res.json();
+    console.log("Comment creation response:", result);
+    return result;
+  } catch (error) {
+    console.error("Error creating discussion comment:", error);
+    throw error;
+  }
+}
+
