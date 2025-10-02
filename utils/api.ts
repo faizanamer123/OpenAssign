@@ -367,14 +367,16 @@ export async function getDiscussionComments(
   userId: string
 ): Promise<any[]> {
   try {
-    const url = new URL(`${API_BASE}/discussion/all`);
-    url.searchParams.append('assignmentId', assignmentId);
-    url.searchParams.append('userId', userId);
-    
+    const url = new URL(`${getApiBase()}/discussion/all`);
+    url.searchParams.append("assignmentId", assignmentId);
+    url.searchParams.append("userId", userId);
+
     const res = await fetch(url.toString());
     if (!res.ok) {
       if (res.status === 404) {
-        console.warn("Discussion API endpoint not found, returning empty array");
+        console.warn(
+          "Discussion API endpoint not found, returning empty array"
+        );
         return [];
       }
       throw new Error("Failed to fetch discussion comments");
@@ -394,7 +396,7 @@ export async function createDiscussionComment(data: {
   parentId?: string;
 }): Promise<any> {
   try {
-    const res = await fetch(`${API_BASE}/discussion/create`, {
+    const res = await fetch(`${getApiBase()}/discussion/create`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
@@ -413,4 +415,3 @@ export async function createDiscussionComment(data: {
     throw error;
   }
 }
-
