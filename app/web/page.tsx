@@ -1,44 +1,104 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
+import VideoPanel from "./VideoPanel";
 
 export default function CallRoom() {
   const [channelName, setChannelName] = useState("");
   const [userId, setUserId] = useState("");
   const [connected, setConnected] = useState(false);
-
-  const localVideoRef = useRef<HTMLVideoElement | null>(null);
-  const remoteVideoRef = useRef<HTMLVideoElement | null>(null);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [roomIdInput, setRoomIdInput] = useState("");
+  const [offerFlag, setOfferFlag] = useState<boolean>(false);
+  const [handleOfferBody, sethandleOfferBody] =
+    useState<RTCSessionDescriptionInit>();
 
   const wsRef = useRef<WebSocket | null>(null);
   const pcRef = useRef<RTCPeerConnection | null>(null);
   const localStreamRef = useRef<MediaStream | null>(null);
+  const [localStream, setLocalStream] = useState<MediaStream | null>(null);
+  const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null);
 
-  // Helper: send message to signaling server
   const sendMessage = (type: string, body: any) => {
     wsRef.current?.send(JSON.stringify({ type, body }));
   };
 
-  const waitForStream = async () => {
-    while (!localStreamRef.current) {
-      await new Promise((res) => setTimeout(res, 200));
+  useEffect(() => {
+    if (!pcRef.current) {
+      pcRef.current = new RTCPeerConnection({
+        iceServers: [
+          {
+            urls: [
+              "stun:stun1.l.google.com:19302",
+              "stun:stun2.l.google.com:19302",
+              "stun:global.stun.twilio.com:3478", // ✅ no ?transport=udp here
+            ],
+          },
+        ],
+      });
     }
-    await createOffer();
+    pcRef.current.addEventListener(
+      "icecandidate",
+      (e: RTCPeerConnectionIceEvent) => {
+        if (e.candidate) {
+          sendMessage("send_ice_candidate", {
+            channelName: channelName,
+            userId: userId,
+            candidate: e.candidate,
+          });
+        }
+      }
+    );
+    pcRef.current.addEventListener("track", (e: RTCTrackEvent) => {
+      setRemoteStream(e.streams[0]);
+    });
+  }, [channelName, userId]);
+
+  useEffect(() => {
+    if (offerFlag) {
+      createOffer();
+    }
+  }, [offerFlag]);
+
+  useEffect(() => {
+    if (handleOfferBody) {
+      handleOffer(handleOfferBody);
+    }
+  }, [handleOfferBody]);
+
+  const createNewMeeting = async () => {
+    const newRoomId = generateUniqueId();
+    const newUserId = generateUniqueId();
+
+    setChannelName(newRoomId);
+    setUserId(newUserId);
+    setShowDropdown(false);
+
+    await joinChannelWithIds(newRoomId, newUserId);
   };
 
-  // Handle WebSocket messages
+  const joinExistingMeeting = async () => {
+    if (!roomIdInput.trim()) {
+      throw Error("Room ID Not Provided....");
+    }
+
+    const newUserId = generateUniqueId();
+    setChannelName(roomIdInput);
+    setUserId(newUserId);
+    setShowDropdown(false);
+
+    await joinChannelWithIds(roomIdInput, newUserId);
+  };
+
   const handleMessage = async (event: MessageEvent) => {
     const { type, body } = JSON.parse(event.data);
 
     switch (type) {
       case "joined":
-        if (body.length > 1) {
-          await waitForStream();
-        }
+        if (body.length > 1) setOfferFlag(true);
         break;
-
       case "offer_sdp_received":
-        await handleOffer(body);
+        sethandleOfferBody(body);
         break;
 
       case "answer_sdp_received":
@@ -51,9 +111,12 @@ export default function CallRoom() {
     }
   };
 
-  const joinChannel = async () => {
-    if (!channelName || !userId) return alert("Enter both channel and user ID");
-
+  const joinChannelWithIds = async (
+    roomId: string,
+    userIdVal: string
+  ): Promise<void> => {
+    const isGranted = await generateLocalStream();
+    if (!isGranted) return;
     const socketUrl =
       process.env.NODE_ENV === "development"
         ? "ws://localhost:3000"
@@ -61,151 +124,163 @@ export default function CallRoom() {
     wsRef.current = new WebSocket(socketUrl);
     wsRef.current.onmessage = handleMessage;
     wsRef.current.onopen = () => {
-      console.log("WebSocket connected");
-      sendMessage("join", { channelName, userId });
+      sendMessage("join", { channelName: roomId, userId: userIdVal });
       setConnected(true);
     };
-
-    const config = {
-      iceServers: [
-        {
-          urls: [
-            "stun:stun1.l.google.com:19302",
-            "stun:stun2.l.google.com:19302",
-            "stun:global.stun.twilio.com:3478", // ✅ no ?transport=udp here
-          ],
-        },
-      ],
-    };
-    pcRef.current = new RTCPeerConnection(config);
-    pcRef.current.onicegatheringstatechange = () =>
-      console.log("ICE state:", pcRef.current!.iceGatheringState);
-
-    pcRef.current.addEventListener(
-      "icecandidate",
-      (e: RTCPeerConnectionIceEvent) => {
-        console.log("icecandidate", e.candidate);
-        if (e.candidate) {
-          sendMessage("send_ice_candidate", {
-            channelName,
-            userId,
-            candidate: e.candidate,
-          });
-        }
-      }
-    );
-
-    const localStream = await navigator.mediaDevices.getUserMedia({
-      video: true,
-      audio: true,
-    });
-
-    localStreamRef.current = localStream;
-    if (localVideoRef.current) {
-      localVideoRef.current.srcObject = localStream;
-    }
-
-    // add tracks to peer connection
-    localStream.getTracks().forEach((track) => {
-      pcRef.current!.addTrack(track, localStream);
-    });
-
-    pcRef.current.addEventListener("track", (e: RTCTrackEvent) => {
-      console.log("track", e.track);
-      remoteVideoRef.current!.srcObject = e.streams[0];
-    });
   };
 
-  // create and send offer
+  const generateLocalStream = async (): Promise<boolean> => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: true,
+        audio: true,
+      });
+
+      localStreamRef.current = stream;
+      setLocalStream(stream);
+
+      if (pcRef.current) {
+        stream.getTracks().forEach((track) => {
+          pcRef.current!.addTrack(track, stream);
+        });
+      }
+
+      return true; // success
+    } catch (error) {
+      return false; // failure
+    }
+  };
+
   const createOffer = async () => {
     const pc = pcRef.current!;
     const offer = await pc.createOffer();
-    console.log("offer", offer);
     await pc.setLocalDescription(offer);
 
-    sendMessage("send_offer", { channelName, userId, sdp: offer });
+    sendMessage("send_offer", {
+      channelName: channelName,
+      userId: userId,
+      sdp: offer,
+    });
   };
 
-  // handle offer from peer
   const handleOffer = async (offer: RTCSessionDescriptionInit) => {
     const remote = pcRef.current!;
-    console.log("handle offer", offer);
     await remote.setRemoteDescription(offer);
     const answer = await remote.createAnswer();
 
     await remote.setLocalDescription(answer);
-
-    sendMessage("send_answer", { channelName, userId, sdp: answer });
+    sendMessage("send_answer", {
+      channelName: channelName,
+      userId: userId,
+      sdp: answer,
+    });
   };
 
-  // handle answer
   const handleAnswer = async (answer: RTCSessionDescriptionInit) => {
-    console.log("handle answer");
     const remote = pcRef.current!;
     await remote.setRemoteDescription(new RTCSessionDescription(answer));
   };
 
-  // handle ICE
   const handleIceCandidate = async (candidate: RTCIceCandidateInit) => {
     const pc = pcRef.current!;
-    console.log("handle ice candidate", candidate);
     await pc.addIceCandidate(new RTCIceCandidate(candidate));
   };
 
-  // clean up
-  useEffect(() => {
-    return () => {
-      wsRef.current?.close();
-      pcRef.current?.close();
-      localStreamRef.current?.getTracks().forEach((t) => t.stop());
-    };
-  }, []);
+  const copyRoomId = () => {
+    if (channelName) {
+      navigator.clipboard.writeText(channelName);
+    }
+  };
 
   return (
     <div className="flex flex-col items-center text-white bg-black min-h-screen p-6">
-      <h1 className="text-2xl font-semibold mb-4">🎥 WebRTC One-to-One Call</h1>
+      {/* Top right join button with dropdown */}
+      <div className="absolute top-6 right-6">
+        <div className="relative">
+          <button
+            className="bg-blue-600 px-6 py-3 rounded-lg hover:bg-blue-700 font-semibold shadow-lg flex items-center gap-2"
+            onClick={() => setShowDropdown(!showDropdown)}
+            disabled={connected}
+          >
+            {connected ? "🟢 Connected" : "Join Meeting"}
+          </button>
 
-      <div className="flex gap-4 mb-4">
-        <input
-          className="bg-gray-800 p-2 rounded text-white"
-          placeholder="Channel Name"
-          value={channelName}
-          onChange={(e) => setChannelName(e.target.value)}
-        />
-        <input
-          className="bg-gray-800 p-2 rounded text-white"
-          placeholder="User ID"
-          value={userId}
-          onChange={(e) => setUserId(e.target.value)}
-        />
-        <button
-          className="bg-blue-600 px-4 py-2 rounded hover:bg-blue-700"
-          onClick={joinChannel}
-          disabled={connected}
-        >
-          {connected ? "Connected" : "Join"}
-        </button>
+          {/* Dropdown menu */}
+          {showDropdown && !connected && (
+            <div className="absolute right-0 mt-2 w-80 bg-gray-800 rounded-lg shadow-xl border border-gray-700 z-50">
+              <div className="p-4">
+                <button
+                  className="w-full bg-green-600 hover:bg-green-700 text-white px-4 py-3 rounded-lg mb-3 font-semibold"
+                  onClick={createNewMeeting}
+                >
+                  🆕 Create New Meeting
+                </button>
+
+                <div className="border-t border-gray-700 pt-3">
+                  <p className="text-sm text-gray-400 mb-2">
+                    Or join existing:
+                  </p>
+                  <input
+                    className="w-full bg-gray-900 p-3 rounded-lg text-white mb-2 border border-gray-600 focus:border-blue-500 focus:outline-none"
+                    placeholder="Paste Room ID"
+                    value={roomIdInput}
+                    onChange={(e) => setRoomIdInput(e.target.value)}
+                    onKeyPress={(e) =>
+                      e.key === "Enter" && joinExistingMeeting()
+                    }
+                  />
+                  <button
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-lg font-semibold"
+                    onClick={joinExistingMeeting}
+                  >
+                    ↪️ Join Room
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
-      <div className="flex gap-6 justify-center">
-        <video
-          ref={localVideoRef}
-          autoPlay
-          muted
-          playsInline
-          className="w-1/3 bg-gray-900 rounded-lg"
-        ></video>
-        <video
-          ref={remoteVideoRef}
-          autoPlay
-          playsInline
-          className="w-1/3 bg-gray-900 rounded-lg border-2 border-green-500"
-          onLoadedMetadata={() =>
-            console.log("📹 Remote video metadata loaded")
-          }
-          onPlay={() => console.log("▶️ Remote video playing")}
-        ></video>
+      {/* Show room ID when connected */}
+      {channelName && (
+        <div className="bg-gray-800 px-6 py-3 rounded-lg mb-4 flex items-center gap-3">
+          <span className="text-sm text-gray-400">Room ID:</span>
+          <code className="bg-gray-900 px-3 py-1 rounded text-green-400 font-mono">
+            {channelName}
+          </code>
+          <button
+            className="bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded text-sm"
+            onClick={copyRoomId}
+          >
+            📋 Copy
+          </button>
+        </div>
+      )}
+
+      <div className="relative flex justify-center items-center w-full h-[80vh] mt-10">
+        {/* Remote (main video) */}
+        <div className="rounded-2xl overflow-hidden border-4 border-green-600 shadow-2xl w-[80%] h-full">
+          <VideoPanel
+            stream={remoteStream}
+            mirrored={false}
+            onLeave={() => console.log("Left call")}
+          />
+        </div>
+
+        {/* Local (small preview) */}
+        <div className="absolute bottom-6 right-6 w-[200px] h-[150px] rounded-lg overflow-hidden border-4 border-red-600 shadow-lg">
+          <VideoPanel
+            stream={localStream}
+            mirrored={true}
+            onLeave={() => console.log("Left call")}
+          />
+        </div>
       </div>
     </div>
   );
 }
+
+const generateUniqueId = () => {
+  return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+};
