@@ -41,6 +41,7 @@ import {
   getSubmissions,
   rateSubmission,
   getLeaderboard,
+  createNotification,
 } from "@/utils/api";
 import type { Assignment } from "@/types/assignment";
 import { toast } from "@/hooks/use-toast";
@@ -143,13 +144,31 @@ export default function AssignmentDetailPage() {
 
     setSubmitting(true);
     try {
-      await submitSolution({
+      const newSubmission = await submitSolution({
         assignmentId: assignment.id,
         submittedBy: user.id,
         submittedByUsername: user.username,
         explanation: solution,
         file: solutionFile,
       });
+
+      // Create notification for assignment creator (if not the same user)
+      if (assignment.createdBy && assignment.createdBy !== user.id) {
+        try {
+          await createNotification({
+            userId: assignment.createdBy,
+            type: "assignment_solved",
+            title: "Your Assignment Was Solved!",
+            message: `${user.username} submitted a solution to your assignment: "${assignment.title}"`,
+            assignmentId: assignment.id,
+            submissionId: newSubmission.id || newSubmission.submissionId,
+            read: false,
+          });
+        } catch (notifError) {
+          console.error("Failed to create notification:", notifError);
+          // Don't block submission if notification fails
+        }
+      }
 
       toast({
         title: "Success!",
@@ -179,7 +198,28 @@ export default function AssignmentDetailPage() {
     if (!ratingDialog.submissionId || !user) return;
     
     try {
-    await rateSubmission(ratingDialog.submissionId, selectedRating, user.id);
+      await rateSubmission(ratingDialog.submissionId, selectedRating, user.id);
+      
+      // Find the submission to get the creator from existing state
+      const ratedSubmission = submissions.find((s) => s.id === ratingDialog.submissionId);
+      
+      // Create notification for submission creator (if not the same user)
+      if (ratedSubmission && ratedSubmission.submittedBy && ratedSubmission.submittedBy !== user.id) {
+        try {
+          await createNotification({
+            userId: ratedSubmission.submittedBy,
+            type: "assignment_rated",
+            title: "Your Solution Was Rated!",
+            message: `${user.username} rated your solution ${selectedRating}/5 stars for "${assignment?.title || "assignment"}"`,
+            assignmentId: assignment?.id,
+            submissionId: ratingDialog.submissionId,
+            read: false,
+          });
+        } catch (notifError) {
+          console.error("Failed to create notification:", notifError);
+          // Don't block rating if notification fails
+        }
+      }
       
       // Show success message
       toast({
@@ -188,14 +228,14 @@ export default function AssignmentDetailPage() {
       });
       
       // Close dialog and reset
-    setRatingDialog({ open: false, submissionId: null });
-    setSelectedRating(5);
+      setRatingDialog({ open: false, submissionId: null });
+      setSelectedRating(5);
       
       // Refresh all data to show updates
       if (assignment) {
         await loadSubmissions(assignment.id);
       }
-    await loadLeaderboard();
+      await loadLeaderboard();
       
     } catch (error) {
       toast({

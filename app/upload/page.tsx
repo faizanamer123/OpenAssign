@@ -30,7 +30,7 @@ const Header = dynamic(() => import("@/components/Header"), {
   ssr: false,
   loading: () => <div className="h-16" />,
 });
-import { uploadAssignment } from "@/utils/api";
+import { uploadAssignment, createNotification, getUsers } from "@/utils/api";
 
 export default function UploadPage() {
   const { user } = useAuth();
@@ -79,12 +79,40 @@ export default function UploadPage() {
 
     setLoading(true);
     try {
-      await uploadAssignment({
+      const newAssignment = await uploadAssignment({
         ...formData,
         file,
         createdBy: user.id,
         createdByUsername: user.username,
       });
+
+      // Create notifications for all users about the new assignment
+      try {
+        const allUsers = await getUsers();
+        const otherUsers = allUsers.filter((u: any) => u.id !== user.id);
+        
+        // Create notifications for other users (limit to avoid overwhelming)
+        const notificationsToCreate = otherUsers.slice(0, 50).map((otherUser: any) =>
+          createNotification({
+            userId: otherUser.id,
+            type: "assignment_uploaded",
+            title: "New Assignment Available",
+            message: `${user.username} uploaded a new assignment: "${formData.title}"`,
+            assignmentId: newAssignment.id || newAssignment.assignmentId,
+            read: false,
+          }).catch((err) => {
+            console.error(`Failed to create notification for user ${otherUser.id}:`, err);
+          })
+        );
+        
+        // Create notifications in parallel but don't wait for all
+        Promise.all(notificationsToCreate).catch(() => {
+          // Silently fail - notifications are not critical
+        });
+      } catch (notifError) {
+        console.error("Failed to create notifications:", notifError);
+        // Don't block the upload if notifications fail
+      }
 
       toast({
         title: "Success!",

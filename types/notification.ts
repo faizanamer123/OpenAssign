@@ -1,7 +1,7 @@
 export interface Notification {
   id: string;
   userId: string;
-  type: "assignment_solved" | "assignment_rated" | "deadline_reminder";
+  type: "assignment_uploaded" | "assignment_solved" | "assignment_rated" | "deadline_reminder";
   title: string;
   message: string;
   read: boolean;
