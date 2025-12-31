@@ -591,7 +591,7 @@
 "use client";
 
 import type React from "react";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import {
   Trophy,
   Sparkles,
@@ -601,6 +601,15 @@ import {
   Award,
   TrendingUp,
   LogIn,
+  Upload,
+  Search,
+  Star,
+  Users,
+  CheckCircle,
+  ArrowRight,
+  FileCheck,
+  MessageSquare,
+  GraduationCap,
 } from "lucide-react";
 import { sendOtpEmail } from "@/lib/sendOtpEmail";
 import Logo from "@/components/ui/Logo";
@@ -651,16 +660,15 @@ export default function LandingPage() {
             </div>
 
             <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold tracking-tight text-white mb-6 drop-shadow-lg">
-              <span className="block">Anonymous</span>
+              <span className="block">The Education Platform for</span>
               <span className="block bg-gradient-to-r from-[#4ade80] to-[#9333ea] bg-clip-text text-transparent animate-gradient-x">
-                Assignment Platform
+                Assignments, Peer Review & Solutions
               </span>
             </h1>
 
             <p className="mt-6 text-lg sm:text-xl leading-8 text-gray-300 max-w-3xl mx-auto">
-              Upload assignments to get help or solve others' assignments to
-              earn points and recognition. Join a thriving community of students
-              helping each other succeed.
+              Get help with your assignments, review other students' work, upload solutions, and compete on the leaderboard. 
+              Join thousands of students in our anonymous, secure educational community where learning and helping go hand in hand.
             </p>
 
             {/* Social Media Icons */}
@@ -772,72 +780,385 @@ export default function LandingPage() {
 
           {/* Auth Card */}
 
-          {/* Features Grid */}
-          <div className="mt-24 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[
-              {
-                icon: <Shield className="h-8 w-8 text-white" />,
-                title: "100% Anonymous",
-                color: "from-[#4ade80] to-[#22c55e]",
-              },
-              {
-                icon: <Trophy className="h-8 w-8 text-white" />,
-                title: "Earn Points & Recognition",
-                color: "from-[#9333ea] to-[#7c3aed]",
-              },
-              {
-                icon: <Zap className="h-8 w-8 text-white" />,
-                title: "Instant Notifications",
-                color: "from-[#06b6d4] to-[#0891b2]",
-              },
-              {
-                icon: <BookOpen className="h-8 w-8 text-white" />,
-                title: "All Subjects",
-                color: "from-[#ec4899] to-[#db2777]",
-              },
-              {
-                icon: <Award className="h-8 w-8 text-white" />,
-                title: "Quality Solutions",
-                color: "from-[#4ade80] to-[#22c55e]",
-              },
-              {
-                icon: <TrendingUp className="h-8 w-8 text-white" />,
-                title: "Track Progress",
-                color: "from-[#9333ea] to-[#7c3aed]",
-              },
-            ].map((feature, i) => (
-              <Card
-                key={feature.title}
-                className={`study-card card-hover animate-slide-up shadow-md hover:shadow-xl transition-shadow duration-300 group`}
-                style={{ animationDelay: `${0.2 + i * 0.2}s` }}
-              >
-                <CardContent className="px-8 py-8 text-center">
-                  <div
-                    className={`mx-auto w-16 h-16 bg-gradient-to-br ${feature.color} rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform shadow-lg`}
-                  >
-                    {feature.icon}
+          {/* Feature Sections */}
+          <div className="mt-32 space-y-24">
+            {/* Upload Assignments Section */}
+            <section className="animate-slide-up" style={{ animationDelay: "0.4s" }}>
+              <div className="text-center mb-12">
+                <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-[#4ade80] to-[#22c55e] rounded-2xl mb-6 shadow-lg shadow-green-500/30">
+                  <Upload className="h-10 w-10 text-white" />
+                </div>
+                <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+                  Upload Assignments
+                </h2>
+                <p className="text-lg text-gray-300 max-w-2xl mx-auto">
+                  Stuck on an assignment? Upload it anonymously and get help from talented students in our community. 
+                  Share your challenges and receive expert solutions quickly.
+                </p>
+              </div>
+              <Card className="study-card max-w-4xl mx-auto">
+                <CardContent className="p-8">
+                  <div className="grid md:grid-cols-2 gap-6 items-center">
+                    <div>
+                      <div className="space-y-4">
+                        <div className="flex items-start gap-3">
+                          <CheckCircle className="h-6 w-6 text-[#4ade80] flex-shrink-0 mt-1" />
+                          <div>
+                            <h3 className="text-white font-semibold mb-1">Anonymous Upload</h3>
+                            <p className="text-gray-300 text-sm">Your identity stays completely private</p>
+                          </div>
+                        </div>
+                        <div className="flex items-start gap-3">
+                          <CheckCircle className="h-6 w-6 text-[#4ade80] flex-shrink-0 mt-1" />
+                          <div>
+                            <h3 className="text-white font-semibold mb-1">Quick Responses</h3>
+                            <p className="text-gray-300 text-sm">Get solutions from community members fast</p>
+                          </div>
+                        </div>
+                        <div className="flex items-start gap-3">
+                          <CheckCircle className="h-6 w-6 text-[#4ade80] flex-shrink-0 mt-1" />
+                          <div>
+                            <h3 className="text-white font-semibold mb-1">All Subjects Supported</h3>
+                            <p className="text-gray-300 text-sm">Math, Science, CS, and more</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="bg-gradient-to-br from-[#4ade80]/10 to-[#22c55e]/10 rounded-xl p-8 border border-[#4ade80]/20 relative overflow-hidden group hover:scale-105 transition-transform duration-300">
+                      <div className="absolute inset-0 bg-gradient-to-br from-[#4ade80]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                      <div className="text-center relative z-10">
+                        <div className="relative inline-block mb-4">
+                          <div className="absolute inset-0 bg-[#4ade80]/20 rounded-full blur-xl"></div>
+                          <Upload className="h-32 w-32 text-[#4ade80] mx-auto relative z-10 animate-bounce-slow" />
+                        </div>
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-center gap-2">
+                            <div className="w-2 h-2 bg-[#4ade80] rounded-full animate-pulse"></div>
+                            <div className="w-2 h-2 bg-[#4ade80] rounded-full animate-pulse" style={{ animationDelay: "0.2s" }}></div>
+                            <div className="w-2 h-2 bg-[#4ade80] rounded-full animate-pulse" style={{ animationDelay: "0.4s" }}></div>
+                          </div>
+                          <p className="text-gray-400 text-sm font-medium">Upload your assignment files and get help</p>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <h3 className="text-xl font-semibold text-white mb-3">
-                    {feature.title}
-                  </h3>
-                  <p className="text-gray-300 leading-relaxed">
-                    {feature.title === "100% Anonymous" &&
-                      "Complete privacy with unique anonymous usernames. Your identity stays protected while you help others."}
-                    {feature.title === "Earn Points & Recognition" &&
-                      "Solve assignments to earn points, climb the leaderboard, and build your reputation in the community."}
-                    {feature.title === "Instant Notifications" &&
-                      "Get notified when your assignments are solved or when you receive ratings for your solutions."}
-                    {feature.title === "All Subjects" &&
-                      "From Mathematics to Computer Science, get help with assignments across all academic disciplines."}
-                    {feature.title === "Quality Solutions" &&
-                      "Rate and review solutions to ensure high-quality help. Build trust through our community-driven system."}
-                    {feature.title === "Track Progress" &&
-                      "Monitor your uploaded assignments and submitted solutions with detailed activity tracking."}
-                  </p>
                 </CardContent>
               </Card>
-            ))}
+            </section>
+
+            {/* Review Other Students' Work Section */}
+            <section className="animate-slide-up" style={{ animationDelay: "0.6s" }}>
+              <div className="text-center mb-12">
+                <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-[#9333ea] to-[#7c3aed] rounded-2xl mb-6 shadow-lg shadow-purple-500/30">
+                  <FileCheck className="h-10 w-10 text-white" />
+                </div>
+                <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+                  Review Other Students' Work
+                </h2>
+                <p className="text-lg text-gray-300 max-w-2xl mx-auto">
+                  Help fellow students by reviewing and rating their solutions. Provide constructive feedback 
+                  and help maintain quality standards in our educational community.
+                </p>
+              </div>
+              <Card className="study-card max-w-4xl mx-auto">
+                <CardContent className="p-8">
+                  <div className="grid md:grid-cols-2 gap-6 items-center">
+                    <div className="bg-gradient-to-br from-[#9333ea]/10 to-[#7c3aed]/10 rounded-xl p-8 border border-[#9333ea]/20 order-2 md:order-1 relative overflow-hidden group hover:scale-105 transition-transform duration-300">
+                      <div className="absolute inset-0 bg-gradient-to-br from-[#9333ea]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                      <div className="text-center relative z-10">
+                        <div className="relative inline-block mb-4">
+                          <div className="absolute inset-0 bg-[#9333ea]/20 rounded-full blur-xl"></div>
+                          <div className="relative z-10">
+                            <FileCheck className="h-20 w-20 text-[#9333ea] mx-auto mb-2" />
+                            <Star className="h-12 w-12 text-yellow-400 mx-auto fill-yellow-400" />
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-center gap-1">
+                            {[...Array(5)].map((_, i) => (
+                              <Star key={i} className="h-3 w-3 text-yellow-400 fill-yellow-400" />
+                            ))}
+                          </div>
+                          <p className="text-gray-400 text-sm font-medium">Review and rate solutions</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="order-1 md:order-2">
+                      <div className="space-y-4">
+                        <div className="flex items-start gap-3">
+                          <CheckCircle className="h-6 w-6 text-[#9333ea] flex-shrink-0 mt-1" />
+                          <div>
+                            <h3 className="text-white font-semibold mb-1">Rate Solutions</h3>
+                            <p className="text-gray-300 text-sm">Give 1-5 star ratings to help others</p>
+                          </div>
+                        </div>
+                        <div className="flex items-start gap-3">
+                          <CheckCircle className="h-6 w-6 text-[#9333ea] flex-shrink-0 mt-1" />
+                          <div>
+                            <h3 className="text-white font-semibold mb-1">Build Reputation</h3>
+                            <p className="text-gray-300 text-sm">Earn recognition for quality reviews</p>
+                          </div>
+                        </div>
+                        <div className="flex items-start gap-3">
+                          <CheckCircle className="h-6 w-6 text-[#9333ea] flex-shrink-0 mt-1" />
+                          <div>
+                            <h3 className="text-white font-semibold mb-1">Community Quality</h3>
+                            <p className="text-gray-300 text-sm">Help maintain high standards</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </section>
+
+            {/* Upload Solutions Section */}
+            <section className="animate-slide-up" style={{ animationDelay: "0.8s" }}>
+              <div className="text-center mb-12">
+                <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-[#06b6d4] to-[#0891b2] rounded-2xl mb-6 shadow-lg shadow-cyan-500/30">
+                  <BookOpen className="h-10 w-10 text-white" />
+                </div>
+                <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+                  Upload Solutions
+                </h2>
+                <p className="text-lg text-gray-300 max-w-2xl mx-auto">
+                  Help others by solving their assignments. Earn points, build your reputation, and climb 
+                  the leaderboard while contributing to the educational community.
+                </p>
+              </div>
+              <Card className="study-card max-w-4xl mx-auto">
+                <CardContent className="p-8">
+                  <div className="grid md:grid-cols-2 gap-6 items-center">
+                    <div>
+                      <div className="space-y-4">
+                        <div className="flex items-start gap-3">
+                          <CheckCircle className="h-6 w-6 text-[#06b6d4] flex-shrink-0 mt-1" />
+                          <div>
+                            <h3 className="text-white font-semibold mb-1">Earn Points</h3>
+                            <p className="text-gray-300 text-sm">Get rewarded for every solution you provide</p>
+                          </div>
+                        </div>
+                        <div className="flex items-start gap-3">
+                          <CheckCircle className="h-6 w-6 text-[#06b6d4] flex-shrink-0 mt-1" />
+                          <div>
+                            <h3 className="text-white font-semibold mb-1">Help Others Learn</h3>
+                            <p className="text-gray-300 text-sm">Make a difference in students' academic journey</p>
+                          </div>
+                        </div>
+                        <div className="flex items-start gap-3">
+                          <CheckCircle className="h-6 w-6 text-[#06b6d4] flex-shrink-0 mt-1" />
+                          <div>
+                            <h3 className="text-white font-semibold mb-1">Build Your Portfolio</h3>
+                            <p className="text-gray-300 text-sm">Track all your contributions and achievements</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="bg-gradient-to-br from-[#06b6d4]/10 to-[#0891b2]/10 rounded-xl p-8 border border-[#06b6d4]/20 relative overflow-hidden group hover:scale-105 transition-transform duration-300">
+                      <div className="absolute inset-0 bg-gradient-to-br from-[#06b6d4]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                      <div className="text-center relative z-10">
+                        <div className="relative inline-block mb-4">
+                          <div className="absolute inset-0 bg-[#06b6d4]/20 rounded-full blur-xl"></div>
+                          <div className="relative z-10 flex items-center justify-center">
+                            <BookOpen className="h-28 w-28 text-[#06b6d4] animate-pulse-slow" />
+                            <div className="absolute -top-2 -right-2">
+                              <CheckCircle className="h-8 w-8 text-[#4ade80] bg-white rounded-full" />
+                            </div>
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-center gap-2">
+                            <Trophy className="h-4 w-4 text-yellow-400" />
+                            <span className="text-xs text-gray-300 font-medium">+Points</span>
+                          </div>
+                          <p className="text-gray-400 text-sm font-medium">Share your knowledge and help others</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </section>
+
+            {/* Leaderboard & Rankings Section */}
+            <section className="animate-slide-up" style={{ animationDelay: "1s" }}>
+              <div className="text-center mb-12">
+                <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-[#ec4899] to-[#db2777] rounded-2xl mb-6 shadow-lg shadow-pink-500/30">
+                  <Trophy className="h-10 w-10 text-white" />
+                </div>
+                <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+                  Leaderboard & Rankings
+                </h2>
+                <p className="text-lg text-gray-300 max-w-2xl mx-auto">
+                  Compete with other students on our leaderboard. Track your progress, earn badges, and 
+                  see how you rank among the top contributors in our educational community.
+                </p>
+              </div>
+              <Card className="study-card max-w-4xl mx-auto">
+                <CardContent className="p-8">
+                  <div className="grid md:grid-cols-2 gap-6 items-center">
+                    <div className="bg-gradient-to-br from-[#ec4899]/10 to-[#db2777]/10 rounded-xl p-8 border border-[#ec4899]/20 order-2 md:order-1 relative overflow-hidden group hover:scale-105 transition-transform duration-300">
+                      <div className="absolute inset-0 bg-gradient-to-br from-[#ec4899]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                      <div className="text-center relative z-10">
+                        <div className="relative inline-block mb-4">
+                          <div className="absolute inset-0 bg-[#ec4899]/20 rounded-full blur-xl"></div>
+                          <div className="relative z-10">
+                            <Trophy className="h-28 w-28 text-[#ec4899] mx-auto" />
+                            <div className="absolute -top-1 left-1/2 -translate-x-1/2">
+                              <TrendingUp className="h-6 w-6 text-[#4ade80]" />
+                            </div>
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-center gap-2">
+                            <div className="text-xs font-bold text-white bg-gradient-to-r from-[#ec4899] to-[#db2777] px-2 py-1 rounded">#1</div>
+                            <span className="text-xs text-gray-300">Top Rank</span>
+                          </div>
+                          <p className="text-gray-400 text-sm font-medium">Climb the rankings</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="order-1 md:order-2">
+                      <div className="space-y-4">
+                        <div className="flex items-start gap-3">
+                          <CheckCircle className="h-6 w-6 text-[#ec4899] flex-shrink-0 mt-1" />
+                          <div>
+                            <h3 className="text-white font-semibold mb-1">Real-time Rankings</h3>
+                            <p className="text-gray-300 text-sm">See your position update as you earn points</p>
+                          </div>
+                        </div>
+                        <div className="flex items-start gap-3">
+                          <CheckCircle className="h-6 w-6 text-[#ec4899] flex-shrink-0 mt-1" />
+                          <div>
+                            <h3 className="text-white font-semibold mb-1">Achievement Badges</h3>
+                            <p className="text-gray-300 text-sm">Unlock badges for milestones and achievements</p>
+                          </div>
+                        </div>
+                        <div className="flex items-start gap-3">
+                          <CheckCircle className="h-6 w-6 text-[#ec4899] flex-shrink-0 mt-1" />
+                          <div>
+                            <h3 className="text-white font-semibold mb-1">Track Progress</h3>
+                            <p className="text-gray-300 text-sm">Monitor your growth and contributions</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </section>
           </div>
+
+          {/* Testimonials Section */}
+          <section className="mt-32 animate-slide-up" style={{ animationDelay: "1.2s" }}>
+            <div className="text-center mb-12">
+              <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-yellow-400/20 to-yellow-500/20 rounded-2xl mb-6">
+                <Users className="h-8 w-8 text-yellow-400" />
+              </div>
+              <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+                What Students Are Saying
+              </h2>
+              <p className="text-lg text-gray-300 max-w-2xl mx-auto">
+                Join thousands of satisfied students who are getting help and helping others
+              </p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+              {[
+                {
+                  name: "Sarah Chen",
+                  role: "Computer Science Student",
+                  rating: 5,
+                  text: "This platform saved my semester! I got help with my algorithms assignment and the solution was clear and well-explained. The anonymous feature makes it so comfortable to ask for help.",
+                  avatar: "SC",
+                },
+                {
+                  name: "Michael Rodriguez",
+                  role: "Mathematics Major",
+                  rating: 5,
+                  text: "I love helping others while earning points. The peer review system is great and I've learned so much by reviewing different solution approaches. Highly recommend!",
+                  avatar: "MR",
+                },
+                {
+                  name: "Emily Johnson",
+                  role: "Engineering Student",
+                  rating: 5,
+                  text: "The leaderboard feature is motivating! I've climbed from rank 200 to top 50 by consistently helping others. The community is supportive and the quality of solutions is excellent.",
+                  avatar: "EJ",
+                },
+                {
+                  name: "David Kim",
+                  role: "Physics Student",
+                  rating: 4,
+                  text: "Great platform for getting quick help with assignments. The rating system ensures quality, and I've received some really helpful solutions. The anonymous aspect is a huge plus.",
+                  avatar: "DK",
+                },
+                {
+                  name: "Jessica Martinez",
+                  role: "Chemistry Major",
+                  rating: 5,
+                  text: "I've uploaded several assignments and always got responses within hours. The solutions are detailed and the reviewers are knowledgeable. This is exactly what I needed!",
+                  avatar: "JM",
+                },
+                {
+                  name: "Alex Thompson",
+                  role: "Data Science Student",
+                  rating: 5,
+                  text: "Best educational platform I've used! The combination of getting help and helping others while tracking progress on the leaderboard is brilliant. 10/10 would recommend!",
+                  avatar: "AT",
+                },
+              ].map((review, index) => (
+                <Card key={index} className="study-card card-hover group hover:border-[#4ade80]/50 transition-all duration-300">
+                  <CardContent className="p-6 relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-[#4ade80]/5 to-transparent rounded-bl-full opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                    <div className="relative z-10">
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-1">
+                          {[...Array(review.rating)].map((_, i) => (
+                            <Star key={i} className="h-5 w-5 fill-yellow-400 text-yellow-400 group-hover:scale-110 transition-transform" style={{ transitionDelay: `${i * 0.1}s` }} />
+                          ))}
+                        </div>
+                        <div className="w-12 h-12 bg-gradient-to-br from-[#4ade80]/20 to-[#9333ea]/20 rounded-full flex items-center justify-center text-white font-bold text-sm group-hover:scale-110 transition-transform">
+                          {review.avatar}
+                        </div>
+                      </div>
+                      <p className="text-gray-300 mb-4 leading-relaxed italic group-hover:text-white transition-colors">
+                        "{review.text}"
+                      </p>
+                      <div className="border-t border-gray-700 pt-4 group-hover:border-[#4ade80]/30 transition-colors">
+                        <p className="text-white font-semibold">{review.name}</p>
+                        <p className="text-gray-400 text-sm">{review.role}</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </section>
+
+          {/* Final CTA Section */}
+          <section className="mt-32 mb-16 animate-slide-up" style={{ animationDelay: "1.4s" }}>
+            <Card className="study-card max-w-3xl mx-auto bg-gradient-to-br from-[#4ade80]/10 via-[#9333ea]/10 to-[#06b6d4]/10 border-2 border-[#4ade80]/30">
+              <CardContent className="p-8 text-center">
+                <GraduationCap className="h-12 w-12 text-[#4ade80] mx-auto mb-4" />
+                <h2 className="text-2xl sm:text-3xl font-bold text-white mb-3">
+                  Ready to Get Started?
+                </h2>
+                <p className="text-base text-gray-300 mb-6 max-w-2xl mx-auto">
+                  Join thousands of students who are already benefiting from our educational platform. 
+                  Get help, help others, and climb the leaderboard - all while staying anonymous and secure.
+                </p>
+                <Link href="/register">
+                  <Button className="duolingo-button px-6 py-3 h-auto font-semibold text-base group">
+                    <LogIn className="mr-2 h-4 w-4" />
+                    Register Now
+                    <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
+          </section>
+
         </div>
       </div>
     </div>

@@ -186,7 +186,7 @@ export default function ActivityPage() {
                       <p className="text-gray-300">Loading your assignments...</p>
                     </div>
                   ) : myAssignments.length === 0 ? (
-                    <div className="text-center py-12">
+                    <div className="text-center py-12 px-4">
                       <div className="w-20 h-20 bg-gradient-to-br from-gray-700/50 to-gray-600/50 rounded-full flex items-center justify-center mx-auto mb-4">
                         <BookOpen className="w-10 h-10 text-gray-400" />
                       </div>
@@ -194,12 +194,14 @@ export default function ActivityPage() {
                       <p className="text-gray-300 mb-6 max-w-md mx-auto">
                         Start your journey by uploading your first assignment and getting help from the community.
                       </p>
-                      <Link href="/upload">
-                        <Button className="duolingo-button px-8 py-3 text-lg">
-                          <BookOpen className="w-5 h-5 mr-2" />
-                          Upload Your First Assignment
-                        </Button>
-                      </Link>
+                      <div className="flex justify-center">
+                        <Link href="/upload" className="w-full sm:w-auto max-w-xs">
+                          <Button className="duolingo-button w-full sm:w-auto px-4 sm:px-8 py-3 text-sm sm:text-base">
+                            <BookOpen className="w-4 h-4 sm:w-5 sm:h-5 mr-2 flex-shrink-0" />
+                            <span className="truncate">Upload Your First Assignment</span>
+                          </Button>
+                        </Link>
+                      </div>
                     </div>
                   ) : (
                     <div className="space-y-4">
@@ -309,7 +311,7 @@ export default function ActivityPage() {
                       <p className="text-gray-300">Loading your submissions...</p>
                     </div>
                   ) : mySubmissions.length === 0 ? (
-                    <div className="text-center py-12">
+                    <div className="text-center py-12 px-4">
                       <div className="w-20 h-20 bg-gradient-to-br from-gray-700/50 to-gray-600/50 rounded-full flex items-center justify-center mx-auto mb-4">
                         <Star className="w-10 h-10 text-gray-400" />
                       </div>
@@ -317,12 +319,14 @@ export default function ActivityPage() {
                       <p className="text-gray-300 mb-6 max-w-md mx-auto">
                         Start helping others by solving assignments and earning ratings from the community.
                       </p>
-                      <Link href="/browse">
-                        <Button className="duolingo-button px-8 py-3 text-lg">
-                          <BookOpen className="w-5 h-5 mr-2" />
-                          Browse Assignments to Solve
-                        </Button>
-                      </Link>
+                      <div className="flex justify-center">
+                        <Link href="/browse" className="w-full sm:w-auto max-w-xs">
+                          <Button className="duolingo-button w-full sm:w-auto px-4 sm:px-8 py-3 text-sm sm:text-base">
+                            <BookOpen className="w-4 h-4 sm:w-5 sm:h-5 mr-2 flex-shrink-0" />
+                            <span className="truncate">Browse Assignments to Solve</span>
+                          </Button>
+                        </Link>
+                      </div>
                     </div>
                   ) : (
                     <div className="space-y-4">

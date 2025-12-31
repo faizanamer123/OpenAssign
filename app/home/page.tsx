@@ -376,39 +376,6 @@ export default function HomePage() {
             </Card>
           </div>
 
-          {/* Achievement Banner for New Users */}
-          {stats.totalAssignments === 0 && stats.solvedAssignments === 0 && (
-            <Card className="study-card mb-8 animate-slide-up border-2 border-[#4ade80]/30 bg-gradient-to-r from-[#4ade80]/10 via-[#22c55e]/10 to-[#4ade80]/10 overflow-hidden relative">
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent animate-shimmer"></div>
-              <CardContent className="p-6 relative z-10">
-                <div className="flex flex-col sm:flex-row items-center gap-6">
-                  <div className="w-20 h-20 bg-gradient-to-br from-[#4ade80] to-[#22c55e] rounded-2xl flex items-center justify-center shadow-lg shadow-green-500/30 floating-animation">
-                    <Sparkles className="h-10 w-10 text-white" />
-                  </div>
-                  <div className="flex-1 text-center sm:text-left">
-                    <h3 className="text-2xl font-bold text-white mb-2">Welcome to OpenAssign! 🎉</h3>
-                    <p className="text-gray-300 mb-4">
-                      Get started by uploading your first assignment or helping others solve theirs. Every contribution matters!
-                    </p>
-                    <div className="flex flex-wrap gap-3 justify-center sm:justify-start">
-                      <Link href="/upload">
-                        <Button className="game-styled-button">
-                          <Upload className="mr-2 h-4 w-4" />
-                          Upload Assignment
-                        </Button>
-                      </Link>
-                      <Link href="/browse">
-                        <Button className="game-styled-button-purple">
-                          <Search className="mr-2 h-4 w-4" />
-                          Browse & Help
-                        </Button>
-                      </Link>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          )}
 
           {/* Trending Assignments Section */}
           {trendingAssignments.length > 0 && (
