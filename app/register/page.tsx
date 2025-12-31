@@ -466,17 +466,17 @@ export default function Register() {
         <div className="flex w-full lg:w-1/2 flex-col items-center justify-center bg-card p-8 xl:p-12 2xl:p-16 shadow-xl z-10">
           <div className="w-full max-w-md flex flex-col gap-4">
             {/* Branding Header with SVG Logo */}
-            <div className="flex items-center gap-3 mb-2">
+            <div className="flex items-center mb-2">
               <div className="flex items-center justify-center">
                 <Image 
                   src="/OpenAssign.svg" 
                   alt="OpenAssign Logo" 
-                  width={48} 
-                  height={48}
-                  className="w-12 h-12"
+                  width={57} 
+                  height={57}
+                  className="w-17 h-17"
                 />
               </div>
-              <h2 className="text-2xl font-bold tracking-tight text-foreground">OpenAssign</h2>
+              <h2 className="text-3xl font-bold tracking-tight text-foreground">OpenAssign</h2>
             </div>
 
             {/* Welcome Text */}
