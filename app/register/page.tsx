@@ -460,28 +460,28 @@ export default function Register() {
         </div>
       </div>
 
-      {/* Desktop UI - Hidden below lg */}
-      <div className="hidden lg:flex relative min-h-screen w-full flex-row overflow-hidden bg-background">
-        {/* Left Pane: Authentication Forms */}
-        <div className="flex w-full flex-col justify-center bg-card p-4 sm:p-8 lg:w-1/2 lg:p-12 xl:p-24 shadow-xl z-10">
-          <div className="mx-auto w-full max-w-[480px] flex flex-col gap-3">
+      {/* Desktop UI - Hidden below lg - FIXED VERSION */}
+      <div className="hidden lg:flex relative min-h-screen w-full overflow-hidden bg-background">
+        {/* Left Pane: Authentication Forms - Fixed width and centered content */}
+        <div className="flex w-full lg:w-1/2 flex-col items-center justify-center bg-card p-8 xl:p-12 2xl:p-16 shadow-xl z-10">
+          <div className="w-full max-w-md flex flex-col gap-4">
             {/* Branding Header with SVG Logo */}
-            <div className="flex items-center">
+            <div className="flex items-center gap-3 mb-2">
               <div className="flex items-center justify-center">
                 <Image 
                   src="/OpenAssign.svg" 
                   alt="OpenAssign Logo" 
-                  width={50} 
-                  height={50}
-                  className="w-15 h-15"
+                  width={48} 
+                  height={48}
+                  className="w-12 h-12"
                 />
               </div>
               <h2 className="text-2xl font-bold tracking-tight text-foreground">OpenAssign</h2>
             </div>
 
             {/* Welcome Text */}
-            <div className="flex flex-col gap-2">
-              <h1 className="text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl">
+            <div className="flex flex-col gap-2 mb-2">
+              <h1 className="text-3xl xl:text-4xl font-extrabold tracking-tight text-foreground">
                 {otpSent ? "Verify Your Email" : "Welcome back"}
               </h1>
               <p className="text-muted-foreground text-base">
@@ -493,8 +493,8 @@ export default function Register() {
 
             {/* Form Content */}
             {!otpSent && !isVerified ? (
-              <div className="flex flex-col gap-5 mt-4">
-                <div className="flex flex-col gap-1.5">
+              <div className="flex flex-col gap-5">
+                <div className="flex flex-col gap-2">
                   <label className="text-foreground text-sm font-semibold" htmlFor="email">
                     Email Address
                   </label>
@@ -520,7 +520,7 @@ export default function Register() {
                     />
                   </div>
                   {emailError && (
-                    <p className="text-sm text-red-400 flex items-center gap-1">
+                    <p className="text-sm text-red-400 flex items-center gap-1 mt-1">
                       <span>⚠️</span>
                       {emailError}
                     </p>
@@ -539,10 +539,8 @@ export default function Register() {
                     </>
                   ) : (
                     <>
-                      <span className="absolute inset-y-0 left-0 flex items-center pl-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <LogIn className="text-lg" />
-                      </span>
                       Send Verification Code
+                      <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
                     </>
                   )}
                 </Button>
@@ -551,8 +549,8 @@ export default function Register() {
 
             {/* OTP Verification Step */}
             {otpSent && !isVerified && (
-              <div className="flex flex-col gap-5 mt-4">
-                <div className="flex flex-col gap-1.5">
+              <div className="flex flex-col gap-5">
+                <div className="flex flex-col gap-2">
                   <label className="text-foreground text-sm font-semibold" htmlFor="otp">
                     Verification Code
                   </label>
@@ -573,7 +571,7 @@ export default function Register() {
                       className="block w-full rounded-xl border-gray-200 dark:border-gray-700 bg-background py-3 pl-10 pr-3 text-center text-lg font-mono focus:border-[#4ade80] focus:ring-[#4ade80] focus:ring-1"
                     />
                   </div>
-                  <p className="text-sm text-muted-foreground text-center">
+                  <p className="text-sm text-muted-foreground text-center mt-1">
                     Code sent to{" "}
                     <span className="font-medium text-foreground">{email}</span>
                   </p>
@@ -591,10 +589,8 @@ export default function Register() {
                     </>
                   ) : (
                     <>
-                      <span className="absolute inset-y-0 left-0 flex items-center pl-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <CheckCircle className="text-lg" />
-                      </span>
                       Verify Code
+                      <CheckCircle className="ml-2 h-5 w-5" />
                     </>
                   )}
                 </Button>
@@ -603,7 +599,7 @@ export default function Register() {
                   <button
                     type="button"
                     onClick={resetForm}
-                    className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                    className="text-sm text-muted-foreground hover:text-foreground transition-colors px-2 py-1 rounded-lg hover:bg-muted"
                   >
                     ← Back to email
                   </button>
@@ -611,7 +607,7 @@ export default function Register() {
                     type="button"
                     onClick={handleResendOTP}
                     disabled={countdown > 0}
-                    className="text-sm font-semibold text-[#4ade80] hover:text-[#22c55e] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="text-sm font-semibold text-[#4ade80] hover:text-[#22c55e] transition-colors disabled:opacity-50 disabled:cursor-not-allowed px-2 py-1 rounded-lg hover:bg-[#4ade80]/10"
                   >
                     {countdown > 0 ? `Resend in ${countdown}s` : "Resend code"}
                   </button>
@@ -621,22 +617,22 @@ export default function Register() {
 
             {/* If verified, show loading */}
             {isVerified && !otpSent && (
-              <div className="flex flex-col items-center justify-center py-8">
-                <Loader2 className="h-8 w-8 text-[#4ade80] animate-spin mb-4" />
+              <div className="flex flex-col items-center justify-center py-12">
+                <Loader2 className="h-10 w-10 text-[#4ade80] animate-spin mb-4" />
                 <p className="text-muted-foreground text-center">Logging you in...</p>
               </div>
             )}
 
             {/* Secure Badge */}
-            <div className="mt-8 flex justify-center items-center gap-2 text-muted-foreground text-xs">
-              <Lock className="text-sm" />
+            <div className="mt-6 flex justify-center items-center gap-2 text-muted-foreground text-xs">
+              <Lock className="w-4 h-4" />
               <span>Secure, encrypted connection</span>
             </div>
           </div>
         </div>
 
-        {/* Right Pane: Visual & Features */}
-        <div className="relative hidden w-0 flex-1 lg:block">
+        {/* Right Pane: Visual & Features - Improved responsiveness */}
+        <div className="relative hidden w-0 flex-1 lg:flex lg:w-1/2">
           <div 
             className="absolute inset-0 h-full w-full bg-cover bg-center"
             style={{
@@ -647,9 +643,11 @@ export default function Register() {
             <div className="absolute inset-0 bg-[#4ade80]/10 mix-blend-multiply"></div>
           </div>
 
-          <div className="absolute bottom-0 left-0 right-0 p-12 xl:p-24 flex flex-col justify-end h-full">
-            <div className="relative rounded-2xl bg-white/10 backdrop-blur-md p-8 border border-white/20 shadow-2xl max-w-lg">
-              <div className="absolute -top-6 -right-6 size-12 bg-[#4ade80] rounded-full flex items-center justify-center text-white shadow-lg">
+          {/* Content overlay with better spacing */}
+          <div className="absolute inset-0 flex flex-col justify-end p-8 xl:p-12 2xl:p-16">
+            {/* Testimonial Card */}
+            <div className="relative rounded-2xl bg-white/10 backdrop-blur-md p-6 xl:p-8 border border-white/20 shadow-2xl max-w-xl mb-8">
+              <div className="absolute -top-4 -right-4 w-12 h-12 bg-[#4ade80] rounded-full flex items-center justify-center text-white shadow-lg">
                 <Trophy className="w-6 h-6" />
               </div>
               <div className="flex flex-col gap-4">
@@ -658,24 +656,25 @@ export default function Register() {
                     <Star key={i} className="w-4 h-4 fill-current" />
                   ))}
                 </div>
-                <p className="text-xl font-medium leading-relaxed text-white">
+                <p className="text-lg xl:text-xl font-medium leading-relaxed text-white">
                   "OpenAssign helped me boost my grades by seeing how others solve problems. The leaderboard motivates me to keep improving!"
                 </p>
-                <div className="flex items-center gap-4 pt-2">
-                  <div className="h-10 w-10 rounded-full bg-white/20 flex items-center justify-center text-white font-bold">
+                <div className="flex items-center gap-3 pt-2">
+                  <div className="h-10 w-10 rounded-full bg-white/20 flex items-center justify-center text-white font-bold text-sm">
                     JD
                   </div>
                   <div className="flex flex-col">
                     <span className="text-white font-bold text-sm">Jane Doe</span>
-                    <span className="text-white/60 text-xs">Computer Science Student, Stanford</span>
+                    <span className="text-white/70 text-xs">Computer Science Student, Stanford</span>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="mt-12 max-w-xl">
-              <h3 className="text-3xl font-bold text-white mb-2">Master your assignments</h3>
-              <p className="text-lg text-white/80">Join a community of students helping each other succeed through transparent reviews and collaborative learning.</p>
+            {/* Bottom text */}
+            <div className="max-w-xl">
+              <h3 className="text-2xl xl:text-3xl font-bold text-white mb-2">Master your assignments</h3>
+              <p className="text-base xl:text-lg text-white/80 leading-relaxed">Join a community of students helping each other succeed through transparent reviews and collaborative learning.</p>
             </div>
           </div>
         </div>
