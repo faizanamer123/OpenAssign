@@ -648,8 +648,8 @@ export default function Register() {
               backgroundRepeat: 'no-repeat'
             }}
           >
-            <div className="absolute inset-0 bg-gradient-to-t from-background/40 via-background/10 to-transparent"></div>
-            <div className="absolute inset-0 bg-gradient-to-br from-[#4ade80]/3 via-transparent to-purple-500/5"></div>
+            <div className="absolute inset-0 bg-gradient-to-t from-background/40 via-[#22c55e]/60 to-[#4ade80]/20 mix-blend-multiply"></div>
+            <div className="absolute inset-0 bg-[#4ade80]/20 mix-blend-color"></div>
           </div>
 
           {/* Animated background elements */}
