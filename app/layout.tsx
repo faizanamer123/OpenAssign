@@ -4,6 +4,7 @@ import { Nunito } from "next/font/google"
 import "./globals.css"
 import { AuthProvider } from "@/context/AuthContext"
 import { Toaster } from "@/components/ui/toaster"
+import { Analytics } from '@vercel/analytics/next';
 
 const nunito = Nunito({ 
   subsets: ["latin"],
@@ -43,6 +44,7 @@ export default function RootLayout({
           </footer>
           <Toaster />
         </AuthProvider>
+        <Analytics/>
       </body>
     </html>
   )
