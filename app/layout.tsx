@@ -5,6 +5,7 @@ import "./globals.css"
 import { AuthProvider } from "@/context/AuthContext"
 import { Toaster } from "@/components/ui/toaster"
 import { Analytics } from '@vercel/analytics/next';
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const nunito = Nunito({ 
   subsets: ["latin"],
@@ -45,6 +46,7 @@ export default function RootLayout({
           <Toaster />
         </AuthProvider>
         <Analytics/>
+        <SpeedInsights />
       </body>
     </html>
   )
