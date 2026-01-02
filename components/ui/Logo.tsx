@@ -45,12 +45,12 @@ export default function Logo({
     <Link
       href={getHref()}
       className={`flex items-center text-white group transition-all duration-200 hover:scale-105 ${className}`}
-      aria-label="OpenAssign Home"
+      aria-label="AssignDump Home"
     >
       <div className="relative flex-shrink-0">
         <Image
           src="/OpenAssign.svg"
-          alt="OpenAssign Logo"
+          alt="AssignDump Logo"
           width={logoSize}
           height={logoSize}
           className="block drop-shadow-sm group-hover:drop-shadow-md transition-all duration-200"
@@ -61,7 +61,7 @@ export default function Logo({
         <span
           className={`-ml-1 font-bold study-vibe-text ${getTextSize()} ${textClassName}`}
         >
-          OpenAssign
+          AssignDump
         </span>
       )}
     </Link>

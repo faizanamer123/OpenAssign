@@ -96,7 +96,7 @@
 //           toEmail: email,
 //           userName: email.split("@")[0],
 //           otpCode: result.otp,
-//           subject: "OpenAssign - Email Verification OTP",
+//           subject: "AssignDump - Email Verification OTP",
 //           message: "Use the code below to verify your email address.",
 //         });
 //         setOtpSent(true);
@@ -193,7 +193,7 @@
 //           toEmail: email,
 //           userName: email.split("@")[0],
 //           otpCode: result.otp,
-//           subject: "OpenAssign - Email Verification OTP",
+//           subject: "AssignDump - Email Verification OTP",
 //           message: "Use the code below to verify your email address.",
 //         });
 //         setCountdown(60);
@@ -234,14 +234,14 @@
 //       await signInWithEmail(email);
 //       await router.replace("/home");
 //       // toast({
-//       //   title: "Welcome to OpenAssign! 🎉",
+//       //   title: "Welcome to AssignDump! 🎉",
 //       //   description: "You've been signed in successfully. Let's get started!",
 //       // });
 //       toast({
 //       title: (
 //         <div className="flex items-center gap-2">
 //           <PartyPopper className="w-5 h-5 text-green-600" />
-//           <span>Welcome to OpenAssign!</span>
+//           <span>Welcome to AssignDump!</span>
 //         </div>
 //       ),
 //       description: "You've been signed in successfully. Let's get started!",
@@ -368,7 +368,7 @@
 //                   )}
 //                 </div>
 //                 <CardTitle className="text-2xl text-white">
-//                   {otpSent ? "Verify Your Email" : "Sign In to OpenAssign"}
+//                   {otpSent ? "Verify Your Email" : "Sign In to AssignDump"}
 //                 </CardTitle>
 //                 <CardDescription className="text-gray-300">
 //                   {otpSent

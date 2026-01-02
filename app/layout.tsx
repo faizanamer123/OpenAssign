@@ -14,7 +14,7 @@ const nunito = Nunito({
 })
 
 export const metadata: Metadata = {
-  title: "OpenAssign",
+  title: "AssignDump",
   description: "Anonymous assignment solving platform for university students"
 }
 

@@ -127,7 +127,7 @@ export default function PrivacyPolicy() {
           
           <div className="relative">
             <p className="text-gray-300 text-xl leading-relaxed font-medium max-w-3xl mx-auto">
-              At <span className="font-bold text-[#4ade80]">OpenAssign</span>, we are 
+              At <span className="font-bold text-[#4ade80]">AssignDump</span>, we are 
               committed to protecting your privacy and ensuring the security of your 
               personal information. This Privacy Policy explains how we collect, use, 
               and safeguard your data when you use our platform.

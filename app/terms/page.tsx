@@ -32,7 +32,7 @@ export default function Terms() {
       title: "Intellectual Property",
       icon: FaBook,
       items: [
-        "All content and materials on OpenAssign are protected by copyright and intellectual property laws.",
+        "All content and materials on AssignDump are protected by copyright and intellectual property laws.",
         "Do not copy, distribute, or use content without proper authorization.",
         "Respect third-party intellectual property rights when sharing content.",
         "Original work submissions must be your own creation.",
@@ -96,7 +96,7 @@ export default function Terms() {
           
           <div className="relative">
             <p className="text-gray-300 text-xl leading-relaxed font-medium max-w-3xl mx-auto">
-              Welcome to <span className="font-bold text-[#4ade80]">OpenAssign</span>. 
+              Welcome to <span className="font-bold text-[#4ade80]">AssignDump</span>. 
               By accessing or using our platform, you agree to comply with the following 
               terms and conditions. Please read them carefully to understand your rights 
               and responsibilities as a valued member of our community.

@@ -113,7 +113,7 @@ export default function Register() {
           toEmail: email,
           userName: email.split("@")[0],
           otpCode: result.otp,
-          subject: "OpenAssign - Email Verification OTP",
+          subject: "AssignDump - Email Verification OTP",
           message: "Use the code below to verify your email address.",
         });
         setOtpSent(true);
@@ -181,7 +181,7 @@ export default function Register() {
           toEmail: email,
           userName: email.split("@")[0],
           otpCode: result.otp,
-          subject: "OpenAssign - Email Verification OTP",
+          subject: "AssignDump - Email Verification OTP",
           message: "Use the code below to verify your email address.",
         });
         setCountdown(60);
@@ -211,7 +211,7 @@ export default function Register() {
     try {
       await signInWithEmail(email);
       router.replace("/home");
-      toast.success("Welcome to OpenAssign! 🎉", {
+      toast.success("Welcome to AssignDump! 🎉", {
         description: "You've been signed in successfully. Let's get started!",
       });
     } catch (error) {
@@ -243,14 +243,14 @@ export default function Register() {
               <div className="bg-white/20 backdrop-blur-sm rounded-full p-3">
                 <Image 
                   src="/OpenAssign.svg" 
-                  alt="OpenAssign Logo" 
+                  alt="AssignDump Logo" 
                   width={24} 
                   height={24}
                   className="w-6 h-6"
                 />
               </div>
               <div className="text-center">
-                <h1 className="text-2xl font-bold text-white">Join OpenAssign</h1>
+                <h1 className="text-2xl font-bold text-white">Join AssignDump</h1>
                 <p className="text-purple-100 text-sm">
                   Secure • Anonymous • Rewarding
                 </p>
@@ -327,7 +327,7 @@ export default function Register() {
                 )}
               </div>
               <CardTitle className="text-2xl text-white">
-                {otpSent ? "Verify Your Email" : "Sign In to OpenAssign"}
+                {otpSent ? "Verify Your Email" : "Sign In to AssignDump"}
               </CardTitle>
               <CardDescription className="text-gray-300">
                 {otpSent
@@ -471,13 +471,13 @@ export default function Register() {
               <div className="flex items-center justify-center p-2 rounded-xl bg-gradient-to-br from-[#4ade80]/10 to-[#22c55e]/10 border border-[#4ade80]/20 shadow-lg transition-all group-hover:scale-105 group-hover:shadow-[#4ade80]/30">
                 <Image 
                   src="/OpenAssign.svg" 
-                  alt="OpenAssign Logo" 
+                  alt="AssignDump Logo" 
                   width={57} 
                   height={57}
                   className="w-14 h-14 transition-transform group-hover:rotate-3"
                 />
               </div>
-              <h2 className="text-3xl font-bold tracking-tight text-foreground bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text">OpenAssign</h2>
+              <h2 className="text-3xl font-bold tracking-tight text-foreground bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text">AssignDump</h2>
             </div>
 
             {/* Welcome Text */}
@@ -679,7 +679,7 @@ export default function Register() {
                     ))}
                   </div>
                   <p className="text-lg xl:text-xl 2xl:text-2xl font-semibold leading-relaxed text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] backdrop-blur-sm">
-                    "OpenAssign helped me boost my grades by seeing how others solve problems. The leaderboard motivates me to keep improving!"
+                    "AssignDump helped me boost my grades by seeing how others solve problems. The leaderboard motivates me to keep improving!"
                   </p>
                   <div className="flex items-center gap-4 2xl:gap-5 pt-3 border-t border-white/20">
                     <div className="h-12 w-12 2xl:h-14 2xl:w-14 rounded-full bg-gradient-to-br from-white/25 to-white/8 flex items-center justify-center text-white font-bold text-base 2xl:text-lg shadow-lg ring-2 ring-white/15 backdrop-blur-sm">
