@@ -425,6 +425,10 @@
   animation: pulse-slow 2s ease-in-out infinite;
 }
 
+.animate-shimmer {
+  animation: shimmer 2s infinite;
+}
+
 /* Reddit-style scrollbar */
 ::-webkit-scrollbar {
   width: 10px;
