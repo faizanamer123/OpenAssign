@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import {
-  MessageSquare,
+  MessageCircleMore,
   X,
   Send,
   Bot,
@@ -43,6 +43,7 @@ export default function Chatbot() {
   const [inputValue, setInputValue] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const chatbotRef = useRef<HTMLDivElement>(null);
 
   const quickActions = [
     { text: "How to upload?", icon: Upload },
@@ -63,6 +64,28 @@ export default function Chatbot() {
     if (isOpen && inputRef.current) {
       inputRef.current.focus();
     }
+  }, [isOpen]);
+
+  // Close chatbot when clicking outside (backdrop handles this, but keeping for additional safety)
+  useEffect(() => {
+    const handleEscapeKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && isOpen) {
+        setIsOpen(false);
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener("keydown", handleEscapeKey);
+      // Prevent body scroll when chatbot is open
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+
+    return () => {
+      document.removeEventListener("keydown", handleEscapeKey);
+      document.body.style.overflow = "";
+    };
   }, [isOpen]);
 
   // Simple if-else based chatbot logic
@@ -242,6 +265,15 @@ export default function Chatbot() {
 
   return (
     <>
+      {/* Backdrop overlay - closes chatbot when clicked */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 bg-black/20 backdrop-blur-sm z-[9998] animate-in fade-in duration-200"
+          onClick={() => setIsOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+
       {/* Floating Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
@@ -255,7 +287,7 @@ export default function Chatbot() {
             <X className="w-7 h-7 sm:w-6 sm:h-6 text-white transition-all duration-300" />
           ) : (
             <>
-              <MessageSquare className="w-7 h-7 sm:w-6 sm:h-6 text-white transition-transform group-hover:scale-110" />
+              <MessageCircleMore className="w-7 h-7 sm:w-6 sm:h-6 text-white transition-transform group-hover:scale-110 duration-300" />
               <Sparkles className="absolute -top-1 -right-1 w-3 h-3 text-[#9333ea] animate-pulse" />
             </>
           )}
@@ -271,7 +303,11 @@ export default function Chatbot() {
 
       {/* Chat Window */}
       {isOpen && (
-        <Card className="fixed top-4 bottom-20 left-4 right-4 sm:inset-auto sm:bottom-24 sm:right-6 sm:top-auto sm:left-auto z-[9999] w-auto sm:w-96 sm:max-w-md h-auto sm:h-[600px] sm:max-h-[700px] flex flex-col bg-[#1a1a1b]/98 backdrop-blur-xl border-[#22c55e]/25 shadow-2xl study-card animate-slide-up rounded-2xl overflow-hidden">
+        <Card
+          ref={chatbotRef}
+          className="fixed top-4 bottom-20 left-4 right-4 sm:inset-auto sm:bottom-24 sm:right-6 sm:top-auto sm:left-auto z-[9999] w-auto sm:w-96 sm:max-w-md h-auto sm:h-[600px] sm:max-h-[700px] flex flex-col bg-[#1a1a1b]/98 backdrop-blur-xl border-[#22c55e]/25 shadow-2xl study-card animate-slide-up rounded-2xl overflow-hidden"
+          onClick={(e) => e.stopPropagation()}
+        >
           {/* Header */}
           <div className="flex items-center justify-between p-4 sm:p-5 border-b border-[#22c55e]/15 bg-gradient-to-r from-[#22c55e]/8 via-[#9333ea]/8 to-[#06b6d4]/8 relative overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/3 to-transparent animate-shimmer"></div>

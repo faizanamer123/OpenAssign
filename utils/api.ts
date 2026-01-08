@@ -162,14 +162,65 @@ export async function createNotification(data: any): Promise<any> {
   }
 }
 
-export async function markNotificationRead(id: string): Promise<any> {
+export async function markNotificationRead(id: string, userId?: string): Promise<any> {
   try {
-    const res = await fetch(`${getApiBase()}/notifications/${id}/read`, {
+    const url = new URL(`${getApiBase()}/notifications/${id}/read`);
+    if (userId) {
+      url.searchParams.append("userId", userId);
+    }
+    const res = await fetch(url.toString(), {
       method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(userId ? { userId } : {}),
     });
     if (!res.ok) throw new Error("Failed to mark notification as read");
     return await res.json();
   } catch (error) {
+    throw error;
+  }
+}
+
+export async function markAllNotificationsRead(userId: string): Promise<any> {
+  try {
+    const res = await fetch(`${getApiBase()}/notifications/read-all`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId }),
+    });
+    if (!res.ok) throw new Error("Failed to mark all notifications as read");
+    return await res.json();
+  } catch (error) {
+    throw error;
+  }
+}
+
+export async function deleteNotification(id: string, userId?: string): Promise<any> {
+  try {
+    const url = new URL(`${getApiBase()}/notifications/${id}`);
+    if (userId) {
+      url.searchParams.append("userId", userId);
+    }
+    const res = await fetch(url.toString(), {
+      method: "DELETE",
+      // No body for DELETE requests - userId is in query params
+      // No Content-Type header needed without body
+    });
+    if (!res.ok) {
+      const errorText = await res.text().catch(() => "Failed to delete notification");
+      throw new Error(errorText || "Failed to delete notification");
+    }
+    // DELETE may return 204 No Content, so handle empty response
+    if (res.status === 204 || res.headers.get("content-length") === "0") {
+      return { success: true };
+    }
+    // Try to parse JSON response, but don't fail if empty
+    try {
+      return await res.json();
+    } catch {
+      return { success: true };
+    }
+  } catch (error) {
+    console.error("Error deleting notification:", error);
     throw error;
   }
 }

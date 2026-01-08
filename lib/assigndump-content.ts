@@ -122,3 +122,4 @@ export const chatbotScript = {
 export const chatbotFallback =
   "I'm not sure I understand that question. Could you rephrase it? I can help with uploading assignments, anonymity, points and badges, reviewing solutions, safety, troubleshooting, or general questions about AssignDump. Try asking something like 'How do I upload an assignment?' or 'How does anonymity work?'";
 
+

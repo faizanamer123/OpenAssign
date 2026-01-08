@@ -531,8 +531,8 @@ export default function Register() {
 
                 <Button
                   onClick={handleSendOTP}
+                  className="w-full h-12 duolingo-button font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
                   disabled={sendingOtp || !email}
-                  className="group relative flex w-full justify-center rounded-xl bg-gradient-to-r from-[#4ade80] to-[#22c55e] py-3.5 px-4 text-sm font-bold text-white shadow-lg shadow-[#4ade80]/25 transition-all duration-300 hover:from-[#22c55e] hover:to-[#16a34a] hover:shadow-xl hover:shadow-[#4ade80]/35 hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-[#4ade80] focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                 >
                   {sendingOtp ? (
                     <>
@@ -542,7 +542,7 @@ export default function Register() {
                   ) : (
                     <>
                       Send Verification Code
-                      <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform duration-300" />
+                      <ArrowRight className="ml-2 h-5 w-5" />
                     </>
                   )}
                 </Button>
@@ -582,8 +582,8 @@ export default function Register() {
 
                 <Button
                   onClick={handleVerifyOTP}
+                  className="w-full h-12 duolingo-button font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
                   disabled={verifyingOtp || otp.length !== 6}
-                  className="group relative flex w-full justify-center rounded-xl bg-gradient-to-r from-[#4ade80] to-[#22c55e] py-3.5 px-4 text-sm font-bold text-white shadow-lg shadow-[#4ade80]/25 transition-all duration-300 hover:from-[#22c55e] hover:to-[#16a34a] hover:shadow-xl hover:shadow-[#4ade80]/35 hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-[#4ade80] focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                 >
                   {verifyingOtp ? (
                     <>
@@ -593,7 +593,7 @@ export default function Register() {
                   ) : (
                     <>
                       Verify Code
-                      <CheckCircle className="ml-2 h-5 w-5 group-hover:scale-110 transition-transform duration-300" />
+                      <CheckCircle className="ml-2 h-5 w-5" />
                     </>
                   )}
                 </Button>
