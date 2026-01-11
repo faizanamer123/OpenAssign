@@ -1,37 +1,19 @@
 "use client";
 import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-} from "@/components/ui/card";
-import {
-  Mail,
   Loader2,
   ArrowRight,
   CheckCircle,
-  PartyPopper,
   Lock,
-  LogIn,
   Shield,
-  Users,
   Eye,
   EyeOff,
-  GraduationCap,
-  Star,
-  Trophy,
-  Sparkles,
 } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { sendOtpEmail } from "@/lib/sendOtpEmail";
 import { checkEmailVerified, sendOTP, verifyOTP } from "@/utils/api";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import Image from "next/image";
 
 export default function Register() {
   const [email, setEmail] = useState("");
@@ -233,282 +215,134 @@ export default function Register() {
   };
 
   return (
-    <>
-      {/* Mobile UI - Hidden on lg and above */}
-      <div className="lg:hidden min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
-        {/* Purple Header Bar */}
-        <div className="bg-gradient-to-r from-purple-600 via-purple-700 to-purple-800 shadow-lg">
-          <div className="max-w-4xl mx-auto px-4 py-6">
-            <div className="flex items-center justify-center gap-3">
-              <div className="bg-white/20 backdrop-blur-sm rounded-full p-3">
-                <Image 
-                  src="/OpenAssign.svg" 
-                  alt="AssignDump Logo" 
-                  width={24} 
-                  height={24}
-                  className="w-6 h-6"
-                />
+    <div className="bg-charcoal font-display min-h-screen flex overflow-hidden">
+      {/* Desktop Left Pane - Hidden on mobile */}
+      <div className="hidden lg:flex lg:w-3/5 relative overflow-hidden floating-library-bg border-r border-white/5">
+        <div className="knowledge-core top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"></div>
+        <div className="light-trail-cyan w-full top-1/4 -rotate-12 opacity-50"></div>
+        <div className="light-trail-emerald w-full bottom-1/4 rotate-6 opacity-40"></div>
+        <div className="light-trail-cyan w-1/2 top-1/2 left-0 rotate-45 opacity-30"></div>
+        <div className="absolute inset-0 z-0">
+          <div className="glass-shelf w-48 h-2 top-[15%] left-[10%] -rotate-12"></div>
+          <div className="glass-shelf w-64 h-2 top-[40%] left-[5%] rotate-3"></div>
+          <div className="glass-shelf w-40 h-2 bottom-[20%] left-[15%] -rotate-6"></div>
+          <div className="glass-shelf w-56 h-2 top-[25%] right-[10%] rotate-12"></div>
+          <div className="glass-shelf w-72 h-2 bottom-[30%] right-[5%] -rotate-2"></div>
               </div>
-              <div className="text-center">
-                <h1 className="text-2xl font-bold text-white">Join AssignDump</h1>
-                <p className="text-purple-100 text-sm">
-                  Secure • Anonymous • Rewarding
-                </p>
+        <div className="relative z-20 flex flex-col justify-between h-full w-full px-24 py-16">
+          <div>
+            <div className="flex items-center gap-3 mb-16">
+              <div className="glass-morphism px-6 py-3 rounded-full">
+                <div className="flex items-center gap-3">
+                  <div className="size-10 flex items-center justify-center rounded-lg backdrop-blur-lg bg-white/10 border border-white/20 relative group transition-all hover:bg-white/15">
+                    <div className="absolute inset-0 bg-[#13ec92]/5 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg"></div>
+                    <span
+                      className="material-symbols-outlined text-[#13ec92] text-2xl relative z-10"
+                      style={{ fontVariationSettings: '"FILL" 1, "wght" 400' }}
+                    >
+                      diamond
+                    </span>
+                  </div>
+                  <span className="text-lg sm:text-xl font-bold tracking-tight text-white">
+                    Assign<span className="text-[#80e1e1]">Dump</span>
+                  </span>
+                </div>
               </div>
             </div>
-          </div>
-        </div>
-
-        {/* Description Section */}
-        <div className="max-w-4xl mx-auto px-4 py-8">
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-white mb-4">
-              Welcome to the Future of Assignment Help
-            </h2>
-            <p className="text-gray-300 text-lg max-w-2xl mx-auto leading-relaxed">
-              Join thousands of students in our anonymous, secure platform where
-              you can get help with assignments or earn points by helping others.
-              No personal information required - just your email!
+            <h1 className="text-white text-6xl font-extrabold leading-[1.1] tracking-tight mb-6">
+              Elevate your <br/><span className="bg-gradient-to-r from-[#10b981] to-[#06b6d4] bg-clip-text text-transparent">academic success.</span>
+            </h1>
+            <p className="text-white/60 text-xl max-w-lg font-light leading-relaxed">
+              Connect with our advanced Academic Robot and unlock a world of cinematic learning and expert insights.
             </p>
           </div>
-
-          {/* Features Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-            <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg p-6 border border-gray-700/50">
-              <div className="bg-purple-600/20 rounded-full w-12 h-12 flex items-center justify-center mb-4 mx-auto">
-                <Shield className="w-6 h-6 text-purple-400" />
+          <div className="relative flex-1 flex items-center justify-center py-10 scale-110">
+            <div className="relative group flex items-center justify-center">
+              <div className="absolute inset-0 bg-[#10b981]/20 rounded-full blur-[100px] scale-150 group-hover:bg-[#06b6d4]/20 transition-all duration-700"></div>
+              <div className="relative z-10 w-96 h-96 flex items-center justify-center">
+                <img 
+                  alt="Academic Robot Cinematic Illustration" 
+                  className="w-full h-full object-contain drop-shadow-[0_20px_50px_rgba(0,0,0,0.5)] transform hover:scale-105 transition-transform duration-1000" 
+                  // src="https://lh3.googleusercontent.com/aida-public/AB6AXuDek5bSoiHsLpgzdSL-owQw_-tbI3xVpzgg_ihDZoL6fqFq7IeUWf3UaYX-BCw0C4ucp0PbK3e4D6rOmFw9xXX4yL2DuQAh7xsFRFL0td9eQAecyP4bxTcj5PHhsu2Tssj5msRUcxFRaxdf1tmKXQcHTobtl5cSnALav0Gywz5lLYz7FFdk-ISwPQsIsBW9xOeEw7QSegjL41Mtz-cwpAH4jGE83Uk0uYSrs7r6nqRAvb4oRLpM_kyiTvNwJUB4c7aCThIqNrfx1SQ"
+                  src="AI_Academic_Focus.png"
+                />
+                <div className="absolute -bottom-4 -right-10 w-48 h-24 bg-white/5 border border-white/20 backdrop-blur-2xl rounded-2xl shadow-2xl flex flex-col p-4 rotate-[-6deg] group-hover:rotate-0 transition-all duration-700">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="size-2 rounded-full bg-[#10b981] animate-pulse"></div>
+                    <span className="text-[10px] text-[#10b981] font-bold uppercase tracking-widest">Knowledge Core Active</span>
+                  </div>
+                  <div className="space-y-1.5">
+                    <div className="w-full h-1 bg-white/10 rounded-full overflow-hidden">
+                      <div className="w-[75%] h-full bg-[#10b981]"></div>
+                    </div>
+                    <div className="w-2/3 h-1 bg-white/10 rounded-full"></div>
+                  </div>
+                </div>
               </div>
-              <h3 className="text-white font-semibold text-center mb-2">
-                100% Anonymous
-              </h3>
-              <p className="text-gray-400 text-sm text-center">
-                Your identity stays completely private. We generate unique
-                usernames for everyone.
-              </p>
             </div>
-
-            <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg p-6 border border-gray-700/50">
-              <div className="bg-purple-600/20 rounded-full w-12 h-12 flex items-center justify-center mb-4 mx-auto">
-                <Users className="w-6 h-6 text-purple-400" />
+          </div>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="flex -space-x-3">
+                <div className="size-8 rounded-full border-2 border-charcoal bg-white/10"></div>
+                <div className="size-8 rounded-full border-2 border-charcoal bg-white/20"></div>
+                <div className="size-8 rounded-full border-2 border-charcoal bg-[#10b981]/30"></div>
               </div>
-              <h3 className="text-white font-semibold text-center mb-2">
-                Community Driven
-              </h3>
-              <p className="text-gray-400 text-sm text-center">
-                Help others and earn points. Build your reputation in our
-                supportive community.
-              </p>
+              <span className="text-white/40 text-sm font-medium tracking-wide">Trusted by 50k+ Scholars</span>
             </div>
-
-            <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg p-6 border border-gray-700/50">
-              <div className="bg-purple-600/20 rounded-full w-12 h-12 flex items-center justify-center mb-4 mx-auto">
-                <Mail className="w-6 h-6 text-purple-400" />
-              </div>
-              <h3 className="text-white font-semibold text-center mb-2">
-                Email Verification
-              </h3>
-              <p className="text-gray-400 text-sm text-center">
-                Quick and secure email verification ensures quality and prevents
-                spam.
-              </p>
+            <p className="text-white/20 text-xs tracking-widest uppercase">System Version 4.0.2</p>
             </div>
           </div>
         </div>
 
-        {/* Registration Card */}
-        <div className="flex justify-center pb-16 px-4">
-          <Card className="w-full max-w-md study-card shadow-2xl">
-            <CardHeader className="text-center pb-4">
-              <div className="mx-auto w-16 h-16 bg-gradient-to-br from-[#4ade80] to-[#22c55e] rounded-2xl flex items-center justify-center mb-4 shadow-lg">
-                {otpSent ? (
-                  <Lock className="w-8 h-8 text-white" />
-                ) : (
-                  <Mail className="w-8 h-8 text-white" />
-                )}
+      {/* Right Pane - Form Section */}
+      <div className="flex-1 flex flex-col justify-center items-center px-8 lg:px-20 bg-charcoal relative">
+        <div className="lg:hidden absolute top-0 left-0 w-full h-40 bg-gradient-to-b from-[#10b981]/10 to-transparent"></div>
+        <div className="w-full max-w-md relative z-10">
+          <div className="lg:hidden flex items-center justify-center gap-3 mb-16">
+            <div className="glass-morphism px-6 py-3 rounded-full">
+              <div className="flex items-center gap-3">
+                <div className="size-10 flex items-center justify-center rounded-lg backdrop-blur-lg bg-white/10 border border-white/20 relative group transition-all hover:bg-white/15">
+                  <div className="absolute inset-0 bg-[#13ec92]/5 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg"></div>
+                  <span
+                    className="material-symbols-outlined text-[#13ec92] text-2xl relative z-10"
+                    style={{ fontVariationSettings: '"FILL" 1, "wght" 400' }}
+                  >
+                    diamond
+                  </span>
+                </div>
+                <span className="text-lg sm:text-xl font-bold tracking-tight text-white">
+                  Assign<span className="text-[#80e1e1]">Dump</span>
+                </span>
               </div>
-              <CardTitle className="text-2xl text-white">
-                {otpSent ? "Verify Your Email" : "Sign In to AssignDump"}
-              </CardTitle>
-              <CardDescription className="text-gray-300">
+            </div>
+          </div>
+          <div className="mb-12">
+            <h2 className="text-white text-4xl font-bold mb-3 tracking-tight">
+              {otpSent ? "Verify Your Email" : isVerified ? "Welcome Back" : "Welcome Back"}
+            </h2>
+            <p className="text-white/40 text-lg font-light tracking-wide">
                 {otpSent
                   ? "Enter the 6-digit code sent to your email"
                   : isVerified
                   ? "Your email is already verified. Logging you in..."
-                  : "Enter your email to get started (new users will be created automatically)"}
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="pt-0">
-              {!otpSent && !isVerified ? (
-                <div className="space-y-6">
-                  <div className="space-y-2">
-                    <Input
-                      type="email"
-                      placeholder="your.email@university.edu"
-                      value={email}
-                      onChange={(e) => handleEmailChange(e.target.value)}
-                      required
-                      className="h-12 border-[#4ade80]/30 bg-[#1a1a1f]/50 focus:border-[#4ade80] focus:ring-2 focus:ring-[#4ade80]/20 transition-all text-white"
-                    />
-                    {emailError && (
-                      <p className="text-sm text-red-400 flex items-center gap-1">
-                        <span>⚠️</span>
-                        {emailError}
-                      </p>
-                    )}
-                  </div>
-                  <Button
-                    onClick={handleSendOTP}
-                    className="w-full h-12 duolingo-button font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
-                    disabled={sendingOtp || !email}
-                  >
-                    {sendingOtp ? (
-                      <>
-                        <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                        Sending OTP...
-                      </>
-                    ) : (
-                      <>
-                        Send Verification Code
-                        <ArrowRight className="ml-2 h-5 w-5" />
-                      </>
-                    )}
-                  </Button>
-                </div>
-              ) : null}
-              {otpSent && !isVerified && (
-                <div className="space-y-6">
-                  <div className="space-y-2">
-                    <Input
-                      type="text"
-                      placeholder="Enter 6-digit code"
-                      value={otp}
-                      onChange={(e) =>
-                        setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))
-                      }
-                      maxLength={6}
-                      className="h-12 border-[#4ade80]/30 bg-[#1a1a1f]/50 focus:border-[#4ade80] focus:ring-2 focus:ring-[#4ade80]/20 transition-all text-center text-lg font-mono text-white"
-                    />
-                    <p className="text-sm text-gray-300 text-center">
-                      Code sent to{" "}
-                      <span className="font-medium text-white">{email}</span>
-                    </p>
-                  </div>
-                  <div className="space-y-3">
-                    <Button
-                      onClick={handleVerifyOTP}
-                      className="w-full h-12 duolingo-button font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
-                      disabled={verifyingOtp || otp.length !== 6}
-                    >
-                      {verifyingOtp ? (
-                        <>
-                          <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                          Verifying...
-                        </>
-                      ) : (
-                        <>
-                          Verify Code
-                          <CheckCircle className="ml-2 h-5 w-5" />
-                        </>
-                      )}
-                    </Button>
-                    <div className="flex items-center justify-between">
-                      <button
-                        type="button"
-                        onClick={resetForm}
-                        className="text-sm text-gray-300 hover:text-white transition-colors px-3 py-1 rounded-lg hover:bg-[#4ade80]/10"
-                      >
-                        ← Back to email
-                      </button>
-                      <button
-                        type="button"
-                        onClick={handleResendOTP}
-                        disabled={countdown > 0}
-                        className="text-sm text-[#4ade80] hover:text-[#22c55e] transition-colors disabled:opacity-50 disabled:cursor-not-allowed px-3 py-1 rounded-lg hover:bg-[#4ade80]/10"
-                      >
-                        {countdown > 0
-                          ? `Resend in ${countdown}s`
-                          : "Resend code"}
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              )}
-              {isVerified && !otpSent && (
-                <div className="flex flex-col items-center justify-center py-8">
-                  <Loader2 className="h-8 w-8 text-[#4ade80] animate-spin mb-4" />
-                  <p className="text-gray-300 text-center">Logging you in...</p>
-                </div>
-              )}
-              <p className="text-xs text-gray-400 text-center mt-4">
-                By continuing, you agree to our{" "}
-                <a
-                  href="/terms"
-                  className="underline hover:text-[#4ade80] transition-colors"
-                >
-                  Terms of Service
-                </a>{" "}
-                and{" "}
-                <a
-                  href="/privacy-policy"
-                  className="underline hover:text-[#4ade80] transition-colors"
-                >
-                  Privacy Policy
-                </a>
-                .
-              </p>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-
-      {/* Desktop UI - Hidden below lg - FIXED VERSION */}
-      <div className="hidden lg:flex relative min-h-screen w-full overflow-hidden bg-gradient-to-br from-background via-background to-muted/20">
-        {/* Left Pane: Authentication Forms - Fixed width and centered content */}
-        <div className="flex w-full lg:w-1/2 flex-col items-center justify-center bg-card/95 backdrop-blur-sm p-8 xl:p-12 2xl:p-16 shadow-2xl z-10 border-r border-border/50">
-          <div className="w-full max-w-md flex flex-col gap-6 animate-in fade-in slide-in-from-left-4 duration-500">
-            {/* Branding Header with SVG Logo */}
-            <div className="flex items-center gap-3 mb-4 group">
-              <div className="flex items-center justify-center p-2 rounded-xl bg-gradient-to-br from-[#4ade80]/10 to-[#22c55e]/10 border border-[#4ade80]/20 shadow-lg transition-all group-hover:scale-105 group-hover:shadow-[#4ade80]/30">
-                <Image 
-                  src="/OpenAssign.svg" 
-                  alt="AssignDump Logo" 
-                  width={57} 
-                  height={57}
-                  className="w-14 h-14 transition-transform group-hover:rotate-3"
-                />
-              </div>
-              <h2 className="text-3xl font-bold tracking-tight text-foreground bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text">AssignDump</h2>
-            </div>
-
-            {/* Welcome Text */}
-            <div className="flex flex-col gap-3 mb-4">
-              <h1 className="text-3xl xl:text-4xl 2xl:text-5xl font-extrabold tracking-tight text-foreground leading-tight">
-                {otpSent ? "Verify Your Email" : "Welcome back"}
-              </h1>
-              <p className="text-muted-foreground text-base xl:text-lg leading-relaxed">
-                {otpSent 
-                  ? "Enter the 6-digit code sent to your email"
-                  : "Join the top students reviewing and rating solutions."}
+                : "Secure access to your academic portal"}
               </p>
             </div>
 
-            {/* Form Content */}
+          <form className="space-y-6" onSubmit={(e) => { e.preventDefault(); }}>
             {!otpSent && !isVerified ? (
-              <div className="flex flex-col gap-6">
-                <div className="flex flex-col gap-3">
-                  <label className="text-foreground text-sm font-semibold flex items-center gap-2" htmlFor="email">
-                    <Mail className="w-4 h-4 text-[#4ade80]" />
-                    Email Address
+              <>
+                <div className="space-y-2">
+                  <label className="block text-xs font-bold text-white/40 uppercase tracking-[0.2em]" htmlFor="email">
+                    Institutional Email
                   </label>
                   <div className="relative group">
-                    <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
-                      <Mail className="text-muted-foreground w-5 h-5 transition-colors group-focus-within:text-[#4ade80]" />
-                    </div>
-                    <Input
+                    <input
+                      className="glass-input-premium"
                       id="email"
-                      name="email"
+                      placeholder="name@university.edu"
                       type="email"
-                      placeholder="student@university.edu"
                       value={email}
                       onChange={(e) => handleEmailChange(e.target.value)}
                       onBlur={() => {
@@ -516,93 +350,83 @@ export default function Register() {
                           setEmailError("Please enter a valid email address (must include @ and .)");
                         }
                       }}
-                      className={`block w-full rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-background/50 backdrop-blur-sm py-3.5 pl-11 pr-4 text-sm placeholder:text-muted-foreground/60 focus:border-[#4ade80] focus:ring-2 focus:ring-[#4ade80]/20 focus:bg-background transition-all duration-200 ${
-                        emailError ? "border-red-500 focus:border-red-500 focus:ring-red-500/20" : ""
-                      }`}
                     />
+                    <div className="absolute inset-y-0 right-5 flex items-center text-white/20 group-focus-within:text-[#10b981] transition-colors">
+                      <span className="material-symbols-outlined text-[20px]">alternate_email</span>
+                    </div>
                   </div>
                   {emailError && (
-                    <p className="text-sm text-red-400 flex items-center gap-2 mt-1 px-2 py-1.5 rounded-lg bg-red-500/10 border border-red-500/20 animate-in fade-in slide-in-from-top-1">
-                      <span>⚠️</span>
-                      {emailError}
-                    </p>
+                    <p className="text-sm text-red-400 mt-2">{emailError}</p>
                   )}
                 </div>
-
-                <Button
+                <button
+                  className="w-full py-4.5 rounded-xl bg-gradient-to-r from-[#10b981] to-[#06b6d4] text-charcoal font-bold tracking-tight shadow-[0_4px_20px_rgba(16,185,129,0.4)] hover:shadow-[0_4px_30px_rgba(6,182,212,0.6)] hover:brightness-110 transition-all duration-500 active:scale-[0.98] relative overflow-hidden flex items-center justify-center gap-3 group"
+                  type="button"
                   onClick={handleSendOTP}
-                  className="w-full h-12 duolingo-button font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
                   disabled={sendingOtp || !email}
                 >
                   {sendingOtp ? (
                     <>
-                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                      Sending OTP...
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      <span className="text-base">Sending...</span>
                     </>
                   ) : (
                     <>
-                      Send Verification Code
-                      <ArrowRight className="ml-2 h-5 w-5" />
+                      <span className="text-base">Continue to Dashboard</span>
+                      <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                     </>
                   )}
-                </Button>
-              </div>
+                </button>
+              </>
             ) : null}
 
-            {/* OTP Verification Step */}
             {otpSent && !isVerified && (
-              <div className="flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-2 duration-500">
-                <div className="flex flex-col gap-3">
-                  <label className="text-foreground text-sm font-semibold flex items-center gap-2" htmlFor="otp">
-                    <Lock className="w-4 h-4 text-[#4ade80]" />
+              <>
+                <div className="space-y-2">
+                  <label className="block text-xs font-bold text-white/40 uppercase tracking-[0.2em]" htmlFor="otp">
                     Verification Code
                   </label>
                   <div className="relative group">
-                    <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
-                      <Lock className="text-muted-foreground w-5 h-5 transition-colors group-focus-within:text-[#4ade80]" />
-                    </div>
-                    <Input
+                    <input
+                      className="glass-input-premium text-center text-xl font-mono tracking-widest"
                       id="otp"
-                      name="otp"
+                      placeholder="000000"
                       type="text"
-                      placeholder="Enter 6-digit code"
                       value={otp}
-                      onChange={(e) =>
-                        setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))
-                      }
+                      onChange={(e) => setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))}
                       maxLength={6}
-                      className="block w-full rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-background/50 backdrop-blur-sm py-3.5 pl-11 pr-4 text-center text-xl font-mono tracking-widest focus:border-[#4ade80] focus:ring-2 focus:ring-[#4ade80]/20 focus:bg-background transition-all duration-200"
                     />
+                    <div className="absolute inset-y-0 right-5 flex items-center text-white/20 group-focus-within:text-[#10b981] transition-colors">
+                      <Lock className="w-5 h-5" />
+                    </div>
                   </div>
-                  <p className="text-sm text-muted-foreground text-center mt-2 px-3 py-2 rounded-lg bg-muted/50">
-                    Code sent to{" "}
-                    <span className="font-semibold text-foreground">{email}</span>
+                  <p className="text-sm text-white/40 text-center mt-2">
+                    Code sent to <span className="font-semibold text-white">{email}</span>
                   </p>
                 </div>
-
-                <Button
+                <button
+                  className="w-full py-4.5 rounded-xl bg-gradient-to-r from-[#10b981] to-[#06b6d4] text-charcoal font-bold tracking-tight shadow-[0_4px_20px_rgba(16,185,129,0.4)] hover:shadow-[0_4px_30px_rgba(6,182,212,0.6)] hover:brightness-110 transition-all duration-500 active:scale-[0.98] relative overflow-hidden flex items-center justify-center gap-3 group"
+                  type="button"
                   onClick={handleVerifyOTP}
-                  className="w-full h-12 duolingo-button font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
                   disabled={verifyingOtp || otp.length !== 6}
                 >
                   {verifyingOtp ? (
                     <>
-                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                      Verifying...
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      <span className="text-base">Verifying...</span>
                     </>
                   ) : (
                     <>
-                      Verify Code
-                      <CheckCircle className="ml-2 h-5 w-5" />
+                      <span className="text-base">Verify Code</span>
+                      <CheckCircle className="w-5 h-5" />
                     </>
                   )}
-                </Button>
-
+                </button>
                 <div className="flex items-center justify-between pt-2">
                   <button
                     type="button"
                     onClick={resetForm}
-                    className="text-sm text-muted-foreground hover:text-foreground transition-all duration-200 px-3 py-2 rounded-lg hover:bg-muted/80 hover:scale-105 font-medium"
+                    className="text-sm text-white/40 hover:text-white transition-colors"
                   >
                     ← Back to email
                   </button>
@@ -610,101 +434,43 @@ export default function Register() {
                     type="button"
                     onClick={handleResendOTP}
                     disabled={countdown > 0}
-                    className="text-sm font-semibold text-[#4ade80] hover:text-[#22c55e] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed px-3 py-2 rounded-lg hover:bg-[#4ade80]/10 hover:scale-105 disabled:hover:scale-100"
+                    className="text-sm text-[#10b981] hover:text-[#06b6d4] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {countdown > 0 ? `Resend in ${countdown}s` : "Resend code"}
                   </button>
                 </div>
-              </div>
+              </>
             )}
 
-            {/* If verified, show loading */}
             {isVerified && !otpSent && (
-              <div className="flex flex-col items-center justify-center py-12 animate-in fade-in zoom-in duration-500">
-                <div className="relative">
-                  <div className="absolute inset-0 bg-[#4ade80]/20 rounded-full blur-xl animate-pulse"></div>
-                  <Loader2 className="h-12 w-12 text-[#4ade80] animate-spin mb-6 relative" />
-                </div>
-                <p className="text-muted-foreground text-center text-base font-medium">Logging you in...</p>
+              <div className="flex flex-col items-center justify-center py-12">
+                <Loader2 className="h-12 w-12 text-[#10b981] animate-spin mb-6" />
+                <p className="text-white/40 text-center text-base font-medium">Logging you in...</p>
               </div>
             )}
+          </form>
 
-            {/* Secure Badge */}
-            <div className="mt-8 flex justify-center items-center gap-2 text-muted-foreground text-xs px-4 py-2.5 rounded-lg bg-muted/30 border border-border/50 backdrop-blur-sm">
-              <Shield className="w-4 h-4 text-[#4ade80]" />
-              <span className="font-medium">Secure, encrypted connection</span>
+          <div className="relative my-12">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-white/5"></div>
             </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-6 bg-charcoal text-white/20 uppercase tracking-[0.3em] text-[10px] font-bold">Standard Auth</span>
           </div>
         </div>
 
-        {/* Right Pane: Visual & Features - Improved responsiveness */}
-        <div className="relative hidden w-0 flex-1 lg:flex lg:w-1/2 overflow-hidden">
-          <div 
-            className="absolute inset-0 h-full w-full transition-transform duration-700 hover:scale-105"
-            style={{
-              backgroundImage: `url("sleek.png")`,
-              backgroundSize: '110%',
-              backgroundPosition: 'center 20%',
-              backgroundRepeat: 'no-repeat'
-            }}
-          >
-            <div className="absolute inset-0 bg-gradient-to-t from-background/40 via-[#22c55e]/60 to-[#4ade80]/20 mix-blend-multiply"></div>
-            <div className="absolute inset-0 bg-[#4ade80]/20 mix-blend-color"></div>
-          </div>
-
-          {/* Animated background elements */}
-          <div className="absolute inset-0 overflow-hidden">
-            <div className="absolute top-20 right-20 w-72 h-72 bg-[#4ade80]/10 rounded-full blur-3xl animate-pulse"></div>
-            <div className="absolute bottom-40 left-10 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
-          </div>
-
-          {/* Content overlay with better spacing */}
-          <div className="absolute inset-0 flex flex-col justify-end pb-6 xl:pb-8 2xl:pb-12 px-8 xl:px-12 2xl:px-16 z-10">
-            <div className="w-full max-w-xl 2xl:max-w-2xl mx-auto">
-              {/* Testimonial Card */}
-              <div className="relative rounded-2xl bg-white/8 backdrop-blur-md p-6 xl:p-8 2xl:p-10 border border-white/20 shadow-2xl mb-6 2xl:mb-8 animate-in fade-in slide-in-from-bottom-4 duration-700 hover:bg-white/12 transition-all hover:border-white/30 group">
-                <div className="absolute -top-5 -right-5 w-14 h-14 2xl:w-16 2xl:h-16 bg-gradient-to-br from-[#22c55e] to-[#16a34a] rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300 border-2 border-[#22c55e]/30">
-                  <Sparkles className="w-7 h-7 2xl:w-8 2xl:h-8 text-white drop-shadow-sm" />
-                </div>
-                <div className="flex flex-col gap-5 2xl:gap-6">
-                  <div className="flex gap-1.5 2xl:gap-2">
-                    {[...Array(5)].map((_, i) => (
-                      <Star 
-                        key={i} 
-                        className="w-5 h-5 2xl:w-6 2xl:h-6 fill-[#22c55e] text-[#16a34a] opacity-90"
-                        style={{
-                          filter: 'drop-shadow(0 1px 2px rgba(34, 197, 94, 0.2)) brightness(1.1)'
-                        }}
-                      />
-                    ))}
-                  </div>
-                  <p className="text-lg xl:text-xl 2xl:text-2xl font-semibold leading-relaxed text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] backdrop-blur-sm">
-                    "AssignDump helped me boost my grades by seeing how others solve problems. The leaderboard motivates me to keep improving!"
-                  </p>
-                  <div className="flex items-center gap-4 2xl:gap-5 pt-3 border-t border-white/20">
-                    <div className="h-12 w-12 2xl:h-14 2xl:w-14 rounded-full bg-gradient-to-br from-white/25 to-white/8 flex items-center justify-center text-white font-bold text-base 2xl:text-lg shadow-lg ring-2 ring-white/15 backdrop-blur-sm">
-                      JD
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-white font-bold text-base 2xl:text-lg drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]">Jane Doe</span>
-                      <span className="text-white/90 text-sm 2xl:text-base drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]">Computer Science Student, Stanford</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Bottom text */}
-              <div className="animate-in fade-in slide-in-from-bottom-6 duration-700 delay-200">
-                <div className="flex items-center gap-3 2xl:gap-4 mb-4">
-                  <GraduationCap className="w-8 h-8 2xl:w-10 2xl:h-10 text-[#4ade80] drop-shadow-lg" />
-                  <h3 className="text-3xl xl:text-4xl 2xl:text-5xl font-extrabold text-white mb-2 drop-shadow-lg leading-tight">Master your assignments</h3>
-                </div>
-                <p className="text-base xl:text-lg 2xl:text-xl text-white/90 leading-relaxed drop-shadow-md">Join a community of students helping each other succeed through transparent reviews and collaborative learning.</p>
-              </div>
+          <div className="mt-20 pt-8 border-t border-white/5 flex flex-col items-center gap-4">
+            <div className="flex items-center gap-6">
+              <span className="material-symbols-outlined text-white/10 text-xl">security</span>
+              <span className="material-symbols-outlined text-white/10 text-xl">verified_user</span>
+              <span className="material-symbols-outlined text-white/10 text-xl">data_exploration</span>
             </div>
+            <p className="text-white/20 text-[10px] uppercase tracking-[0.2em]">
+              Protected by Advanced Neural Encryption
+            </p>
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }

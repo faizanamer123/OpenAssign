@@ -1,499 +1,425 @@
-"use client";
+"use client"
 
-import { useState, useEffect, useRef } from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Bell, CheckCircle, Clock, Star, Trash2, Sparkles, Upload, Loader2, CheckCheck, ArrowRight } from "lucide-react";
-import Link from "next/link";
-import dynamic from "next/dynamic";
-const Header = dynamic(() => import("@/components/Header"), {
-  ssr: false,
-  loading: () => <div className="h-16" />,
-});
-import { useAuth } from "@/context/AuthContext";
-import type { Notification } from "@/types/notification";
-import { getNotifications, markNotificationRead, markAllNotificationsRead } from "@/utils/api";
-import { toast } from "sonner";
+import { useState, useEffect } from "react"
+import Link from "next/link"
+import dynamic from "next/dynamic"
+const Header = dynamic(() => import("@/components/Header"), { ssr: false, loading: () => <div className='h-16' /> })
+import { useAuth } from "@/context/AuthContext"
+import { getNotifications, markNotificationRead, markAllNotificationsRead } from "@/utils/api"
+import type { Notification } from "@/types/notification"
 
-// Helper functions for localStorage (scoped by userId)
-const getDeletedNotificationIds = (userId: string): Set<string> => {
-  if (typeof window === "undefined") return new Set();
-  try {
-    const key = `deleted_notifications_${userId}`;
-    const stored = localStorage.getItem(key);
-    if (!stored) return new Set();
-    const ids = JSON.parse(stored) as string[];
-    return new Set(ids);
-  } catch {
-    return new Set();
-  }
-};
-
-const addDeletedNotificationId = (userId: string, notificationId: string): void => {
-  if (typeof window === "undefined") return;
-  try {
-    const key = `deleted_notifications_${userId}`;
-    const deleted = getDeletedNotificationIds(userId);
-    deleted.add(notificationId);
-    localStorage.setItem(key, JSON.stringify(Array.from(deleted)));
-  } catch (error) {
-    console.error("Failed to save deleted notification:", error);
-  }
-};
-
-const removeDeletedNotificationId = (userId: string, notificationId: string): void => {
-  if (typeof window === "undefined") return;
-  try {
-    const key = `deleted_notifications_${userId}`;
-    const deleted = getDeletedNotificationIds(userId);
-    deleted.delete(notificationId);
-    localStorage.setItem(key, JSON.stringify(Array.from(deleted)));
-  } catch (error) {
-    console.error("Failed to remove deleted notification:", error);
-  }
-};
+interface GroupedNotifications {
+  today: Notification[]
+  yesterday: Notification[]
+  older: Notification[]
+}
 
 export default function NotificationsPage() {
-  const { user } = useAuth();
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [markingAllAsRead, setMarkingAllAsRead] = useState(false);
-  const [deletingIds, setDeletingIds] = useState<Set<string>>(new Set());
-  const [markingAsReadIds, setMarkingAsReadIds] = useState<Set<string>>(new Set());
-  const notificationRefs = useRef<Map<string, HTMLDivElement>>(new Map());
+  const { user, loading: authLoading } = useAuth()
+  const [notifications, setNotifications] = useState<Notification[]>([])
+  const [groupedNotifications, setGroupedNotifications] = useState<GroupedNotifications>({
+    today: [],
+    yesterday: [],
+    older: []
+  })
+  const [loading, setLoading] = useState(true)
+  const [markingAllAsRead, setMarkingAllAsRead] = useState(false)
+  const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
-    if (!user) return;
-    loadNotifications();
-  }, [user]);
+    setMounted(true)
+  }, [])
 
-  // Auto-mark notifications as read when they come into view (like professional sites)
   useEffect(() => {
-    if (!user || notifications.length === 0) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            const notificationId = entry.target.getAttribute("data-notification-id");
-            if (notificationId) {
-              const notification = notifications.find((n) => n.id === notificationId);
-              // Auto-mark as read when viewed (only if unread)
-              if (notification && !notification.read && !markingAsReadIds.has(notificationId)) {
-                handleMarkAsRead(notificationId, true); // true = auto (silent)
-              }
-            }
-          }
-        });
-      },
-      { threshold: 0.5 } // Mark as read when 50% visible
-    );
-
-    // Observe all notification elements
-    notificationRefs.current.forEach((element) => {
-      if (element) observer.observe(element);
-    });
-
-    return () => {
-      observer.disconnect();
-    };
-  }, [notifications, user, markingAsReadIds]);
+    if (mounted && user) {
+      loadNotifications()
+      // Set up polling for real-time updates (every 30 seconds)
+      const interval = setInterval(() => {
+        loadNotifications()
+      }, 30000)
+      return () => clearInterval(interval)
+    }
+  }, [user, mounted])
 
   const loadNotifications = async () => {
-    if (!user) return;
-    setLoading(true);
+    if (!user) return
+    setLoading(true)
     try {
-      const data = await getNotifications({ userId: user.id });
-      // Filter out deleted notifications (stored in localStorage)
-      const deletedIds = getDeletedNotificationIds(user.id);
-      const filtered = data.filter((notification: Notification) => !deletedIds.has(notification.id));
+      const data = await getNotifications({ userId: user.id })
       
-      // Sort notifications by date (newest first), then by read status (unread first)
-      const sorted = filtered.sort((a: Notification, b: Notification) => {
-        // Unread notifications first
-        if (a.read !== b.read) {
-          return a.read ? 1 : -1;
+      // Sort by date (newest first)
+      const sorted = data.sort((a: Notification, b: Notification) => 
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      )
+      
+      setNotifications(sorted)
+      
+      // Group by date
+      const today = new Date()
+      today.setHours(0, 0, 0, 0)
+      const yesterday = new Date(today)
+      yesterday.setDate(yesterday.getDate() - 1)
+      
+      const grouped: GroupedNotifications = {
+        today: [],
+        yesterday: [],
+        older: []
+      }
+      
+      sorted.forEach((notif: Notification) => {
+        const notifDate = new Date(notif.createdAt)
+        notifDate.setHours(0, 0, 0, 0)
+        
+        if (notifDate.getTime() === today.getTime()) {
+          grouped.today.push(notif)
+        } else if (notifDate.getTime() === yesterday.getTime()) {
+          grouped.yesterday.push(notif)
+        } else {
+          grouped.older.push(notif)
         }
-        // Then by date
-        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-      });
-      setNotifications(sorted);
+      })
+      
+      setGroupedNotifications(grouped)
     } catch (error) {
-      setNotifications([]);
-      console.error("Failed to load notifications:", error);
-      toast.error("Failed to load notifications", {
-        description: "Please refresh the page to try again.",
-      });
+      console.error("Failed to load notifications:", error)
+      setNotifications([])
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
-  const handleMarkAsRead = async (notificationId: string, silent = false) => {
-    if (!user) return;
-    
-    // Prevent duplicate requests
-    if (markingAsReadIds.has(notificationId)) return;
-    
-    setMarkingAsReadIds((prev) => new Set(prev).add(notificationId));
-    
+  const handleMarkAsRead = async (notificationId: string) => {
+    if (!user) return
     try {
-      await markNotificationRead(notificationId, user.id);
-      setNotifications((prev) =>
-        prev.map((notification) =>
+      await markNotificationRead(notificationId, user.id)
+      setNotifications(prev =>
+        prev.map(notification =>
           notification.id === notificationId
             ? { ...notification, read: true }
             : notification
         )
-      );
-      if (!silent) {
-        toast.success("Notification marked as read");
-      }
+      )
+      // Update grouped notifications
+      const updated = { ...groupedNotifications }
+      Object.keys(updated).forEach((key) => {
+        updated[key as keyof GroupedNotifications] = updated[key as keyof GroupedNotifications].map(n =>
+          n.id === notificationId ? { ...n, read: true } : n
+        )
+      })
+      setGroupedNotifications(updated)
     } catch (error) {
-      console.error("Failed to mark notification as read:", error);
-      if (!silent) {
-        toast.error("Failed to mark as read", {
-          description: "Please try again.",
-        });
-      }
-    } finally {
-      setMarkingAsReadIds((prev) => {
-        const next = new Set(prev);
-        next.delete(notificationId);
-        return next;
-      });
+      console.error("Failed to mark notification as read:", error)
     }
-  };
-
-  const handleDeleteNotification = (notificationId: string) => {
-    if (!user) return;
-    
-    // Prevent duplicate requests
-    if (deletingIds.has(notificationId)) return;
-    
-    setDeletingIds((prev) => new Set(prev).add(notificationId));
-    
-    // Store deleted notification ID in localStorage (persists across page reloads)
-    addDeletedNotificationId(user.id, notificationId);
-    
-    // Remove from UI immediately (optimistic update)
-    setNotifications((prev) =>
-      prev.filter((notification) => notification.id !== notificationId)
-    );
-    
-    toast.success("Notification deleted");
-    
-    // Clear the deleting state after a brief delay
-    setTimeout(() => {
-      setDeletingIds((prev) => {
-        const next = new Set(prev);
-        next.delete(notificationId);
-        return next;
-      });
-    }, 300);
-  };
+  }
 
   const handleMarkAllAsRead = async () => {
-    if (!user) return;
+    if (!user) return
+    const unreadNotifications = notifications.filter(n => !n.read)
+    if (unreadNotifications.length === 0) return
     
-    const unreadNotifications = notifications.filter((n) => !n.read);
-    if (unreadNotifications.length === 0) return;
-    
-    setMarkingAllAsRead(true);
+    setMarkingAllAsRead(true)
     try {
-      await markAllNotificationsRead(user.id);
-      setNotifications((prev) =>
-        prev.map((notification) => ({ ...notification, read: true }))
-      );
-      toast.success(`Marked ${unreadNotifications.length} notification${unreadNotifications.length > 1 ? "s" : ""} as read`);
+      await markAllNotificationsRead(user.id)
+      setNotifications(prev =>
+        prev.map(notification => ({ ...notification, read: true }))
+      )
+      // Update grouped notifications
+      const updated = { ...groupedNotifications }
+      Object.keys(updated).forEach((key) => {
+        updated[key as keyof GroupedNotifications] = updated[key as keyof GroupedNotifications].map(n => ({ ...n, read: true }))
+      })
+      setGroupedNotifications(updated)
     } catch (error) {
-      console.error("Failed to mark all as read:", error);
-      toast.error("Failed to mark all as read", {
-        description: "Please try again.",
-      });
+      console.error("Failed to mark all as read:", error)
     } finally {
-      setMarkingAllAsRead(false);
+      setMarkingAllAsRead(false)
     }
-  };
+  }
 
   const getNotificationIcon = (type: string) => {
     switch (type) {
       case "assignment_uploaded":
-        return (
-          <div className="soft-icon">
-            <Upload className="h-5 w-5 text-[#9333ea]" />
-          </div>
-        );
+        return "upload_file"
       case "assignment_solved":
-        return (
-          <div className="soft-icon">
-            <CheckCircle className="h-5 w-5 text-[#4ade80]" />
-          </div>
-        );
+        return "check_circle"
       case "assignment_rated":
-        return (
-          <div className="soft-icon">
-            <Star className="h-5 w-5 text-[#fbbf24]" />
-          </div>
-        );
+        return "star"
       case "deadline_reminder":
-        return (
-          <div className="soft-icon">
-            <Clock className="h-5 w-5 text-[#fb923c]" />
-          </div>
-        );
+        return "schedule"
       default:
-        return (
-          <div className="soft-icon">
-            <Bell className="h-5 w-5 text-[#60a5fa]" />
-          </div>
-        );
+        return "notifications"
     }
-  };
+  }
+
+  const getNotificationColor = (type: string) => {
+    switch (type) {
+      case "assignment_uploaded":
+        return "#13ec9c"
+      case "assignment_solved":
+        return "#13ec9c"
+      case "assignment_rated":
+        return "#fbbf24"
+      case "deadline_reminder":
+        return "#fb923c"
+      default:
+        return "#60a5fa"
+    }
+  }
 
   const formatTimeAgo = (dateString: string) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
-    
-    if (diffInSeconds < 60) return "Just now";
-    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
-    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
-    if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)}d ago`;
+    const date = new Date(dateString)
+    const now = new Date()
+    const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000)
+
+    if (diffInSeconds < 60) return "Just now"
+    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`
+    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`
+    if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)}d ago`
     
     return date.toLocaleDateString("en-US", {
       month: "short",
       day: "numeric",
       year: date.getFullYear() !== now.getFullYear() ? "numeric" : undefined,
-    });
-  };
+    })
+  }
 
-  const unreadCount = notifications.filter((n) => !n.read).length;
+  const unreadCount = notifications.filter(n => !n.read).length
 
-  if (!user) return null;
+  if (!mounted) {
+    return (
+      <div className="min-h-screen bg-[#0a0c0b] font-display text-white">
+        <div className='h-16' />
+        <main className="flex flex-1 justify-center py-8 px-6 lg:px-20">
+          <div className="text-center py-12 text-white">Loading...</div>
+        </main>
+      </div>
+    )
+  }
+
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-[#0a0c0b] font-display text-white">
+        <Header />
+        <main className="flex flex-1 justify-center py-8 px-6 lg:px-20">
+          <div className="text-center py-12 text-white">Please log in to view notifications</div>
+        </main>
+      </div>
+    )
+  }
 
   return (
-    <div className="min-h-screen bg-background reddit-dark-bg animate-fade-in">
+    <div className="min-h-screen bg-[#0a0c0b] font-display text-white">
+      {/* Background Cinematic Decor */}
+      <div className="fixed inset-0 pointer-events-none z-[-1] overflow-hidden">
+        <div className="absolute top-1/4 -left-20 w-[600px] h-[300px] bg-[#13ec9c]/5 blur-[120px] rounded-full rotate-45"></div>
+        <div className="absolute bottom-1/4 -right-20 w-[600px] h-[300px] bg-[#13ec9c]/5 blur-[120px] rounded-full -rotate-45"></div>
+      </div>
+
       <Header />
 
-      <div className="px-4 py-8 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-4xl">
-          {/* Header Section */}
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 gap-4 animate-slide-up">
-            <div>
-              <div className="flex items-center gap-3 mb-2">
-                <div className="p-3 rounded-2xl bg-gradient-to-br from-[#4ade80]/20 to-[#22c55e]/20 border border-[#4ade80]/30">
-                  <Sparkles className="h-6 w-6 text-[#4ade80]" />
-                </div>
-                <h1 className="text-4xl font-bold gradient-text">
-                  Notifications
-                </h1>
-                {unreadCount > 0 && (
-                  <Badge className="ml-2 bg-gradient-to-r from-[#ef4444] to-[#dc2626] text-white border-0 shadow-lg pulse-glow text-sm px-3 py-1">
-                    {unreadCount} {unreadCount === 1 ? "new" : "new"}
-                  </Badge>
-                )}
-                {unreadCount === 0 && notifications.length > 0 && (
-                  <Badge className="ml-2 bg-gradient-to-r from-[#4ade80] to-[#22c55e] text-white border-0 shadow-lg text-sm px-3 py-1">
-                    <CheckCheck className="h-3 w-3 mr-1" />
-                    All read
-                  </Badge>
-                )}
-              </div>
-              <p className="text-muted-foreground ml-16">
-                {unreadCount > 0
-                  ? `${unreadCount} unread notification${unreadCount > 1 ? "s" : ""}`
-                  : notifications.length > 0
-                  ? "All caught up! No new notifications."
-                  : "Stay updated with your assignment activities and community interactions."}
-              </p>
+      <main className="flex flex-1 justify-center py-8 px-6 lg:px-20 max-w-[1400px] mx-auto w-full">
+        {/* Main Notification Feed */}
+        <section className="flex-1 flex flex-col gap-6">
+          {/* Feed Header */}
+          <div className="flex flex-wrap justify-between items-end gap-4 px-2">
+            <div className="flex flex-col gap-1">
+              <p className="text-white text-4xl font-black tracking-tight">Notifications</p>
+              <p className="text-white/40 text-base font-normal">Monitor your academic trajectory</p>
             </div>
             {unreadCount > 0 && (
-              <Button
+              <button
                 onClick={handleMarkAllAsRead}
                 disabled={markingAllAsRead}
-                className="duolingo-button font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex items-center gap-2 px-6 py-3 bg-white/5 hover:bg-white/10 rounded-xl border border-white/10 transition-all group disabled:opacity-50"
               >
-                {markingAllAsRead ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Marking...
-                  </>
-                ) : (
-                  <>
-                    <CheckCheck className="mr-2 h-4 w-4" />
-                    Mark All as Read
-                  </>
-                )}
-              </Button>
+                <span className="material-symbols-outlined text-sm group-hover:rotate-12 transition-transform">done_all</span>
+                <span className="text-sm font-bold">Mark all as read</span>
+              </button>
             )}
           </div>
 
-          {/* Notifications Card */}
-          <Card className="study-card animate-slide-up">
-            <CardContent className="p-0">
+          {/* Feed Content */}
               {loading ? (
+            <div className="text-center py-16 text-white/60">Loading notifications...</div>
+          ) : notifications.length === 0 ? (
                 <div className="text-center py-16">
-                  <Loader2 className="inline-block h-8 w-8 animate-spin text-[#4ade80] mb-4" />
-                  <p className="text-muted-foreground">Loading notifications...</p>
+              <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-white/5 mb-6">
+                <span className="material-symbols-outlined text-4xl text-white/40">notifications</span>
                 </div>
-              ) : notifications.length === 0 ? (
-                <div className="text-center py-16 animate-scale-in">
-                  <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-muted/50 mb-6">
-                    <Bell className="h-10 w-10 text-muted-foreground" />
-                  </div>
-                  <h3 className="text-xl font-semibold text-foreground mb-2">
-                    No notifications yet
-                  </h3>
-                  <p className="text-sm text-muted-foreground max-w-md mx-auto">
-                    You'll receive notifications when someone solves your
-                    assignments or rates your solutions.
+              <h3 className="text-xl font-semibold text-white mb-2">No notifications yet</h3>
+              <p className="text-sm text-white/40 max-w-md mx-auto">
+                You'll receive notifications when someone solves your assignments or rates your solutions.
                   </p>
                 </div>
               ) : (
-                <div className="divide-y divide-border">
-                  {notifications.map((notification, index) => {
-                    const isMarkingAsRead = markingAsReadIds.has(notification.id);
-                    const isDeleting = deletingIds.has(notification.id);
-                    
+            <div className="flex flex-col gap-8 mt-4">
+              {/* Today Group */}
+              {groupedNotifications.today.length > 0 && (
+                <div className="flex flex-col gap-4">
+                  <div className="flex items-center gap-4 px-2">
+                    <h3 className="text-[#13ec9c]/80 text-xs font-black uppercase tracking-[0.3em]">Today</h3>
+                    <div className="h-[1px] flex-1 bg-gradient-to-r from-[#13ec9c]/30 to-transparent"></div>
+                  </div>
+                  {groupedNotifications.today.map((notification) => {
+                    const icon = getNotificationIcon(notification.type)
+                    const color = getNotificationColor(notification.type)
                     return (
                       <div
                         key={notification.id}
-                        ref={(el) => {
-                          if (el) {
-                            notificationRefs.current.set(notification.id, el);
-                            el.setAttribute("data-notification-id", notification.id);
-                          } else {
-                            notificationRefs.current.delete(notification.id);
-                          }
-                        }}
-                        className={`bubbly-card m-2 rounded-2xl transition-all duration-300 ${
+                        className={`group relative bg-[rgba(28,39,35,0.4)] backdrop-blur-[12px] border rounded-2xl p-5 flex items-center gap-6 transition-all hover:translate-x-1 border-l-4 ${
                           !notification.read
-                            ? "neon-border bg-gradient-to-r from-[#4ade80]/5 to-transparent border-l-4 border-l-[#4ade80]"
-                            : "hover:bg-muted/30 border-l-4 border-l-transparent"
-                        } ${isDeleting ? "opacity-50" : ""}`}
-                        style={{
-                          animationDelay: `${index * 0.05}s`,
-                        }}
+                            ? `border-l-[${color}] bg-gradient-to-r from-[#13ec9c]/5 to-transparent`
+                            : 'border-l-white/20 opacity-80 hover:opacity-100'
+                        }`}
+                        style={{ borderLeftColor: !notification.read ? color : 'rgba(255,255,255,0.2)' }}
                       >
-                        <div className="p-6">
-                          <div className="flex items-start gap-4">
-                            <div className="flex-shrink-0">
-                              {getNotificationIcon(notification.type)}
+                        <div 
+                          className="size-16 rounded-2xl flex items-center justify-center"
+                          style={{ backgroundColor: `${color}10` }}
+                        >
+                          <span className="material-symbols-outlined text-4xl" style={{ color, fontWeight: 300 }}>
+                            {icon}
+                          </span>
+                        </div>
+                        <div className="flex-1 flex flex-col gap-1">
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <p className="text-xs font-black uppercase tracking-widest mb-1" style={{ color }}>
+                                {notification.type.replace('_', ' ').toUpperCase()} • {formatTimeAgo(notification.createdAt)}
+                              </p>
+                              <h4 className="text-white text-lg font-bold">{notification.title}</h4>
+                              <p className="text-white/50 text-sm max-w-xl mt-1">{notification.message}</p>
                             </div>
-
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-start justify-between gap-4">
-                                <div className="flex-1">
-                                  <div className="flex items-center gap-2 mb-2">
-                                    <h3 className={`font-bold text-lg ${
-                                      !notification.read 
-                                        ? "text-foreground" 
-                                        : "text-foreground/80"
-                                    }`}>
-                                      {notification.title}
-                                    </h3>
-                                    {!notification.read && !isMarkingAsRead && (
-                                      <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-[#4ade80]/20 border border-[#4ade80]/30">
-                                        <span className="w-2 h-2 bg-[#4ade80] rounded-full animate-pulse shadow-lg shadow-[#4ade80]/50"></span>
-                                        <span className="text-xs font-medium text-[#4ade80]">New</span>
-                                      </span>
-                                    )}
-                                    {isMarkingAsRead && (
-                                      <Loader2 className="h-4 w-4 animate-spin text-[#4ade80]" />
+                            {!notification.read && (
+                              <span className="size-2 rounded-full bg-[#13ec9c] shadow-[0_0_8px_#13ec9c]"></span>
+                            )}
+                          </div>
+                        </div>
+                        {notification.assignmentId && (
+                          <Link 
+                            href={`/assignment/${notification.assignmentId}`}
+                            className="opacity-0 group-hover:opacity-100 transition-opacity"
+                            onClick={() => handleMarkAsRead(notification.id)}
+                          >
+                            <button className="flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-[#13ec9c] to-[#0eb37a] text-black font-black text-sm rounded-lg hover:shadow-[0_0_20px_rgba(19,236,156,0.4)] transition-all">
+                              View Details
+                              <span className="material-symbols-outlined text-base">arrow_forward</span>
+                            </button>
+                          </Link>
                                     )}
                                   </div>
-                                  <p className={`text-sm mb-3 leading-relaxed ${
-                                    !notification.read 
-                                      ? "text-foreground/90" 
-                                      : "text-muted-foreground"
-                                  }`}>
-                                    {notification.message}
-                                  </p>
-                                  <p className="text-xs text-muted-foreground/70 flex items-center gap-2">
-                                    <Clock className="h-3 w-3" />
-                                    {formatTimeAgo(notification.createdAt)}
-                                  </p>
+                    )
+                  })}
                                 </div>
+              )}
 
-                                <div className="flex items-center gap-2 flex-shrink-0">
-                                  {!notification.read && !isMarkingAsRead && (
-                                    <Button
-                                      onClick={() => handleMarkAsRead(notification.id, false)}
-                                      variant="ghost"
-                                      size="sm"
-                                      className="text-[#4ade80] hover:bg-[#4ade80]/10 hover:text-[#4ade80] border border-[#4ade80]/20 transition-all"
-                                      title="Mark as read"
-                                    >
-                                      <CheckCircle className="h-4 w-4" />
-                                    </Button>
-                                  )}
-                                  <Button
-                                    onClick={() => handleDeleteNotification(notification.id)}
-                                    variant="ghost"
-                                    size="sm"
-                                    disabled={isDeleting}
-                                    className="text-[#ef4444] hover:bg-[#ef4444]/10 hover:text-[#ef4444] disabled:opacity-50 transition-all"
-                                    title="Delete notification"
-                                  >
-                                    {isDeleting ? (
-                                      <Loader2 className="h-4 w-4 animate-spin" />
-                                    ) : (
-                                      <Trash2 className="h-4 w-4" />
-                                    )}
-                                  </Button>
+              {/* Yesterday Group */}
+              {groupedNotifications.yesterday.length > 0 && (
+                <div className="flex flex-col gap-4">
+                  <div className="flex items-center gap-4 px-2">
+                    <h3 className="text-white/30 text-xs font-black uppercase tracking-[0.3em]">Yesterday</h3>
+                    <div className="h-[1px] flex-1 bg-white/5"></div>
+                  </div>
+                  {groupedNotifications.yesterday.map((notification) => {
+                    const icon = getNotificationIcon(notification.type)
+                    const color = getNotificationColor(notification.type)
+                    return (
+                      <div
+                        key={notification.id}
+                        className="group relative bg-[rgba(28,39,35,0.4)] backdrop-blur-[12px] border rounded-2xl p-5 flex items-center gap-6 transition-all hover:translate-x-1 border-l-4 border-l-white/20 opacity-80 hover:opacity-100"
+                      >
+                        <div className="size-16 rounded-2xl bg-white/5 flex items-center justify-center text-white/40">
+                          <span className="material-symbols-outlined text-4xl" style={{ fontWeight: 300 }}>
+                            {icon}
+                          </span>
+                        </div>
+                        <div className="flex-1 flex flex-col gap-1">
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <p className="text-white/40 text-[10px] font-black uppercase tracking-widest mb-1">
+                                {notification.type.replace('_', ' ').toUpperCase()} • {formatTimeAgo(notification.createdAt)}
+                              </p>
+                              <h4 className="text-white text-lg font-bold">{notification.title}</h4>
+                              <p className="text-white/40 text-sm max-w-xl mt-1">{notification.message}</p>
+                            </div>
                                 </div>
                               </div>
-
-                              {(notification.assignmentId ||
-                                notification.submissionId) && (
-                                <div className="mt-4">
+                        {notification.assignmentId && (
                                   <Link
-                                    href={
-                                      notification.assignmentId
-                                        ? `/assignment/${notification.assignmentId}`
-                                        : "#"
-                                    }
-                                    onClick={() => {
-                                      // Mark as read when clicking to view details
-                                      if (!notification.read) {
-                                        handleMarkAsRead(notification.id, true);
-                                      }
-                                    }}
-                                  >
-                                    <Button
-                                      variant="outline"
-                                      size="sm"
-                                      className="duolingo-button-secondary font-semibold"
-                                    >
-                                      View Details
-                                      <ArrowRight className="ml-2 h-4 w-4" />
-                                    </Button>
+                            href={`/assignment/${notification.assignmentId}`}
+                            className="opacity-0 group-hover:opacity-100 transition-opacity"
+                            onClick={() => handleMarkAsRead(notification.id)}
+                          >
+                            <button className="flex items-center gap-2 px-6 py-2.5 bg-white/10 text-white font-black text-sm rounded-lg transition-all">
+                              Check Details
+                            </button>
                                   </Link>
+                        )}
+                      </div>
+                    )
+                  })}
                                 </div>
                               )}
+
+              {/* Older Group */}
+              {groupedNotifications.older.length > 0 && (
+                <div className="flex flex-col gap-4">
+                  <div className="flex items-center gap-4 px-2">
+                    <h3 className="text-white/30 text-xs font-black uppercase tracking-[0.3em]">Older</h3>
+                    <div className="h-[1px] flex-1 bg-white/5"></div>
+                  </div>
+                  {groupedNotifications.older.slice(0, 10).map((notification) => {
+                    const icon = getNotificationIcon(notification.type)
+                    return (
+                      <div
+                        key={notification.id}
+                        className="group relative bg-[rgba(28,39,35,0.4)] backdrop-blur-[12px] border rounded-2xl p-5 flex items-center gap-6 transition-all hover:translate-x-1 border-l-4 border-l-white/20 opacity-80 hover:opacity-100"
+                      >
+                        <div className="size-16 rounded-2xl bg-white/5 flex items-center justify-center text-white/40">
+                          <span className="material-symbols-outlined text-4xl" style={{ fontWeight: 300 }}>
+                            {icon}
+                          </span>
+                        </div>
+                        <div className="flex-1 flex flex-col gap-1">
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <p className="text-white/40 text-[10px] font-black uppercase tracking-widest mb-1">
+                                {notification.type.replace('_', ' ').toUpperCase()} • {formatTimeAgo(notification.createdAt)}
+                              </p>
+                              <h4 className="text-white text-lg font-bold">{notification.title}</h4>
+                              <p className="text-white/40 text-sm max-w-xl mt-1">{notification.message}</p>
                             </div>
                           </div>
                         </div>
+                        {notification.assignmentId && (
+                          <Link 
+                            href={`/assignment/${notification.assignmentId}`}
+                            className="opacity-0 group-hover:opacity-100 transition-opacity"
+                            onClick={() => handleMarkAsRead(notification.id)}
+                          >
+                            <button className="flex items-center gap-2 px-6 py-2.5 bg-white/10 text-white font-black text-sm rounded-lg transition-all">
+                              View
+                            </button>
+                          </Link>
+                        )}
                       </div>
-                    );
+                    )
                   })}
                 </div>
               )}
-            </CardContent>
-          </Card>
 
-          {/* Additional Info */}
-          {!loading && notifications.length > 0 && (
-            <div className="mt-6 text-center text-sm text-muted-foreground animate-fade-in">
-              <p>
-                Notifications are automatically marked as read when you view them.
+              {/* Footer Info */}
+              {notifications.length > 0 && (
+                <div className="text-center py-8">
+                  <p className="text-white/20 text-xs font-medium">
+                    Viewing {notifications.length} notification{notifications.length > 1 ? 's' : ''}.
               </p>
             </div>
           )}
         </div>
-      </div>
+          )}
+        </section>
+      </main>
     </div>
-  );
+  )
 }

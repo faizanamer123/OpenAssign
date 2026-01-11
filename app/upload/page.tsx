@@ -42,6 +42,7 @@ export default function UploadPage() {
     difficulty: "",
     deadline: "",
     subject: "",
+    objectives: "",
   });
   const [file, setFile] = useState<File | null>(null);
   const [dragActive, setDragActive] = useState(false);
@@ -194,281 +195,254 @@ export default function UploadPage() {
   };
 
   return (
-    <div className="min-h-screen reddit-dark-bg">
+    <div className="min-h-screen bg-[#112116] dark:bg-[#112116]">
       <Header />
-
-      <div className="px-4 py-8 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-2xl">
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-white mb-2">
-              Upload Assignment
-            </h1>
-            <p className="text-gray-300">
-              Share your assignment anonymously and get help from the community.
-            </p>
-          </div>
-
-          <Card className="study-card">
-            <CardHeader>
-              <CardTitle className="text-white">
-                Assignment Details
-              </CardTitle>
-              <CardDescription className="text-gray-300">
-                Fill out the form below to submit your assignment. All
-                submissions are anonymous.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="space-y-2">
-                  <Label htmlFor="title" className="text-white">
-                    Assignment Title *
-                  </Label>
-                  <Input
-                    id="title"
-                    placeholder="Enter the title of your assignment"
-                    value={formData.title}
-                    onChange={(e) => handleInputChange("title", e.target.value)}
-                    className="border-[#4ade80]/30 bg-[#1a1a1b]/50 text-white focus:border-[#4ade80] placeholder:text-gray-400"
-                    required
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="description" className="text-white">
-                    Description *
-                  </Label>
-                  <Textarea
-                    id="description"
-                    placeholder="Provide a detailed description of your assignment, including any specific requirements or guidelines"
-                    value={formData.description}
-                    onChange={(e) =>
-                      handleInputChange("description", e.target.value)
-                    }
-                    className="border-[#4ade80]/30 bg-[#1a1a1b]/50 text-white focus:border-[#4ade80] placeholder:text-gray-400 min-h-32"
-                    required
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="subject" className="text-white">
-                      Subject Area
-                    </Label>
-                    <Select
-                      value={formData.subject}
-                      onValueChange={(value) =>
-                        handleInputChange("subject", value)
-                      }
-                    >
-                      <SelectTrigger
-                        id="subject"
-                        className="border-[#4ade80]/30 bg-[#1a1a1b]/50 text-white focus:border-[#4ade80] data-[placeholder]:text-gray-400"
-                      >
-                        <SelectValue placeholder="Select subject area" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="mathematics">Mathematics</SelectItem>
-                        <SelectItem value="science">Science</SelectItem>
-                        <SelectItem value="computer-science">
-                          Computer Science
-                        </SelectItem>
-                        <SelectItem value="physics">Physics</SelectItem>
-                        <SelectItem value="chemistry">Chemistry</SelectItem>
-                        <SelectItem value="biology">Biology</SelectItem>
-                        <SelectItem value="english">English</SelectItem>
-                        <SelectItem value="history">History</SelectItem>
-                        <SelectItem value="economics">Economics</SelectItem>
-                        <SelectItem value="other">Other</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="difficulty" className="text-white">
-                      Difficulty Level *
-                    </Label>
-                    <Select
-                      value={formData.difficulty}
-                      onValueChange={(value) =>
-                        handleInputChange("difficulty", value)
-                      }
-                    >
-                      <SelectTrigger
-                        id="difficulty"
-                        className="border-[#4ade80]/30 bg-[#1a1a1b]/50 text-white focus:border-[#4ade80] data-[placeholder]:text-gray-400"
-                      >
-                        <SelectValue placeholder="Select difficulty" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="easy">Easy</SelectItem>
-                        <SelectItem value="medium">Medium</SelectItem>
-                        <SelectItem value="hard">Hard</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="deadline" className="text-white">
-                    Deadline *
-                  </Label>
-                  <div className="relative">
-                    <Input
-                      ref={dateInputRef}
-                      id="deadline"
-                      type="datetime-local"
-                      value={formData.deadline}
-                      onChange={(e) =>
-                        handleInputChange("deadline", e.target.value)
-                      }
-                      className="border-[#4ade80]/30 bg-[#1a1a1b]/50 text-white focus:border-[#4ade80] pr-10"
-                      required
-                    />
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={handleCalendarClick}
-                      className="absolute right-1 top-1 h-8 w-8 p-0 hover:bg-[#4ade80]/10"
-                    >
-                      <Calendar className="h-4 w-4 text-gray-300 hover:text-[#4ade80]" />
-                    </Button>
-                  </div>
-                  
-                  {/* Quick deadline buttons */}
-                  <div className="flex gap-2 mt-2">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setQuickDeadline(1)}
-                      className="text-xs px-3 py-1 h-auto border-[#4ade80]/30 text-gray-300 hover:text-white hover:border-[#4ade80]"
-                    >
-                      Tomorrow
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setQuickDeadline(3)}
-                      className="text-xs px-3 py-1 h-auto border-[#4ade80]/30 text-gray-300 hover:text-white hover:border-[#4ade80]"
-                    >
-                      3 Days
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setQuickDeadline(7)}
-                      className="text-xs px-3 py-1 h-auto border-[#4ade80]/30 text-gray-300 hover:text-white hover:border-[#4ade80]"
-                    >
-                      1 Week
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setQuickDeadline(14)}
-                      className="text-xs px-3 py-1 h-auto border-[#4ade80]/30 text-gray-300 hover:text-white hover:border-[#4ade80]"
-                    >
-                      2 Weeks
-                    </Button>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="file" className="text-white">
-                    Assignment File (Optional)
-                  </Label>
-                  <div 
-                    className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors ${
-                      dragActive 
-                        ? 'border-[#4ade80] bg-[#4ade80]/10' 
-                        : 'border-[#4ade80]/30'
-                    }`}
-                    onDragEnter={handleDrag}
-                    onDragLeave={handleDrag}
-                    onDragOver={handleDrag}
-                    onDrop={handleDrop}
-                  >
-                    <Upload className={`mx-auto h-8 w-8 mb-2 transition-colors ${
-                      dragActive ? 'text-[#4ade80]' : 'text-gray-300'
-                    }`} />
-                    <p className="text-sm text-white mb-2">
-                      {dragActive ? 'Drop your file here' : 'Drag & drop your file here or click to browse'}
-                    </p>
-                    <p className="text-xs text-gray-300 mb-4">
-                      Supports all file formats (Max 50MB) - Documents, Images, Videos, Archives, Code files, etc.
-                    </p>
-                    <Input
-                      id="file"
-                      type="file"
-                      accept="*/*"
-                      onChange={(e) => {
-                        const selectedFile = e.target.files?.[0];
-                        if (selectedFile) {
-                          handleFileSelect(selectedFile);
-                        }
-                      }}
-                      className="border-[#4ade80]/30 bg-[#1a1a1b]/50"
-                    />
-                  </div>
-                  {file && (
-                    <div className="flex items-center justify-between gap-2 p-3 bg-green-500/10 border border-green-500/30 rounded-lg">
-                      <div className="flex items-center gap-2">
-                        <Upload className="h-4 w-4 text-green-400" />
-                        <div>
-                          <p className="text-sm text-green-400 font-medium">
-                            Selected: {file.name}
-                          </p>
-                          <p className="text-xs text-gray-300">
-                            Size: {(file.size / 1024 / 1024).toFixed(2)} MB • Type: {file.type || 'Unknown'}
-                          </p>
-                        </div>
-                      </div>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setFile(null)}
-                        className="text-red-400 hover:text-red-300 hover:bg-red-500/10 h-auto p-1"
-                      >
-                        ✕
-                      </Button>
-                    </div>
-                  )}
-                </div>
-
-                <div className="flex gap-4">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => router.back()}
-                    className="flex-1 duolingo-button-secondary"
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    type="submit"
-                    disabled={loading}
-                    className="flex-1 duolingo-button"
-                  >
-                    {loading ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Uploading...
-                      </>
-                    ) : (
-                      "Upload Assignment"
-                    )}
-                  </Button>
-                </div>
-              </form>
-            </CardContent>
-          </Card>
+      <main className="max-w-4xl mx-auto px-6 pt-28 pb-12">
+        {/* Headline Section */}
+        <div className="text-center mb-12">
+          <h1 className="text-3xl md:text-4xl font-bold mb-3 text-white">Submit New Assignment</h1>
+          <p className="text-slate-400">Complete the details below to submit your work for review.</p>
         </div>
-      </div>
+
+        {/* Progress Stepper */}
+        <div className="flex items-center justify-between mb-12 max-w-2xl mx-auto px-4">
+          <div className="flex flex-col items-center gap-2 group">
+            <div className="w-10 h-10 rounded-full bg-[#30e86e] flex items-center justify-center text-[#112116]">
+              <span className="material-symbols-outlined text-sm">check</span>
+            </div>
+            <span className="text-xs font-semibold uppercase tracking-wider text-[#30e86e]">Details</span>
+          </div>
+          <div className="flex-1 h-0.5 bg-[#30e86e]/30 mx-4 -mt-6"></div>
+          <div className="flex flex-col items-center gap-2 group">
+            <div className="w-10 h-10 rounded-full border-2 border-[#30e86e] bg-[#30e86e]/10 flex items-center justify-center text-[#30e86e]">
+              <span className="material-symbols-outlined text-sm">upload_file</span>
+            </div>
+            <span className="text-xs font-semibold uppercase tracking-wider text-[#30e86e]">Upload</span>
+          </div>
+          <div className="flex-1 h-0.5 bg-white/10 mx-4 -mt-6"></div>
+          <div className="flex flex-col items-center gap-2 group opacity-50">
+            <div className="w-10 h-10 rounded-full border-2 border-white/20 flex items-center justify-center">
+              <span className="material-symbols-outlined text-sm">verified</span>
+            </div>
+            <span className="text-xs font-semibold uppercase tracking-wider text-white/40">Review</span>
+          </div>
+        </div>
+
+        {/* Submission Form Container */}
+        <div className="bg-white/5 border border-white/10 rounded-xl p-8 shadow-sm">
+          {/* Details Form */}
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+              <div className="col-span-1">
+                <label className="block mb-2 text-sm font-medium text-white">Assignment Title</label>
+                <Input
+                  id="title"
+                  placeholder="e.g. Calculus Final Project"
+                  value={formData.title}
+                  onChange={(e) => handleInputChange("title", e.target.value)}
+                  className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 focus:ring-2 focus:ring-[#30e86e]/20 focus:border-[#30e86e] outline-none transition-all text-white placeholder:text-white/40"
+                  required
+                />
+              </div>
+              <div className="col-span-1">
+                <label className="block mb-2 text-sm font-medium text-white">Subject Area</label>
+                <div className="relative">
+                  <Select
+                    value={formData.subject}
+                    onValueChange={(value) =>
+                      handleInputChange("subject", value)
+                    }
+                  >
+                    <SelectTrigger className="w-full appearance-none bg-white/5 border border-white/10 rounded-lg px-4 py-3 focus:ring-2 focus:ring-[#30e86e]/20 focus:border-[#30e86e] outline-none transition-all pr-10 text-white">
+                      <SelectValue placeholder="Select subject area" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-[#1a2e26] border border-[#283933]">
+                      <SelectItem value="mathematics" className="hover:bg-[#13ec9c]/10 hover:text-[#13ec9c] focus:bg-[#13ec9c]/10 focus:text-[#13ec9c]">Mathematics & Logic</SelectItem>
+                      <SelectItem value="computer-science" className="hover:bg-[#13ec9c]/10 hover:text-[#13ec9c] focus:bg-[#13ec9c]/10 focus:text-[#13ec9c]">Computer Science</SelectItem>
+                      <SelectItem value="history" className="hover:bg-[#13ec9c]/10 hover:text-[#13ec9c] focus:bg-[#13ec9c]/10 focus:text-[#13ec9c]">Modern History</SelectItem>
+                      <SelectItem value="physics" className="hover:bg-[#13ec9c]/10 hover:text-[#13ec9c] focus:bg-[#13ec9c]/10 focus:text-[#13ec9c]">Advanced Physics</SelectItem>
+                      <SelectItem value="science" className="hover:bg-[#13ec9c]/10 hover:text-[#13ec9c] focus:bg-[#13ec9c]/10 focus:text-[#13ec9c]">Science</SelectItem>
+                      <SelectItem value="chemistry" className="hover:bg-[#13ec9c]/10 hover:text-[#13ec9c] focus:bg-[#13ec9c]/10 focus:text-[#13ec9c]">Chemistry</SelectItem>
+                      <SelectItem value="biology" className="hover:bg-[#13ec9c]/10 hover:text-[#13ec9c] focus:bg-[#13ec9c]/10 focus:text-[#13ec9c]">Biology</SelectItem>
+                      <SelectItem value="english" className="hover:bg-[#13ec9c]/10 hover:text-[#13ec9c] focus:bg-[#13ec9c]/10 focus:text-[#13ec9c]">English</SelectItem>
+                      <SelectItem value="economics" className="hover:bg-[#13ec9c]/10 hover:text-[#13ec9c] focus:bg-[#13ec9c]/10 focus:text-[#13ec9c]">Economics</SelectItem>
+                      <SelectItem value="other" className="hover:bg-[#13ec9c]/10 hover:text-[#13ec9c] focus:bg-[#13ec9c]/10 focus:text-[#13ec9c]">Other</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">expand_more</span>
+                </div>
+              </div>
+              <div className="col-span-1">
+                <label className="block mb-2 text-sm font-medium text-white">Submission Deadline</label>
+                <div className="relative">
+                  <Input
+                    ref={dateInputRef}
+                    id="deadline"
+                    type="datetime-local"
+                    value={formData.deadline}
+                    onChange={(e) => handleInputChange("deadline", e.target.value)}
+                    className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 focus:ring-2 focus:ring-[#30e86e]/20 focus:border-[#30e86e] outline-none transition-all text-white pr-10"
+                    required
+                  />
+                  <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-white/40 text-lg">calendar_today</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Upload Area */}
+            <div className="mb-10">
+              <label className="block mb-3 text-sm font-medium text-white">Upload Documents</label>
+              <div 
+                className={`dashed-border p-12 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-[#30e86e]/5 transition-colors group rounded-lg border-2 border-dashed border-white/20 ${
+                  dragActive ? 'bg-[#30e86e]/5 border-[#30e86e]' : ''
+                }`}
+                onDragEnter={handleDrag}
+                onDragLeave={handleDrag}
+                onDragOver={handleDrag}
+                onDrop={handleDrop}
+              >
+                <div className="w-16 h-16 bg-[#30e86e]/20 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                  <span className="material-symbols-outlined text-[#30e86e] text-3xl">cloud_upload</span>
+                </div>
+                <h3 className="text-lg font-semibold mb-1 text-white">Drag and drop your files here</h3>
+                <p className="text-white/40 text-sm mb-6">Support for PDF, DOCX, and ZIP up to 50MB</p>
+                <Input
+                  id="file"
+                  type="file"
+                  accept="*/*"
+                  onChange={(e) => {
+                    const selectedFile = e.target.files?.[0];
+                    if (selectedFile) {
+                      handleFileSelect(selectedFile);
+                    }
+                  }}
+                  className="hidden"
+                />
+                <button
+                  type="button"
+                  onClick={() => document.getElementById('file')?.click()}
+                  className="bg-[#30e86e] text-[#112116] px-6 py-2.5 rounded-lg font-bold text-sm hover:opacity-90 transition-opacity"
+                >
+                  Browse Files
+                </button>
+              </div>
+            </div>
+
+            {/* Description and Objectives */}
+            <div className="mb-10 space-y-6">
+              <div>
+                <label className="block mb-2 text-sm font-medium text-white">Problem Description</label>
+                <Textarea
+                  id="description"
+                  placeholder="Describe the problem or assignment requirements..."
+                  value={formData.description}
+                  onChange={(e) => handleInputChange("description", e.target.value)}
+                  className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 focus:ring-2 focus:ring-[#30e86e]/20 focus:border-[#30e86e] outline-none transition-all text-white placeholder:text-white/40 min-h-[120px]"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block mb-2 text-sm font-medium text-white">Objectives (one per line)</label>
+                <Textarea
+                  id="objectives"
+                  placeholder="Enter learning objectives, one per line...&#10;Example:&#10;Understand the core concepts&#10;Provide a comprehensive solution&#10;Ensure all requirements are met"
+                  value={formData.objectives}
+                  onChange={(e) => handleInputChange("objectives", e.target.value)}
+                  className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 focus:ring-2 focus:ring-[#30e86e]/20 focus:border-[#30e86e] outline-none transition-all text-white placeholder:text-white/40 min-h-[100px]"
+                />
+              </div>
+              <div>
+                <label className="block mb-2 text-sm font-medium text-white">Difficulty Level</label>
+                <Select
+                  value={formData.difficulty}
+                  onValueChange={(value) => handleInputChange("difficulty", value)}
+                >
+                  <SelectTrigger className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 focus:ring-2 focus:ring-[#30e86e]/20 focus:border-[#30e86e] outline-none transition-all text-white">
+                    <SelectValue placeholder="Select difficulty level" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-[#1a2e26] border border-[#283933]">
+                    <SelectItem value="easy" className="hover:bg-[#13ec9c]/10 hover:text-[#13ec9c] focus:bg-[#13ec9c]/10 focus:text-[#13ec9c]">Beginner</SelectItem>
+                    <SelectItem value="medium" className="hover:bg-[#13ec9c]/10 hover:text-[#13ec9c] focus:bg-[#13ec9c]/10 focus:text-[#13ec9c]">Intermediate</SelectItem>
+                    <SelectItem value="hard" className="hover:bg-[#13ec9c]/10 hover:text-[#13ec9c] focus:bg-[#13ec9c]/10 focus:text-[#13ec9c]">Advanced</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            {/* File List */}
+            {file && (
+              <div className="space-y-3 mb-10">
+                <div className="flex items-center justify-between p-4 bg-white/5 border border-white/10 rounded-lg">
+                  <div className="flex items-center gap-3">
+                    <div className="bg-[#30e86e]/20 p-2 rounded text-[#30e86e]">
+                      <span className="material-symbols-outlined text-xl">description</span>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-white">{file.name}</p>
+                      <p className="text-xs text-white/40">{(file.size / 1024 / 1024).toFixed(2)} MB • Ready to upload</p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setFile(null)}
+                    className="text-white/40 hover:text-red-400 transition-colors"
+                  >
+                    <span className="material-symbols-outlined text-xl">close</span>
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Action Buttons */}
+            <div className="flex items-center justify-between pt-6 border-t border-white/10">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => router.back()}
+                className="flex items-center gap-2 px-6 py-2.5 rounded-lg font-medium text-white/60 hover:bg-white/5 hover:text-white transition-colors border-white/10"
+              >
+                <span className="material-symbols-outlined text-lg">arrow_back</span>
+                Back to Course
+              </Button>
+              <div className="flex items-center gap-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="px-6 py-2.5 rounded-lg font-medium text-white/60 hover:text-white hover:bg-white/5 transition-colors border-white/10"
+                  onClick={() => {/* Save as draft logic */}}
+                >
+                  Save as Draft
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={loading}
+                  className="bg-[#30e86e] text-[#112116] px-8 py-2.5 rounded-lg font-bold hover:opacity-90 transition-opacity flex items-center gap-2"
+                >
+                  {loading ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Uploading...
+                    </>
+                  ) : (
+                    <>
+                      Review Submission
+                      <span className="material-symbols-outlined text-lg">arrow_forward</span>
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        {/* Help/Info Text */}
+        <div className="mt-8 flex items-start gap-3 p-4 bg-[#30e86e]/10 border border-[#30e86e]/20 rounded-lg">
+          <span className="material-symbols-outlined text-[#30e86e]">info</span>
+          <p className="text-sm text-white/70 leading-relaxed">
+            <span className="font-bold text-[#30e86e]">Note:</span> Your assignment will be automatically scanned for plagiarism after submission. Ensure all sources are properly cited in your bibliography section.
+          </p>
+        </div>
+      </main>
     </div>
   );
 }

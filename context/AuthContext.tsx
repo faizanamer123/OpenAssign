@@ -55,6 +55,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
       setUser(userObj);
       localStorage.setItem("openassign_user", JSON.stringify(userObj));
+      
+      // Set cookie for middleware detection
+      document.cookie = `openassign_user=${JSON.stringify(userObj)}; path=/; max-age=86400; SameSite=Strict`;
+      
       return userObj; // <-- return user object
     } finally {
       setLoading(false);
@@ -64,6 +68,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signOut = async () => {
     setUser(null);
     localStorage.removeItem("openassign_user");
+    
+    // Remove cookie
+    document.cookie = "openassign_user=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT";
   };
 
   return (

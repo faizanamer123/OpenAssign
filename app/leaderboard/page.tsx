@@ -1,17 +1,11 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { Trophy, Star, Award, TrendingUp, BarChart2, PieChart, Users, BookOpen, Clock, Target, Zap, Upload } from "lucide-react"
 import dynamic from "next/dynamic";
-import Logo from "@/components/ui/Logo";
-import GemIcon from "@/components/ui/GemIcon";
 const Header = dynamic(() => import("@/components/Header"), { ssr: false, loading: () => <div className='h-16' /> });
 import { useAuth } from "@/context/AuthContext"
-import { getLeaderboard, getAnalytics } from "@/utils/api"
-import { getRatingBadge, getGemDisplay } from "@/utils/ratingBadge"
+import { getLeaderboard } from "@/utils/api"
+import { getRatingBadge } from "@/utils/ratingBadge"
 
 interface LeaderboardUser {
   id: string
@@ -24,649 +18,393 @@ interface LeaderboardUser {
 }
 
 export default function LeaderboardPage() {
-  const { user } = useAuth()
+  const { user, loading: authLoading } = useAuth()
   const [leaderboard, setLeaderboard] = useState<LeaderboardUser[]>([])
-  const [analyticsData, setAnalyticsData] = useState<any>(null)
   const [loading, setLoading] = useState(true)
-  const [analyticsLoading, setAnalyticsLoading] = useState(true)
   const [sortBy, setSortBy] = useState<"points" | "rating">("points")
-  const [animateProgress, setAnimateProgress] = useState(false)
-
-  // Helper function to safely get numeric values
-  const getSafeNumber = (value: any, defaultValue: number = 0): number => {
-    if (value === null || value === undefined) return defaultValue;
-    const num = Number(value);
-    return isNaN(num) ? defaultValue : num;
-  };
-
-  // Helper function to safely format rating
-  const getSafeRating = (value: any): number => {
-    const rating = getSafeNumber(value, 0);
-    return Math.max(0, Math.min(5, rating)); // Ensure rating is between 0-5
-  };
+  const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  useEffect(() => {
+    if (mounted) {
     loadLeaderboard()
-    loadAnalytics()
-  }, [sortBy])
+    }
+  }, [sortBy, mounted])
+
+  // Minimum points required to appear on leaderboard
+  const MIN_POINTS_FOR_LEADERBOARD = 100
 
   const loadLeaderboard = async () => {
     setLoading(true)
     try {
       const data = await getLeaderboard(sortBy)
-      // Filter out users who haven't solved any assignments or earned points
-      const filteredData = data.filter((user: LeaderboardUser) => 
-        (user.assignmentsSolved && user.assignmentsSolved > 0) || 
-        (user.points && user.points > 0)
-      )
+      const filteredData = data
+        .filter((user: LeaderboardUser) => 
+          // Must have minimum points to appear on leaderboard
+          (user.points && user.points >= MIN_POINTS_FOR_LEADERBOARD) &&
+          user.id && user.username
+        )
+        .map((user: LeaderboardUser, index: number) => ({
+          ...user,
+          rank: index + 1,
+          points: user.points || 0,
+          averageRating: user.averageRating || 0,
+          totalRatings: user.totalRatings || 0,
+          assignmentsSolved: user.assignmentsSolved || 0,
+        }))
+      
       setLeaderboard(filteredData)
     } catch (error) {
-      setLeaderboard([])
       console.error("Failed to load leaderboard:", error)
+      setLeaderboard([])
     } finally {
       setLoading(false)
     }
   }
 
-  const loadAnalytics = async () => {
-    setAnalyticsLoading(true)
-    setAnimateProgress(false)
-    try {
-      const d = await getAnalytics()
-      // Ensure all numeric values are properly converted
-      const processedData = {
-        ...d,
-        totalUsers: getSafeNumber(d.totalUsers),
-        totalAssignments: getSafeNumber(d.totalAssignments),
-        solvedAssignments: getSafeNumber(d.solvedAssignments),
-        averageRating: getSafeRating(d.averageRating),
-        avgSubmissionSpeed: getSafeNumber(d.avgSubmissionSpeed),
-        activeUsers7d: getSafeNumber(d.activeUsers7d),
-        activeUsers30d: getSafeNumber(d.activeUsers30d),
-        uploadsPerDay: Array.isArray(d.uploadsPerDay) ? d.uploadsPerDay : [],
-        ratingsDist: Array.isArray(d.ratingsDist) ? d.ratingsDist : [],
-        topUsers: Array.isArray(d.topUsers) ? d.topUsers : [],
-        userGrowth: Array.isArray(d.userGrowth) ? d.userGrowth : [],
-        assignmentCategories: Array.isArray(d.assignmentCategories) ? d.assignmentCategories : [],
-        leaderboardTrends: Array.isArray(d.leaderboardTrends) ? d.leaderboardTrends : [],
+  // Point-based tier system
+  const getTierFromPoints = (points: number) => {
+    if (points >= 10000) return { name: "Platinum", color: "text-[#e5e7eb]", border: "border-[#e5e7eb]", minPoints: 10000, difficulty: "Elite" }
+    if (points >= 5000) return { name: "Gold", color: "text-[#fbbf24]", border: "border-[#fbbf24]", minPoints: 5000, difficulty: "Expert" }
+    if (points >= 2500) return { name: "Silver", color: "text-[#94a3b8]", border: "border-[#94a3b8]", minPoints: 2500, difficulty: "Advanced" }
+    if (points >= 1000) return { name: "Copper", color: "text-[#b45309]", border: "border-[#b45309]", minPoints: 1000, difficulty: "Intermediate" }
+    if (points >= 100) return { name: "Bronze", color: "text-[#854d0e]", border: "border-[#854d0e]", minPoints: 100, difficulty: "Beginner" }
+    return { name: "Novice", color: "text-[#6b7280]", border: "border-[#6b7280]", minPoints: 0, difficulty: "Novice" }
+  }
+
+  // Rating-based tier for backward compatibility (used for gem display)
+  const getTierInfo = (rating: number) => {
+    if (rating >= 4.5) return { name: "Platinum", color: "text-[#e5e7eb]", border: "border-[#e5e7eb]" }
+    if (rating >= 4.0) return { name: "Gold", color: "text-[#fbbf24]", border: "border-[#fbbf24]" }
+    if (rating >= 3.5) return { name: "Silver", color: "text-[#94a3b8]", border: "border-[#94a3b8]" }
+    if (rating >= 3.0) return { name: "Copper", color: "text-[#b45309]", border: "border-[#b45309]" }
+    return { name: "Bronze", color: "text-[#854d0e]", border: "border-[#854d0e]" }
+  }
+
+  const getGemDisplayForRating = (rating: number) => {
+    const badge = getRatingBadge(rating)
+    const gems = []
+    if (badge.emeralds > 0) {
+      for (let i = 0; i < Math.min(badge.emeralds, 5); i++) {
+        gems.push({ type: "emerald", key: `emerald-${i}` })
       }
-      setAnalyticsData(processedData)
-      // Trigger progress animations after data is set
-      setTimeout(() => setAnimateProgress(true), 100)
-    } catch (e: any) {
-      console.error("Analytics fetch error:", e)
+    } else {
+      for (let i = 0; i < Math.min(badge.rubies, 10); i++) {
+        gems.push({ type: "ruby", key: `ruby-${i}` })
+      }
     }
-    setAnalyticsLoading(false)
+    return gems
   }
 
-  const getRankIcon = (rank: number) => {
-    switch (rank) {
-      case 1:
-        return <Logo className="opacity-100" logoSize={60} showText={false} />
-      case 2:
-        return <Logo className="opacity-80" logoSize={60} showText={false} />
-      case 3:
-        return <Logo className="opacity-60" logoSize={60} showText={false} />
-      default:
-        return <span className="text-lg font-bold text-gray-300">#{rank}</span>
+  // Hidden sort control - preserved functionality
+  const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSortBy(e.target.value as "points" | "rating")
+  }
+
+  // Get current user stats from leaderboard or use user object
+  let currentUserStats: LeaderboardUser | null = null
+  if (user) {
+    currentUserStats = leaderboard.find((u) => u.id === user.id) || null
+    
+    // If user is not in leaderboard but has points, create stats from user object
+    if (!currentUserStats && user && (user.points || 0) >= MIN_POINTS_FOR_LEADERBOARD) {
+      // Calculate rank - find where user would rank based on points
+      let userRank = leaderboard.length + 1
+      for (let i = 0; i < leaderboard.length; i++) {
+        if ((user.points || 0) > (leaderboard[i].points || 0)) {
+          userRank = i + 1
+          break
+        }
+      }
+      
+      currentUserStats = {
+        id: user.id,
+        username: user.username,
+        points: user.points || 0,
+        averageRating: user.averageRating || 0,
+        totalRatings: user.totalRatings || 0,
+        assignmentsSolved: 0,
+        rank: userRank
+      }
+    } else if (!currentUserStats && user && (user.points || 0) > 0 && (user.points || 0) < MIN_POINTS_FOR_LEADERBOARD) {
+      // User has points but not enough for leaderboard - show stats but no rank
+      currentUserStats = {
+        id: user.id,
+        username: user.username,
+        points: user.points || 0,
+        averageRating: user.averageRating || 0,
+        totalRatings: user.totalRatings || 0,
+        assignmentsSolved: 0,
+        rank: 0 // 0 means unranked
+      }
+    } else if (!currentUserStats && user && (user.points || 0) === 0) {
+      // User has 0 points - show stats but no rank or gems
+      currentUserStats = {
+        id: user.id,
+        username: user.username,
+        points: 0,
+        averageRating: user.averageRating || 0,
+        totalRatings: user.totalRatings || 0,
+        assignmentsSolved: 0,
+        rank: 0 // 0 means unranked
+      }
     }
   }
 
- const getRankBadgeColor = (rank: number) => {
-  switch (rank) {
-    case 1:
-      return "bg-gradient-to-r from-emerald-500/25 to-green-400/25 text-emerald-200 border border-emerald-400/50 shadow-lg shadow-emerald-500/30 backdrop-blur-sm"
-    case 2:
-      return "bg-gradient-to-r from-green-600/20 to-emerald-600/20 text-green-300 border border-green-500/40 shadow-lg shadow-green-500/25 backdrop-blur-sm"
-    case 3:
-      return "bg-gradient-to-r from-green-700/15 to-green-800/15 text-green-400 border border-green-600/35 shadow-lg shadow-green-600/20 backdrop-blur-sm"
-    default:
-      return "bg-gradient-to-r from-green-800/10 to-green-900/10 text-green-500 border border-green-700/25 shadow-md shadow-green-700/15 backdrop-blur-sm"
+  const topThree = leaderboard.slice(0, 3)
+  const restOfLeaderboard = leaderboard.slice(3)
+
+  // Always show content, don't wait for auth
+  if (!mounted) {
+    return (
+      <div className="relative flex h-auto min-h-screen w-full flex-col overflow-x-hidden bg-[#0a110e]">
+        <div className='h-16' />
+        <main className="px-4 md:px-12 lg:px-24 flex flex-1 justify-center pt-28 pb-12" style={{ background: 'radial-gradient(circle at center, rgba(48, 232, 165, 0.15) 0%, transparent 70%)', minHeight: 'calc(100vh - 80px)' }}>
+          <div className="flex flex-col max-w-[1100px] flex-1 relative z-10">
+            <div className="text-center py-12 text-white">Loading...</div>
+          </div>
+        </main>
+      </div>
+    )
   }
-}
-
-  if (!user) return null
-
-  // Find the current user's stats from the leaderboard
-  const currentUserStats = leaderboard.find((u) => u.id === user.id);
 
   return (
-    <div className="min-h-screen reddit-dark-bg">
+    <div className="relative flex h-auto min-h-screen w-full flex-col overflow-x-hidden bg-[#0a110e]">
       <Header />
-
-      <div className="px-4 py-8 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-6xl">
-          <div className="mb-8 text-center">
-            <h1 className="text-3xl font-bold text-white mb-2 flex items-center justify-center gap-2">
-              <Trophy className="w-8 h-8 text-[#4ade80] inline-block align-middle" aria-label="Leaderboard" />
-              Leaderboard & Analytics
-            </h1>
-            <p className="text-gray-300">Top contributors and community insights in our anonymous assignment solving platform</p>
-          </div>
-
-          {/* Analytics Overview Section */}
-          {!analyticsLoading && analyticsData && (
-            <div className="mb-8">
-              <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
-                <BarChart2 className="h-5 w-5 text-[#4ade80]" /> Community Overview
-              </h2>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                {/* Success Rate Card */}
-                <Card className="study-card hover:shadow-lg transition-all duration-300 group analytics-card">
-                  <CardHeader className="pb-3">
-                    <CardTitle className="flex items-center gap-2 text-white text-sm">
-                      <Target className="h-4 w-4 text-[#9333ea]" /> Success Rate
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="pt-0">
-                    <div className="flex flex-col items-center">
-                      <div className="relative w-24 h-24 mb-3">
-                        <svg className="w-24 h-24 transform -rotate-90" viewBox="0 0 100 100">
-                          <circle
-                            cx="50"
-                            cy="50"
-                            r="40"
-                            stroke="#4ade80"
-                            strokeWidth="8"
-                            fill="transparent"
-                            className="opacity-30"
-                          />
-                          <circle
-                            cx="50"
-                            cy="50"
-                            r="40"
-                            stroke="url(#purpleGradient)"
-                            strokeWidth="8"
-                            fill="transparent"
-                            strokeDasharray={`${animateProgress ? Math.min((analyticsData.totalAssignments > 0 ? (analyticsData.solvedAssignments / analyticsData.totalAssignments) * 100 : 0) / 100 * 251.2, 251.2) : 0} 251.2`}
-                            strokeDashoffset="0"
-                            className="transition-all duration-1500 ease-out"
-                            style={{
-                              transitionDelay: '0ms'
-                            }}
-                          />
-                        </svg>
-                        <div className="absolute inset-0 flex items-center justify-center">
-                          <div className="text-center">
-                            <div className="text-2xl font-bold text-white group-hover:text-[#9333ea] transition-colors">
-                              {analyticsData.totalAssignments > 0 ? Math.round((analyticsData.solvedAssignments / analyticsData.totalAssignments) * 100) : 0}%
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="text-gray-300 text-sm text-center">Assignments solved</div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Average Rating Card */}
-                 <Card className="study-card hover:shadow-lg transition-all duration-300 group analytics-card">
-                  <CardHeader className="pb-3">
-                     <CardTitle className="flex items-center gap-2 text-white text-sm">
-                       <PieChart className="h-4 w-4 text-[#ec4899]" /> Avg Rating
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="pt-0">
-                    <div className="flex flex-col items-center">
-                      <div className="relative w-24 h-24 mb-3">
-                        <svg className="w-24 h-24 transform -rotate-90" viewBox="0 0 100 100">
-                          <circle
-                            cx="50"
-                            cy="50"
-                            r="40"
-                             stroke="#4ade80"
-                            strokeWidth="8"
-                            fill="transparent"
-                            className="opacity-30"
-                          />
-                          <circle
-                            cx="50"
-                            cy="50"
-                            r="40"
-                            stroke="url(#pinkGradient)"
-                            strokeWidth="8"
-                            fill="transparent"
-                            strokeDasharray={`${animateProgress ? Math.min((analyticsData.averageRating / 5) * 251.2, 251.2) : 0} 251.2`}
-                            strokeDashoffset="0"
-                            className="transition-all duration-1500 ease-out"
-                            style={{
-                              transitionDelay: '200ms'
-                            }}
-                          />
-                        </svg>
-                        <div className="absolute inset-0 flex items-center justify-center">
-                          <div className="text-center">
-                             <div className="text-2xl font-bold text-white group-hover:text-[#ec4899] transition-colors">
-                              {analyticsData.averageRating.toFixed(1)}★
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                       <div className="text-gray-300 text-sm text-center">Community rating</div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Avg Submission Speed Card */}
-                 <Card className="study-card hover:shadow-lg transition-all duration-300 group analytics-card">
-                  <CardHeader className="pb-3">
-                     <CardTitle className="flex items-center gap-2 text-white text-sm">
-                       <Clock className="h-4 w-4 text-[#06b6d4]" /> Avg Speed
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="pt-0">
-                    <div className="flex flex-col items-center">
-                      <div className="relative w-24 h-24 mb-3">
-                        <svg className="w-24 h-24 transform -rotate-90" viewBox="0 0 100 100">
-                          <circle
-                            cx="50"
-                            cy="50"
-                            r="40"
-                             stroke="#4ade80"
-                            strokeWidth="8"
-                            fill="transparent"
-                            className="opacity-30"
-                          />
-                          {/* Real-time Average Solve Time Progress Bar */}
-                          {(() => {
-                            // Real-time calculation of average solve time percentage
-                            const avgSpeed = analyticsData.avgSubmissionSpeed || 0;
-                            
-                            // Calculate percentage based on a reasonable benchmark (12 hours = 100%)
-                            // Lower time = higher percentage (faster is better)
-                            const benchmarkHours = 12; // 12 hours as 100% benchmark
-                            const percentage = avgSpeed > 0 ? Math.max(0, Math.min(100, ((benchmarkHours - avgSpeed) / benchmarkHours) * 100)) : 0;
-                            
-                            const progressBar = (percentage / 100) * 251.2;
-                            
-                            return (
-                              <circle
-                                cx="50"
-                                cy="50"
-                                r="40"
-                                stroke="url(#blueGradient)"
-                                strokeWidth="8"
-                                fill="transparent"
-                                strokeDasharray={`${animateProgress ? progressBar : 0} 251.2`}
-                                strokeDashoffset="0"
-                                className="transition-all duration-1500 ease-out"
-                                style={{
-                                  transitionDelay: '400ms'
-                                }}
-                              />
-                            );
-                          })()}
-                        </svg>
-                        <div className="absolute inset-0 flex items-center justify-center">
-                          <div className="text-center">
-                             <div className="text-2xl font-bold text-white group-hover:text-[#06b6d4] transition-colors">
-                              {analyticsData.avgSubmissionSpeed > 0 ? `${analyticsData.avgSubmissionSpeed.toFixed(1)}` : '--'}
-                            </div>
-                             <div className="text-xs text-gray-300">hrs</div>
-                          </div>
-                        </div>
-                      </div>
-                       <div className="text-gray-300 text-sm text-center">Avg solve time</div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Community Rating Distribution Card */}
-                 <Card className="study-card hover:shadow-lg transition-all duration-300 group analytics-card">
-                  <CardHeader className="pb-3">
-                     <CardTitle className="flex items-center gap-2 text-white text-sm">
-                       <Star className="h-4 w-4 text-[#4ade80]" /> Top Ratings
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="pt-0">
-                    <div className="flex flex-col items-center">
-                      <div className="relative w-24 h-24 mb-3">
-                        <svg className="w-24 h-24 transform -rotate-90" viewBox="0 0 100 100">
-                          <circle
-                            cx="50"
-                            cy="50"
-                            r="40"
-                             stroke="#4ade80"
-                            strokeWidth="8"
-                            fill="transparent"
-                            className="opacity-30"
-                          />
-                          {/* Real-time 5-Star Rating Progress Bar */}
-                          {(() => {
-                            // Real-time calculation of 5-star rating percentage
-                            const totalRatings = analyticsData.ratingsDist?.reduce((sum: number, item: any) => sum + (item.count || 0), 0) || 0;
-                            const fiveStarRatings = analyticsData.ratingsDist?.find((item: any) => item.rating === 5)?.count || 0;
-                            const percentage = totalRatings > 0 ? (fiveStarRatings / totalRatings) * 100 : 0;
-                            
-                            // Since 5-star percentage can't exceed 100%, we use single loop
-                            const progressBar = (percentage / 100) * 251.2;
-                            
-                            return (
-                              <circle
-                                cx="50"
-                                cy="50"
-                                r="40"
-                                stroke="url(#greenGradient)"
-                                strokeWidth="8"
-                                fill="transparent"
-                                strokeDasharray={`${animateProgress ? progressBar : 0} 251.2`}
-                                strokeDashoffset="0"
-                                className="transition-all duration-1500 ease-out"
-                                style={{
-                                  transitionDelay: '600ms'
-                                }}
-                              />
-                            );
-                          })()}
-                        </svg>
-                        <div className="absolute inset-0 flex items-center justify-center">
-                          <div className="text-center">
-                             <div className="text-2xl font-bold text-white group-hover:text-[#4ade80] transition-colors">
-                              {(() => {
-                                const totalRatings = analyticsData.ratingsDist?.reduce((sum: number, item: any) => sum + (item.count || 0), 0) || 0;
-                                const fiveStarRatings = analyticsData.ratingsDist?.find((item: any) => item.rating === 5)?.count || 0;
-                                return totalRatings > 0 ? Math.round((fiveStarRatings / totalRatings) * 100) : 0;
-                              })()}%
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                       <div className="text-gray-300 text-sm text-center">5-star ratings</div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-
-              {/* SVG Gradients for the circular progress bars */}
-              <svg width="0" height="0" className="absolute">
-                <defs>
-                  <linearGradient id="blueGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#3b82f6" />
-                    <stop offset="100%" stopColor="#1d4ed8" />
-                  </linearGradient>
-                  <linearGradient id="greenGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#10b981" />
-                    <stop offset="100%" stopColor="#059669" />
-                  </linearGradient>
-                  <linearGradient id="purpleGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#8b5cf6" />
-                    <stop offset="100%" stopColor="#7c3aed" />
-                  </linearGradient>
-                  <linearGradient id="pinkGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#ec4899" />
-                    <stop offset="100%" stopColor="#db2777" />
-                  </linearGradient>
-                </defs>
-              </svg>
+      <main className="px-4 md:px-12 lg:px-24 flex flex-1 justify-center pt-28 pb-12" style={{ background: 'radial-gradient(circle at center, rgba(48, 232, 165, 0.15) 0%, transparent 70%)', minHeight: 'calc(100vh - 80px)' }}>
+        <div className="flex flex-col max-w-[1100px] flex-1 relative z-10">
+          {/* Header Section */}
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 sm:gap-6 mb-8 sm:mb-12">
+            <div className="flex flex-col gap-2">
+              <h1 className="text-white text-3xl sm:text-4xl lg:text-5xl font-black leading-none tracking-tight">Top Contributors</h1>
+              <p className="text-[#9db8ae] text-base sm:text-lg font-medium opacity-80">The prestige of academic excellence, measured in gems.</p>
             </div>
-          )}
-
-                     <hr className="my-6 border-[#4ade80]/30" />
-
-          {/* Rating Tiers Info */}
-          <div className="mb-6">
-            <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
-              <Star className="h-5 w-5 text-[#4ade80]" />
-              Rating Tiers
-            </h3>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
-              <div className="text-center p-3 rounded-lg bg-gradient-to-br from-[#cd7f32]/20 to-[#b8860b]/20 border border-[#cd7f32]/30">
-                <div className="text-xs font-bold text-[#cd7f32] mb-1">BRONZE</div>
-                <div className="text-xs text-gray-300">3.0+ stars</div>
-                <div className="text-xs text-gray-400">3 rubies</div>
-              </div>
-              <div className="text-center p-3 rounded-lg bg-gradient-to-br from-[#b87333]/20 to-[#a0522d]/20 border border-[#b87333]/30">
-                <div className="text-xs font-bold text-[#b87333] mb-1">COPPER</div>
-                <div className="text-xs text-gray-300">3.5+ stars</div>
-                <div className="text-xs text-gray-400">7 rubies</div>
-              </div>
-              <div className="text-center p-3 rounded-lg bg-gradient-to-br from-[#c0c0c0]/20 to-[#a8a8a8]/20 border border-[#c0c0c0]/30">
-                <div className="text-xs font-bold text-[#a8a8a8] mb-1">SILVER</div>
-                <div className="text-xs text-gray-300">4.0+ stars</div>
-                <div className="text-xs text-gray-400">1 emerald</div>
-              </div>
-              <div className="text-center p-3 rounded-lg bg-gradient-to-br from-[#ffd700]/20 to-[#ffb347]/20 border border-[#ffd700]/30">
-                <div className="text-xs font-bold text-[#ffb347] mb-1">GOLD</div>
-                <div className="text-xs text-gray-300">4.5+ stars</div>
-                <div className="text-xs text-gray-400">3 emeralds</div>
-              </div>
-              <div className="text-center p-3 rounded-lg bg-gradient-to-br from-[#e5e4e2]/20 to-[#b8b8b8]/20 border border-[#e5e4e2]/30">
-                <div className="text-xs font-bold text-[#b8b8b8] mb-1">PLATINUM</div>
-                <div className="text-xs text-gray-300">4.5+ stars</div>
-                <div className="text-xs text-gray-400">5 emeralds</div>
-              </div>
-            </div>
-            <div className="text-center mt-3">
-              <p className="text-xs text-gray-400">
-                💎 1 Emerald = 10 Rubies | 🔴 Rubies for lower tiers, 💎 Emeralds for higher tiers
-              </p>
-            </div>
+            <div className="bg-black/40 backdrop-blur-xl border border-white/10 p-3 sm:p-4 rounded-xl sm:rounded-2xl flex flex-col gap-2 w-full md:w-auto">
+              <span className="text-[9px] sm:text-[10px] uppercase font-black text-slate-500 tracking-widest">Conversion Guide</span>
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 text-xs sm:text-sm font-bold text-white">
+                <div className="flex items-center gap-1">
+                  <span className="material-symbols-outlined text-[#10b981] gem-3d text-base sm:text-lg">pentagon</span>
+                  <span>1 Emerald</span>
           </div>
+                <span className="text-slate-600 hidden sm:inline">=</span>
+                <div className="flex items-center gap-1">
+                  <span className="material-symbols-outlined text-[#ef4444] gem-3d text-base sm:text-lg">hexagon</span>
+                  <span>10 Rubies</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
 
-          {/* Sort Options */}
-           <div className="flex justify-center gap-2 mb-6 sticky top-0 z-20 reddit-dark-bg py-2 shadow-sm rounded-b-xl backdrop-blur-sm">
-            <button
-              onClick={() => setSortBy("points")}
-               className={`duolingo-button ${
-                sortBy === "points"
-                   ? "shadow-lg shadow-green-500/25"
-                   : "duolingo-button-secondary"
-              }`}
-            >
-              <TrendingUp className="inline h-4 w-4 mr-1 sm:mr-2" />
-              Most Points
-            </button>
-            <button
-              onClick={() => setSortBy("rating")}
-               className={`duolingo-button ${
-                sortBy === "rating"
-                   ? "duolingo-button-purple shadow-lg shadow-purple-500/25"
-                   : "duolingo-button-secondary"
-              }`}
-            >
-              <Star className="inline h-4 w-4 mr-1 sm:mr-2" />
-              Top Rated
-            </button>
-          </div>
+          {/* Hidden Sort Control - Preserved functionality */}
+          <div className="hidden">
+            <select value={sortBy} onChange={handleSortChange}>
+              <option value="points">Most Points</option>
+              <option value="rating">Top Rated</option>
+            </select>
+                    </div>
 
-          {/* Leaderboard */}
+          {/* Podium Section - Show if we have at least 3 users */}
           {loading ? (
-            <div className="text-center py-12">
-               <p className="text-gray-300">Loading leaderboard...</p>
-            </div>
-          ) : leaderboard.length === 0 ? (
-            <div className="text-center py-12">
-              <div className="mb-6">
-                <Trophy className="w-20 h-20 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-white mb-2">Leaderboard is Empty</h3>
-                <p className="text-gray-300 mb-4">
-                  No users have qualified for the leaderboard yet. Users need to solve at least one assignment or earn points to appear here.
-                </p>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-2xl mx-auto">
-                <div className="p-4 rounded-lg bg-gradient-to-br from-green-500/10 to-green-600/10 border border-green-500/20">
-                  <h4 className="font-semibold text-white mb-2">How to Qualify</h4>
-                  <ul className="text-sm text-gray-300 text-left space-y-1">
-                    <li>• Solve at least one assignment</li>
-                    <li>• Earn points through contributions</li>
-                    <li>• Get rated by other users</li>
-                  </ul>
+            <div className="text-center py-12 text-white">Loading leaderboard...</div>
+          ) : leaderboard.length >= 3 ? (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 mb-12 sm:mb-16 items-end w-full">
+              {/* 2nd Place - Left */}
+              <div className="flex flex-col items-center gap-4 sm:gap-6 p-6 sm:p-8 rounded-2xl sm:rounded-3xl podium-card relative group">
+                <div className="absolute inset-0 bg-[#fbbf24]/5 opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl sm:rounded-3xl"></div>
+                <div className="relative z-10">
+                  <div className="bg-cover bg-center rounded-full size-20 sm:size-24 lg:size-28 border-4 border-[#fbbf24] shadow-2xl" style={{ backgroundImage: `url(https://ui-avatars.com/api/?name=${encodeURIComponent(topThree[1]?.username || "User")}&background=fbbf24&color=0a110e&size=112&bold=true)` }}></div>
+                  <div className="absolute -bottom-2 -right-2 bg-[#fbbf24] text-slate-950 font-black rounded-full size-8 sm:size-10 flex items-center justify-center text-base sm:text-lg shadow-xl">2</div>
                 </div>
-                <div className="p-4 rounded-lg bg-gradient-to-br from-blue-500/10 to-cyan-500/10 border border-blue-500/20">
-                  <h4 className="font-semibold text-white mb-2">Get Started</h4>
-                  <ul className="text-sm text-gray-300 text-left space-y-1">
-                    <li>• Browse available assignments</li>
-                    <li>• Upload your own assignments</li>
-                    <li>• Rate other submissions</li>
-                  </ul>
+                <div className="text-center z-10">
+                  <h3 className="text-white text-lg sm:text-xl font-bold line-clamp-1">{topThree[1]?.username || "Anonymous"}</h3>
+                  <div className="flex flex-col items-center mt-2 sm:mt-3 gap-1">
+                    {(() => {
+                      const tier = getTierFromPoints(topThree[1]?.points || 0)
+                      return (
+                        <>
+                          <span className={`text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] ${tier.color}`}>{tier.name} Tier - {tier.difficulty}</span>
+                          <div className="flex gap-0.5">
+                            {getGemDisplayForRating(topThree[1]?.averageRating || 0).slice(0, 3).map((gem) => (
+                              <span key={gem.key} className={`material-symbols-outlined text-lg sm:text-xl ${gem.type === "emerald" ? "text-[#10b981]" : "text-[#ef4444]"} gem-3d`}>
+                                {gem.type === "emerald" ? "pentagon" : "hexagon"}
+                              </span>
+                            ))}
+                          </div>
+                        </>
+                      )
+                    })()}
+                          </div>
+                        </div>
+                      </div>
+
+              {/* 1st Place - Center (Elevated) */}
+              <div className="flex flex-col items-center gap-6 sm:gap-8 p-6 sm:p-8 lg:p-10 rounded-2xl sm:rounded-[2.5rem] podium-card border-2 border-[#30e8a5]/30 ring-4 ring-[#30e8a5]/5 transform md:-translate-y-4 lg:-translate-y-8 shadow-[0_0_60px_-15px_rgba(48,232,165,0.3)] relative group">
+                <div className="absolute -top-8 sm:-top-10 lg:-top-12 left-1/2 -translate-x-1/2 z-10">
+                  <span className="material-symbols-outlined text-[#30e8a5] text-4xl sm:text-5xl lg:text-6xl" style={{ fontVariationSettings: '"FILL" 1' }}>military_tech</span>
+                            </div>
+                <div className="relative z-10">
+                  <div className="bg-cover bg-center rounded-full size-28 sm:size-32 lg:size-36 border-4 border-[#30e8a5] shadow-2xl" style={{ backgroundImage: `url(https://ui-avatars.com/api/?name=${encodeURIComponent(topThree[0]?.username || "User")}&background=30e8a5&color=0a110e&size=144&bold=true)` }}></div>
+                  <div className="absolute -bottom-3 -right-3 bg-[#30e8a5] text-slate-950 font-black rounded-full size-10 sm:size-12 flex items-center justify-center text-lg sm:text-xl shadow-2xl shadow-[#30e8a5]/40">1</div>
+                          </div>
+                <div className="text-center z-10">
+                  <h2 className="text-white text-2xl sm:text-3xl font-black platinum-shine line-clamp-1">{topThree[0]?.username || "Anonymous"}</h2>
+                  <div className="flex flex-col items-center mt-3 sm:mt-4 gap-1">
+                    {(() => {
+                      const tier = getTierFromPoints(topThree[0]?.points || 0)
+                      return (
+                        <>
+                          <span className="text-[#e5e7eb] text-[10px] sm:text-xs font-black uppercase tracking-[0.3em] drop-shadow-md">{tier.name} Tier - {tier.difficulty}</span>
+                          <div className="flex gap-0.5 sm:gap-1 mt-1">
+                            {getGemDisplayForRating(topThree[0]?.averageRating || 0).slice(0, 5).map((gem) => (
+                              <span key={gem.key} className={`material-symbols-outlined text-lg sm:text-xl lg:text-2xl ${gem.type === "emerald" ? "text-[#10b981]" : "text-[#ef4444]"} gem-3d`}>
+                                {gem.type === "emerald" ? "pentagon" : "hexagon"}
+                              </span>
+                            ))}
+                          </div>
+                        </>
+                      )
+                    })()}
+                            </div>
+                          </div>
+                        </div>
+
+              {/* 3rd Place - Right */}
+              <div className="flex flex-col items-center gap-4 sm:gap-6 p-6 sm:p-8 rounded-2xl sm:rounded-3xl podium-card relative group">
+                <div className="absolute inset-0 bg-[#94a3b8]/5 opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl sm:rounded-3xl"></div>
+                <div className="relative z-10">
+                  <div className="bg-cover bg-center rounded-full size-20 sm:size-24 lg:size-28 border-4 border-[#94a3b8] shadow-2xl" style={{ backgroundImage: `url(https://ui-avatars.com/api/?name=${encodeURIComponent(topThree[2]?.username || "User")}&background=94a3b8&color=0a110e&size=112&bold=true)` }}></div>
+                  <div className="absolute -bottom-2 -right-2 bg-[#94a3b8] text-slate-950 font-black rounded-full size-8 sm:size-10 flex items-center justify-center text-base sm:text-lg shadow-xl">3</div>
+                      </div>
+                <div className="text-center z-10">
+                  <h3 className="text-white text-lg sm:text-xl font-bold line-clamp-1">{topThree[2]?.username || "Anonymous"}</h3>
+                  <div className="flex flex-col items-center mt-2 sm:mt-3 gap-1">
+                    {(() => {
+                      const tier = getTierFromPoints(topThree[2]?.points || 0)
+                      return (
+                        <>
+                          <span className={`text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] ${tier.color}`}>{tier.name} Tier - {tier.difficulty}</span>
+                          <div className="flex">
+                            {getGemDisplayForRating(topThree[2]?.averageRating || 0).slice(0, 1).map((gem) => (
+                              <span key={gem.key} className={`material-symbols-outlined text-lg sm:text-xl ${gem.type === "emerald" ? "text-[#10b981]" : "text-[#ef4444]"} gem-3d`}>
+                                {gem.type === "emerald" ? "pentagon" : "hexagon"}
+                              </span>
+                            ))}
+                          </div>
+                        </>
+                      )
+                    })()}
+                  </div>
                 </div>
               </div>
             </div>
+          ) : leaderboard.length > 0 ? (
+            <div className="text-center py-12 text-white">Not enough users for podium. Showing leaderboard below.</div>
           ) : (
-            <div className="space-y-4">
-              {leaderboard.map((leaderUser, index) => (
-                <Card
-                  key={leaderUser.id}
-                   className={`study-card transition-all duration-300 rounded-2xl shadow-md group ${
-                    leaderUser.id === user.id
-                       ? "border-[#4ade80] ring-2 ring-[#4ade80] shadow-lg shadow-green-500/20"
-                       : "hover:shadow-xl hover:scale-[1.02] hover:border-green-400/30 hover:shadow-green-500/10"
-                  }`}
-                >
-                  <CardContent className="p-3 sm:p-6">
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
-                      <div className="flex flex-row items-center gap-3 w-full sm:w-auto">
-                        <div className="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12">{getRankIcon(leaderUser.rank)}</div>
-                         <Avatar className="h-10 w-10 sm:h-12 sm:w-12 bg-gradient-to-br from-[#4ade80] to-[#22c55e] group-hover:shadow-lg group-hover:shadow-green-500/30 transition-all duration-300">
-                           <AvatarFallback className="bg-gradient-to-br from-[#4ade80] to-[#22c55e] text-white font-semibold group-hover:from-green-400 group-hover:to-green-600 transition-all duration-300">
-                            {leaderUser.username?.slice(0, 2).toUpperCase() || "??"}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div className="text-left">
-                          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1 sm:gap-2">
-                             <h3 className="font-semibold text-white text-base sm:text-lg">{leaderUser.username || "Anonymous User"}</h3>
-                             {leaderUser.id === user.id && <Badge className="bg-[#4ade80] text-white text-xs sm:text-sm">You</Badge>}
-                            <Badge className={getRankBadgeColor(leaderUser.rank) + " text-xs sm:text-sm"}>Rank #{leaderUser.rank}</Badge>
-                          </div>
-                           <p className="text-xs sm:text-sm text-gray-300">{leaderUser.assignmentsSolved || 0} assignments solved</p>
-                        </div>
-                      </div>
-                      <div className="flex flex-row justify-between sm:justify-end gap-3 sm:gap-4 w-full sm:w-auto">
-                        <div className="text-center min-w-[70px]">
-                           <p className="text-xl sm:text-2xl font-bold text-white">{Number.isFinite(Number(leaderUser.points)) ? Number(leaderUser.points) : 0}</p>
-                           <p className="text-xs text-gray-300">Points</p>
-                        </div>
-                        <div className="text-center min-w-[70px]">
-                          <div className="flex items-center gap-1 justify-center mb-1">
-                            {(() => {
-                              const rating = Number.isFinite(Number(leaderUser.averageRating)) ? Number(leaderUser.averageRating) : 0;
-                              const badge = getRatingBadge(rating);
-                              return (
-                                <div className={badge.className}>
-                                  <span className="text-xs font-bold">{badge.displayText}</span>
-                                  <span className="text-xs flex items-center gap-1">
-                                    {badge.emeralds > 0 ? (
-                                      <>
-                                        {badge.emeralds} <GemIcon type="emerald" size={12} />
-                                      </>
-                                    ) : (
-                                      <>
-                                        {badge.rubies} <GemIcon type="ruby" size={12} />
-                                      </>
-                                    )}
-                                  </span>
-                                </div>
-                              );
-                            })()}
-                          </div>
-                          <p className="text-xs text-gray-300">({Number.isFinite(Number(leaderUser.totalRatings)) ? Number(leaderUser.totalRatings) : 0} ratings)</p>
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+            <div className="text-center py-12 text-white">No leaderboard data available yet.</div>
           )}
 
-          {/* Your Stats */}
-          {user && (
-             <Card className="study-card mt-8 border-[#4ade80]/20 shadow-lg shadow-green-500/10">
-              <CardHeader>
-                 <CardTitle className="text-white flex items-center gap-2">
-                   <TrendingUp className="h-5 w-5 text-[#4ade80]" />
-                   Your Statistics
-                 </CardTitle>
-                 <CardDescription className="text-gray-300">
-                  Keep solving assignments to improve your ranking!
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {currentUserStats ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 text-center">
-                  <div className="p-4 rounded-lg bg-gradient-to-br from-green-500/10 to-green-600/10 border border-green-500/20 hover:shadow-lg hover:shadow-green-500/20 transition-all duration-300">
-                     <p className="text-2xl font-bold text-white">{currentUserStats?.points || 0}</p>
-                     <p className="text-sm text-gray-300">Points</p>
+          {/* Rest of Leaderboard Table - Show if we have data beyond top 3 */}
+          {restOfLeaderboard.length > 0 && (
+                <div className="flex flex-col gap-3 sm:gap-4 mb-24 sm:mb-32 overflow-x-auto">
+                  <div className="grid grid-cols-12 gap-2 sm:gap-4 px-4 sm:px-6 lg:px-8 py-2 sm:py-3 text-[10px] sm:text-[11px] font-black uppercase tracking-[0.2em] text-slate-500 min-w-[600px]">
+                    <div className="col-span-1">Rank</div>
+                    <div className="col-span-4">Student</div>
+                    <div className="col-span-4 text-center">Rating Tier</div>
+                    <div className="col-span-3 text-right">Progress</div>
+              </div>
+                  {restOfLeaderboard.map((leaderUser) => {
+                    // Use point-based tier system
+                    const tier = getTierFromPoints(leaderUser.points || 0)
+                    const gems = getGemDisplayForRating(leaderUser.averageRating || 0)
+                    
+                    // Get avatar URL based on tier
+                    const getAvatarBackground = (tierName: string) => {
+                      if (tierName === "Platinum") return "e5e7eb"
+                      if (tierName === "Gold") return "fbbf24"
+                      if (tierName === "Silver") return "94a3b8"
+                      if (tierName === "Copper") return "b45309"
+                      if (tierName === "Bronze") return "854d0e"
+                      return "30e8a5"
+                    }
+                    const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(leaderUser.username || "User")}&background=${getAvatarBackground(tier.name)}&color=0a110e&size=44&bold=true`
+                    
+                    return (
+                      <div
+                  key={leaderUser.id}
+                        className="grid grid-cols-12 gap-2 sm:gap-4 px-4 sm:px-6 lg:px-8 py-3 sm:py-4 lg:py-5 rounded-xl sm:rounded-2xl glass-row items-center border border-white/5 min-w-[600px]"
+                      >
+                        <div className="col-span-1 font-black text-slate-500 text-sm sm:text-base">#{leaderUser.rank}</div>
+                        <div className="col-span-4 flex items-center gap-2 sm:gap-4 min-w-0">
+                          <div className={`size-9 sm:size-10 lg:size-11 rounded-full bg-cover bg-center border-2 flex-shrink-0 ${tier.border}`} style={{ backgroundImage: avatarUrl }}></div>
+                          <span className="font-bold text-white text-sm sm:text-base truncate">{leaderUser.username || "Anonymous"}</span>
+                        </div>
+                        <div className="col-span-4 flex flex-col items-center gap-1">
+                          <span className={`text-[9px] sm:text-[10px] font-black ${tier.color} uppercase tracking-widest`}>{tier.name} - {tier.difficulty}</span>
+                          <div className="flex gap-0.5 flex-wrap justify-center">
+                            {gems.slice(0, 7).map((gem) => (
+                              <span key={gem.key} className={`material-symbols-outlined text-xs sm:text-sm ${gem.type === "emerald" ? "text-[#10b981]" : "text-[#ef4444]"} gem-3d`}>
+                                {gem.type === "emerald" ? "pentagon" : "hexagon"}
+                                  </span>
+                            ))}
+                          </div>
+                        </div>
+                        <div className="col-span-3 text-right font-black text-[#30e8a5] text-base sm:text-lg">{(leaderUser.points || 0).toLocaleString()}</div>
+                      </div>
+                    )
+                  })}
+            </div>
+          )}
                   </div>
-                  <div className="p-4 rounded-lg bg-gradient-to-br from-amber-500/10 to-orange-500/10 border border-amber-500/20 hover:shadow-lg hover:shadow-amber-500/20 transition-all duration-300">
-                     <div className="flex flex-col items-center gap-2">
-                       {(() => {
-                         const rating = currentUserStats?.averageRating || 0;
-                         const badge = getRatingBadge(rating);
-                         return (
-                           <div className={badge.className}>
-                             <span className="text-xs font-bold">{badge.displayText}</span>
-                               <span className="text-xs flex items-center gap-1">
-                                 {badge.emeralds > 0 ? (
-                                   <>
-                                     {badge.emeralds} <GemIcon type="emerald" size={12} />
-                                   </>
-                                 ) : (
-                                   <>
-                                     {badge.rubies} <GemIcon type="ruby" size={12} />
-                                   </>
-                                 )}
-                               </span>
-                           </div>
-                         );
-                       })()}
-                       <p className="text-sm text-gray-300">Avg Rating</p>
-                     </div>
-                  </div>
-                  <div className="p-4 rounded-lg bg-gradient-to-br from-blue-500/10 to-cyan-500/10 border border-blue-500/20 hover:shadow-lg hover:shadow-blue-500/20 transition-all duration-300">
-                     <p className="text-2xl font-bold text-white">{currentUserStats?.totalRatings || 0}</p>
-                     <p className="text-sm text-gray-300">Total Ratings</p>
-                  </div>
-                  <div className="p-4 rounded-lg bg-gradient-to-br from-purple-500/10 to-pink-500/10 border border-purple-500/20 hover:shadow-lg hover:shadow-purple-500/20 transition-all duration-300">
-                     <p className="text-2xl font-bold text-white">
-                      {currentUserStats?.rank || "Unranked"}
-                    </p>
-                     <p className="text-sm text-gray-300">Your Rank</p>
+      </main>
+
+      {/* Fixed Bottom Bar - Current User Stats - Always show if user is logged in */}
+      {user && currentUserStats && (
+        <div className="fixed bottom-0 left-0 right-0 p-3 sm:p-4 lg:p-6 bg-[#0a110e]/90 backdrop-blur-2xl border-t border-white/5 z-50">
+          <div className="max-w-[1100px] mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-6 px-4 sm:px-6 lg:px-8 py-3 sm:py-4 bg-[#30e8a5]/10 rounded-xl sm:rounded-[2rem] border border-[#30e8a5]/20 shadow-[0_-10px_40px_-15px_rgba(48,232,165,0.2)]">
+            <div className="flex items-center gap-4 sm:gap-6 w-full sm:w-auto">
+              <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1 sm:flex-initial">
+                <div className="size-10 sm:size-12 rounded-full bg-cover bg-center border-2 border-[#30e8a5] flex-shrink-0" style={{ backgroundImage: `url(https://ui-avatars.com/api/?name=${encodeURIComponent(user.username || currentUserStats.username || "User")}&background=30e8a5&color=0a110e&size=48&bold=true)` }}></div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-white font-black text-base sm:text-lg leading-tight truncate">Me ({user.username || currentUserStats.username || "User"})</p>
+                  <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+                    {(() => {
+                      const tier = getTierFromPoints(currentUserStats.points || 0)
+                      return (
+                        <>
+                          <span className={`text-[9px] sm:text-[10px] uppercase font-bold ${tier.color} tracking-widest`}>
+                            {tier.name} Tier - {tier.difficulty}
+                          </span>
+                          <div className="flex">
+                            {getGemDisplayForRating(currentUserStats.averageRating || 0).slice(0, 10).map((gem) => (
+                              <span key={gem.key} className={`material-symbols-outlined text-[9px] sm:text-[10px] ${gem.type === "emerald" ? "text-[#10b981]" : "text-[#ef4444]"} gem-3d`}>
+                                {gem.type === "emerald" ? "pentagon" : "hexagon"}
+                              </span>
+                            ))}
+                          </div>
+                        </>
+                      )
+                    })()}
                   </div>
                 </div>
-                ) : (
-                  <div className="text-center py-8">
-                    <div className="mb-4">
-                      <BookOpen className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                      <h3 className="text-lg font-semibold text-white mb-2">Not on Leaderboard Yet</h3>
-                      <p className="text-gray-300 mb-4">
-                        You need to solve at least one assignment or earn points to appear on the leaderboard.
-                      </p>
-                    </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
-                      <div className="p-4 rounded-lg bg-gradient-to-br from-green-500/10 to-green-600/10 border border-green-500/20">
-                        <p className="text-2xl font-bold text-white">0</p>
-                        <p className="text-sm text-gray-300">Points</p>
-                      </div>
-                      <div className="p-4 rounded-lg bg-gradient-to-br from-blue-500/10 to-cyan-500/10 border border-blue-500/20">
-                        <p className="text-2xl font-bold text-white">0</p>
-                        <p className="text-sm text-gray-300">Assignments Solved</p>
-                      </div>
-                      <div className="p-4 rounded-lg bg-gradient-to-br from-purple-500/10 to-pink-500/10 border border-purple-500/20">
-                        <p className="text-2xl font-bold text-white">--</p>
-                        <p className="text-sm text-gray-300">Rating</p>
-                      </div>
-                    </div>
-                    <div className="mt-6">
-                      <p className="text-sm text-gray-400 mb-3">Start your journey by:</p>
-                      <div className="flex flex-col sm:flex-row gap-2 justify-center">
-                        <Badge className="bg-[#4ade80] text-white px-3 py-1">
-                          <Upload className="w-3 h-3 mr-1" />
-                          Upload an assignment
-                        </Badge>
-                        <Badge className="bg-[#8b5cf6] text-white px-3 py-1">
-                          <BookOpen className="w-3 h-3 mr-1" />
-                          Solve assignments
-                        </Badge>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          )}
+              </div>
+            </div>
+            <div className="flex items-center justify-between sm:justify-end gap-4 sm:gap-12 w-full sm:w-auto">
+              <div className="text-left sm:text-right">
+                <p className="text-[9px] sm:text-[10px] uppercase font-black text-slate-500 tracking-widest mb-1">Total Points</p>
+                <p className="text-[#30e8a5] font-black text-xl sm:text-2xl tracking-tighter">{(currentUserStats.points || 0).toLocaleString()}</p>
+              </div>
+              <div className="bg-[#30e8a5] text-slate-950 font-black rounded-lg sm:rounded-xl px-4 sm:px-6 py-2 sm:py-3 text-xs sm:text-sm shadow-xl shadow-[#30e8a5]/20 flex-shrink-0">
+                {currentUserStats.points >= MIN_POINTS_FOR_LEADERBOARD && currentUserStats.rank > 0 
+                  ? `Rank #${currentUserStats.rank}` 
+                  : "Unranked"}
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   )
 }

@@ -591,34 +591,43 @@
 "use client";
 
 import type React from "react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { useState, useEffect } from "react";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Trophy,
   Sparkles,
-  Shield,
-  Zap,
-  BookOpen,
-  Award,
-  TrendingUp,
-  LogIn,
   Upload,
-  Search,
   Star,
   Users,
   CheckCircle,
   ArrowRight,
   FileCheck,
-  MessageSquare,
+  BookOpen,
+  TrendingUp,
+  LogIn,
   GraduationCap,
+  Rocket,
+  CloudUpload,
+  BarChart3,
+  Brain,
 } from "lucide-react";
-import { sendOtpEmail } from "@/lib/sendOtpEmail";
 import Logo from "@/components/ui/Logo";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
 export default function LandingPage() {
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 50);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   return (
-    <div className="min-h-screen reddit-dark-bg overflow-hidden animate-fade-in">
+    <div className="min-h-screen overflow-x-hidden font-display text-white">
       {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-20 left-10 w-72 h-72 bg-[#4ade80]/15 rounded-full blur-3xl floating-animation"></div>
@@ -633,534 +642,195 @@ export default function LandingPage() {
       </div>
 
       {/* Header */}
-      <header className="relative z-10 px-4 sm:px-6 lg:px-10 py-4">
-        <div className="flex items-center justify-between max-w-7xl mx-auto">
-          <Logo href="/" variant="large" logoSize={56} />
-          <Link href="/register">
-            <Button
-              variant="outline"
-              className="bg-transparent border-[#4ade80]/30 text-white hover:bg-[#4ade80]/10 hover:border-[#4ade80]/50 transition-all duration-300"
-            >
-              <LogIn className="w-4 h-4" />
-              Register
-            </Button>
+      <header className={`fixed top-6 left-0 right-0 z-50 flex justify-center px-4 transition-all duration-500 ${isScrolled ? 'lg:-translate-y-24 lg:opacity-0' : 'lg:translate-y-0 lg:opacity-100'}`}>
+        <div className="navbar-glass max-w-7xl w-full h-16 sm:h-20 rounded-full flex items-center justify-center sm:justify-between px-4 sm:px-6 lg:px-10 transition-all duration-500">
+          <Logo href="/" variant="default" logoSize={32} />
+          <div className="hidden sm:flex items-center gap-4 sm:gap-6 lg:gap-8 ml-auto">
+            <Link href="/register" className="glossy-pill px-6 sm:px-8 py-2.5 sm:py-3 text-xs sm:text-sm font-black text-[#0a0f0d] rounded-full hover:scale-105 active:scale-95 transition-all relative">
+              <span className="relative z-10">JOIN FREE</span>
           </Link>
+          </div>
         </div>
       </header>
 
       {/* Hero Section */}
-      <div className="relative z-10 px-4 py-12 sm:px-6 sm:py-20 lg:px-8">
-        <div className="mx-auto max-w-6xl">
-          <div className="text-center animate-slide-up">
-            <div className="inline-flex items-center gap-2 bg-[#4ade80]/20 border border-[#4ade80]/30 rounded-full px-4 py-2 mb-8 shadow-sm neon-border">
-              <Sparkles className="w-4 h-4 text-[#4ade80] animate-bounce" />
-              <span className="text-sm font-medium text-white">
-                100% Anonymous • Secure • Rewarding
-              </span>
+      <section className="relative pt-32 sm:pt-40 lg:pt-48 pb-24 sm:pb-48 overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid lg:grid-cols-2 gap-8 sm:gap-16 items-center">
+          <div className="relative z-10 text-left">
+            <div className="inline-flex items-center gap-2 px-3 sm:px-5 py-1.5 sm:py-2 rounded-full bg-white/5 border border-white/10 text-[#13ec9c] text-[10px] sm:text-xs font-bold uppercase tracking-[0.2em] mb-6 sm:mb-10">
+              <Sparkles className="w-3 h-3 sm:w-4 sm:h-4" />
+              The Future of Learning
             </div>
-
-            <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold tracking-tight text-white mb-6 drop-shadow-lg">
-              <span className="block">The Education Platform for</span>
-              <span className="block bg-gradient-to-r from-[#4ade80] to-[#9333ea] bg-clip-text text-transparent animate-gradient-x">
-                Assignments, Peer Review & Solutions
-              </span>
+            <h1 className="text-4xl sm:text-6xl md:text-8xl font-black leading-[0.95] mb-6 sm:mb-10 tracking-tight">
+              <span className="font-serif italic font-bold">Master</span> Your Assignments with <br/>
+              <span className="text-[#13ec9c] hero-glow-text">Confidence</span>
             </h1>
-
-            <p className="mt-6 text-lg sm:text-xl leading-8 text-gray-300 max-w-3xl mx-auto">
-              Get help with your assignments, review other students' work, upload solutions, and compete on the leaderboard. 
-              Join thousands of students in our anonymous, secure educational community where learning and helping go hand in hand.
+            <p className="text-base sm:text-xl text-white/60 max-w-xl mb-8 sm:mb-12 leading-relaxed font-light">
+              Redefining academic excellence through glass-clear solutions and intelligent progress tracking for the modern student.
             </p>
-
-            {/* Social Media Icons */}
-            <div className="mt-12 w-4/5 mx-auto">
-              <div className="flex items-center justify-between">
-                {/* Reddit */}
-                <a
-                  href="https://reddit.com/r/openassign"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group animate-scale-in hover:scale-110 transition-transform duration-300 flex-1 flex justify-center"
-                  style={{ animationDelay: "0.2s" }}
-                >
-                  <div className="w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28 bg-gray-700/50 rounded-full flex items-center justify-center group-hover:bg-gray-600/70 transition-colors">
-                    {/* Reddit Icon */}
-                    <svg
-                      className="w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14 text-gray-300 group-hover:text-white transition-colors"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                    >
-                      <path d="M12 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0zm5.01 4.744c.688 0 1.25.561 1.25 1.249a1.25 1.25 0 0 1-2.498.056l-2.597-.547-.8 3.747c1.824.07 3.48.632 4.674 1.488.308-.309.73-.491 1.207-.491.968 0 1.754.786 1.754 1.754 0 .716-.435 1.333-1.01 1.614a3.111 3.111 0 0 1 .042.52c0 2.694-3.13 4.87-7.004 4.87-3.874 0-7.004-2.176-7.004-4.87 0-.183.015-.366.043-.534A1.748 1.748 0 0 1 4.028 12c0-.968.786-1.754 1.754-1.754.463 0 .898.196 1.207.49 1.207-.883 2.878-1.43 4.744-1.487l.885-4.182a.342.342 0 0 1 .14-.197.35.35 0 0 1 .238-.042l2.906.617a1.214 1.214 0 0 1 1.108-.701zM9.25 12C8.561 12 8 12.562 8 13.25c0 .687.561 1.248 1.25 1.248.687 0 1.248-.561 1.248-1.249 0-.688-.561-1.249-1.249-1.249zm5.5 0c-.687 0-1.248.561-1.248 1.25 0 .687.561 1.248 1.249 1.248.688 0 1.249-.561 1.249-1.249 0-.687-.562-1.249-1.25-1.249zm-5.466 3.99a.327.327 0 0 0-.231.094.33.33 0 0 0 0 .463c.842.842 2.484.913 2.961.913.477 0 2.105-.056 2.961-.913a.361.361 0 0 0 .029-.463.33.33 0 0 0-.464 0c-.547.533-1.684.73-2.512.73-.828 0-1.979-.196-2.512-.73a.326.326 0 0 0-.232-.095z" />
-                    </svg>
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 sm:gap-6">
+              <Link href="/register" className="w-full sm:w-auto">
+                <Button className="w-full sm:w-auto px-8 sm:px-12 py-4 sm:py-6 bg-[#13ec9c] text-[#0a0f0d] text-base sm:text-lg font-black rounded-2xl flex items-center justify-center gap-3 hover:scale-105 transition-transform shadow-2xl">
+                  <LogIn className="w-4 h-4 sm:w-5 sm:h-5" />
+                  Register
+                </Button>
+              </Link>
+              <Button variant="outline" className="w-full sm:w-auto px-8 sm:px-12 py-4 sm:py-6 bg-white/5 border border-white/10 text-white text-base sm:text-lg font-bold rounded-2xl hover:bg-white/10 transition-all">
+                Explore Demo
+              </Button>
                   </div>
-                </a>
-
-                {/* Divider */}
-                <div className="w-1 h-16 sm:h-20 lg:h-24 bg-gradient-to-b from-transparent via-gray-500 to-transparent"></div>
-
-                {/* Discord */}
-                <a
-                  href="https://discord.gg/uv3pj5DeDv"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group animate-scale-in hover:scale-110 transition-transform duration-300 flex-1 flex justify-center"
-                  style={{ animationDelay: "0.4s" }}
-                >
-                  <div className="w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28 bg-gray-700/50 rounded-full flex items-center justify-center group-hover:bg-gray-600/70 transition-colors">
-                    {/* Discord Icon */}
-                    <svg
-                      className="w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14 text-gray-300 group-hover:text-white transition-colors"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                    >
-                      <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z" />
-                    </svg>
                   </div>
-                </a>
-
-                {/* Divider */}
-                <div className="w-1 h-16 sm:h-20 lg:h-24 bg-gradient-to-b from-transparent via-gray-500 to-transparent"></div>
-
-                {/* GitHub */}
-                <a
-                  href="https://github.com/faizanamer123/OpenAssign"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group animate-scale-in hover:scale-110 transition-transform duration-300 flex-1 flex justify-center"
-                  style={{ animationDelay: "0.6s" }}
-                >
-                  <div className="w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28 bg-gray-700/50 rounded-full flex items-center justify-center group-hover:bg-gray-600/70 transition-colors">
-                    {/* GitHub Icon */}
-                    <svg
-                      className="w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14 text-gray-300 group-hover:text-white transition-colors"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                    >
-                      <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
-                    </svg>
+          <div className="relative flex justify-center items-center h-[300px] sm:h-[400px] lg:h-[500px] mt-8 lg:mt-0">
+            <div className="absolute inset-0 bg-[#13ec9c]/10 blur-[150px] rounded-full"></div>
+            <div className="relative floating-3d">
+              <div className="relative z-20 w-48 h-48 sm:w-64 sm:h-64 lg:w-80 lg:h-80 glass-morphism rounded-[2rem] sm:rounded-[3rem] border-white/20 flex items-center justify-center rotate-12">
+                <GraduationCap className="w-32 h-32 sm:w-40 sm:h-40 lg:w-48 lg:h-48 text-[#13ec9c]/40 select-none" />
+                <div className="absolute -bottom-6 sm:-bottom-10 -right-6 sm:-right-10 w-12 h-48 sm:w-16 sm:h-64 bg-gradient-to-t from-[#13ec9c] to-transparent blur-2xl opacity-40 rotate-45"></div>
+                <FileCheck className="w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28 text-[#13ec9c] absolute -bottom-2 sm:-bottom-4 -right-2 sm:-right-4 drop-shadow-[0_0_15px_rgba(19,236,156,0.8)] -rotate-45" />
                   </div>
-                </a>
               </div>
+            <div className="absolute top-0 right-0 w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 glass-morphism rounded-xl sm:rounded-2xl flex items-center justify-center floating-3d" style={{ animationDelay: "-2s" }}>
+              <BookOpen className="w-6 h-6 sm:w-8 sm:h-8 lg:w-10 lg:h-10 text-[#13ec9c]" />
             </div>
-
-            {/* Divider */}
-            <div className="mt-8 mb-8">
-              <div className="w-48 h-1 bg-gradient-to-r from-transparent via-gray-500 to-transparent mx-auto"></div>
+            <div className="absolute bottom-6 sm:bottom-10 left-0 w-14 h-14 sm:w-16 sm:h-16 lg:w-20 lg:h-20 glass-morphism rounded-full flex items-center justify-center floating-3d" style={{ animationDelay: "-4s" }}>
+              <CheckCircle className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 text-[#13ec9c]" />
             </div>
-
-            {/* Stats */}
-            <div className="flex items-center justify-center gap-8 max-w-md mx-auto">
-              <div
-                className="text-center animate-scale-in flex-1"
-                style={{ animationDelay: "0.8s" }}
-              >
-                <div className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white drop-shadow">
-                  1,200+
                 </div>
-                <div className="text-base sm:text-lg text-gray-300">
-                  Active Users
                 </div>
-              </div>
-
-              {/* Divider */}
-              <div className="w-1 h-16 sm:h-20 lg:h-24 bg-gradient-to-b from-transparent via-gray-500 to-transparent"></div>
-
-              <div
-                className="text-center animate-scale-in flex-1"
-                style={{ animationDelay: "1.0s" }}
-              >
-                <div className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white drop-shadow">
-                  4.9★
-                </div>
-                <div className="text-base sm:text-lg text-gray-300">
-                  Platform Rating
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Auth Card */}
+      </section>
 
           {/* Feature Sections */}
-          <div className="mt-32 space-y-24">
-            {/* Upload Assignments Section */}
-            <section className="animate-slide-up" style={{ animationDelay: "0.4s" }}>
-              <div className="text-center mb-12">
-                <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-[#4ade80] to-[#22c55e] rounded-2xl mb-6 shadow-lg shadow-green-500/30">
-                  <Upload className="h-10 w-10 text-white" />
+          <section className="py-16 sm:py-24 lg:py-32 relative" id="how-it-works">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="text-center mb-12 sm:mb-16 lg:mb-24">
+                <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black mb-4 sm:mb-8 tracking-tighter">Engineered for Success</h2>
+                <p className="text-white/40 max-w-2xl mx-auto text-base sm:text-lg lg:text-xl font-light px-4">A seamless three-step workflow designed to elevate your academic performance instantly.</p>
                 </div>
-                <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-                  Upload Assignments
-                </h2>
-                <p className="text-lg text-gray-300 max-w-2xl mx-auto">
-                  Stuck on an assignment? Upload it anonymously and get help from talented students in our community. 
-                  Share your challenges and receive expert solutions quickly.
-                </p>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 lg:gap-10">
+                <div className="hover-card glass-morphism p-6 sm:p-8 lg:p-12 rounded-xl sm:rounded-2xl transition-all duration-500 group relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-24 h-24 sm:w-32 sm:h-32 bg-[#13ec9c]/5 rounded-full -mr-12 -mt-12 sm:-mr-16 sm:-mt-16 group-hover:bg-[#13ec9c]/10 transition-colors"></div>
+                  <div className="size-16 sm:size-20 rounded-xl sm:rounded-2xl bg-[#13ec9c]/10 border border-[#13ec9c]/20 flex items-center justify-center text-[#13ec9c] mb-6 sm:mb-10 group-hover:scale-110 transition-transform">
+                    <CloudUpload className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12" />
               </div>
-              <Card className="study-card max-w-4xl mx-auto">
-                <CardContent className="p-8">
-                  <div className="grid md:grid-cols-2 gap-6 items-center">
-                    <div>
-                      <div className="space-y-4">
-                        <div className="flex items-start gap-3">
-                          <CheckCircle className="h-6 w-6 text-[#4ade80] flex-shrink-0 mt-1" />
-                          <div>
-                            <h3 className="text-white font-semibold mb-1">Anonymous Upload</h3>
-                            <p className="text-gray-300 text-sm">Your identity stays completely private</p>
+                  <h3 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6">Upload</h3>
+                  <p className="text-white/50 leading-relaxed text-sm sm:text-base lg:text-lg font-light">Submit your complex prompts or documents via our ultra-secure encrypted portal.</p>
+                  <div className="mt-6 sm:mt-10 flex items-center text-[#13ec9c] font-bold text-xs sm:text-sm gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    LEARN MORE <ArrowRight className="w-3 h-3" />
                           </div>
                         </div>
-                        <div className="flex items-start gap-3">
-                          <CheckCircle className="h-6 w-6 text-[#4ade80] flex-shrink-0 mt-1" />
-                          <div>
-                            <h3 className="text-white font-semibold mb-1">Quick Responses</h3>
-                            <p className="text-gray-300 text-sm">Get solutions from community members fast</p>
+                <div className="hover-card glass-morphism p-6 sm:p-8 lg:p-12 rounded-xl sm:rounded-2xl transition-all duration-500 group relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-24 h-24 sm:w-32 sm:h-32 bg-[#13ec9c]/5 rounded-full -mr-12 -mt-12 sm:-mr-16 sm:-mt-16 group-hover:bg-[#13ec9c]/10 transition-colors"></div>
+                  <div className="size-16 sm:size-20 rounded-xl sm:rounded-2xl bg-[#13ec9c]/10 border border-[#13ec9c]/20 flex items-center justify-center text-[#13ec9c] mb-6 sm:mb-10 group-hover:scale-110 transition-transform">
+                    <Brain className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12" />
                           </div>
+                  <h3 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6">Solve</h3>
+                  <p className="text-white/50 leading-relaxed text-sm sm:text-base lg:text-lg font-light">Our proprietary AI and top-tier academic experts synthesize crystal-clear solutions.</p>
+                  <div className="mt-6 sm:mt-10 flex items-center text-[#13ec9c] font-bold text-xs sm:text-sm gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    LEARN MORE <ArrowRight className="w-3 h-3" />
                         </div>
-                        <div className="flex items-start gap-3">
-                          <CheckCircle className="h-6 w-6 text-[#4ade80] flex-shrink-0 mt-1" />
-                          <div>
-                            <h3 className="text-white font-semibold mb-1">All Subjects Supported</h3>
-                            <p className="text-gray-300 text-sm">Math, Science, CS, and more</p>
                           </div>
+                <div className="hover-card glass-morphism p-6 sm:p-8 lg:p-12 rounded-xl sm:rounded-2xl transition-all duration-500 group relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-24 h-24 sm:w-32 sm:h-32 bg-[#13ec9c]/5 rounded-full -mr-12 -mt-12 sm:-mr-16 sm:-mt-16 group-hover:bg-[#13ec9c]/10 transition-colors"></div>
+                  <div className="size-16 sm:size-20 rounded-xl sm:rounded-2xl bg-[#13ec9c]/10 border border-[#13ec9c]/20 flex items-center justify-center text-[#13ec9c] mb-6 sm:mb-10 group-hover:scale-110 transition-transform">
+                    <BarChart3 className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12" />
                         </div>
+                  <h3 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6">Succeed</h3>
+                  <p className="text-white/50 leading-relaxed text-sm sm:text-base lg:text-lg font-light">Review, master the concepts, and track your rising GPA through your live dashboard.</p>
+                  <div className="mt-6 sm:mt-10 flex items-center text-[#13ec9c] font-bold text-xs sm:text-sm gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    LEARN MORE <ArrowRight className="w-3 h-3" />
                       </div>
                     </div>
-                    <div className="bg-gradient-to-br from-[#4ade80]/10 to-[#22c55e]/10 rounded-xl p-8 border border-[#4ade80]/20 relative overflow-hidden group hover:scale-105 transition-transform duration-300">
-                      <div className="absolute inset-0 bg-gradient-to-br from-[#4ade80]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                      <div className="text-center relative z-10">
-                        <div className="relative inline-block mb-4">
-                          <div className="absolute inset-0 bg-[#4ade80]/20 rounded-full blur-xl"></div>
-                          <Upload className="h-32 w-32 text-[#4ade80] mx-auto relative z-10 animate-bounce-slow" />
                         </div>
-                        <div className="space-y-2">
-                          <div className="flex items-center justify-center gap-2">
-                            <div className="w-2 h-2 bg-[#4ade80] rounded-full animate-pulse"></div>
-                            <div className="w-2 h-2 bg-[#4ade80] rounded-full animate-pulse" style={{ animationDelay: "0.2s" }}></div>
-                            <div className="w-2 h-2 bg-[#4ade80] rounded-full animate-pulse" style={{ animationDelay: "0.4s" }}></div>
                           </div>
-                          <p className="text-gray-400 text-sm font-medium">Upload your assignment files and get help</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
             </section>
-
-            {/* Review Other Students' Work Section */}
-            <section className="animate-slide-up" style={{ animationDelay: "0.6s" }}>
-              <div className="text-center mb-12">
-                <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-[#9333ea] to-[#7c3aed] rounded-2xl mb-6 shadow-lg shadow-purple-500/30">
-                  <FileCheck className="h-10 w-10 text-white" />
-                </div>
-                <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-                  Review Other Students' Work
-                </h2>
-                <p className="text-lg text-gray-300 max-w-2xl mx-auto">
-                  Help fellow students by reviewing and rating their solutions. Provide constructive feedback 
-                  and help maintain quality standards in our educational community.
-                </p>
-              </div>
-              <Card className="study-card max-w-4xl mx-auto">
-                <CardContent className="p-8">
-                  <div className="grid md:grid-cols-2 gap-6 items-center">
-                    <div className="bg-gradient-to-br from-[#9333ea]/10 to-[#7c3aed]/10 rounded-xl p-8 border border-[#9333ea]/20 order-2 md:order-1 relative overflow-hidden group hover:scale-105 transition-transform duration-300">
-                      <div className="absolute inset-0 bg-gradient-to-br from-[#9333ea]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                      <div className="text-center relative z-10">
-                        <div className="relative inline-block mb-4">
-                          <div className="absolute inset-0 bg-[#9333ea]/20 rounded-full blur-xl"></div>
-                          <div className="relative z-10">
-                            <FileCheck className="h-20 w-20 text-[#9333ea] mx-auto mb-2" />
-                            <Star className="h-12 w-12 text-yellow-400 mx-auto fill-yellow-400" />
-                          </div>
-                        </div>
-                        <div className="space-y-2">
-                          <div className="flex items-center justify-center gap-1">
-                            {[...Array(5)].map((_, i) => (
-                              <Star key={i} className="h-3 w-3 text-yellow-400 fill-yellow-400" />
-                            ))}
-                          </div>
-                          <p className="text-gray-400 text-sm font-medium">Review and rate solutions</p>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="order-1 md:order-2">
-                      <div className="space-y-4">
-                        <div className="flex items-start gap-3">
-                          <CheckCircle className="h-6 w-6 text-[#9333ea] flex-shrink-0 mt-1" />
-                          <div>
-                            <h3 className="text-white font-semibold mb-1">Rate Solutions</h3>
-                            <p className="text-gray-300 text-sm">Give 1-5 star ratings to help others</p>
-                          </div>
-                        </div>
-                        <div className="flex items-start gap-3">
-                          <CheckCircle className="h-6 w-6 text-[#9333ea] flex-shrink-0 mt-1" />
-                          <div>
-                            <h3 className="text-white font-semibold mb-1">Build Reputation</h3>
-                            <p className="text-gray-300 text-sm">Earn recognition for quality reviews</p>
-                          </div>
-                        </div>
-                        <div className="flex items-start gap-3">
-                          <CheckCircle className="h-6 w-6 text-[#9333ea] flex-shrink-0 mt-1" />
-                          <div>
-                            <h3 className="text-white font-semibold mb-1">Community Quality</h3>
-                            <p className="text-gray-300 text-sm">Help maintain high standards</p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </section>
-
-            {/* Upload Solutions Section */}
-            <section className="animate-slide-up" style={{ animationDelay: "0.8s" }}>
-              <div className="text-center mb-12">
-                <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-[#06b6d4] to-[#0891b2] rounded-2xl mb-6 shadow-lg shadow-cyan-500/30">
-                  <BookOpen className="h-10 w-10 text-white" />
-                </div>
-                <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-                  Upload Solutions
-                </h2>
-                <p className="text-lg text-gray-300 max-w-2xl mx-auto">
-                  Help others by solving their assignments. Earn points, build your reputation, and climb 
-                  the leaderboard while contributing to the educational community.
-                </p>
-              </div>
-              <Card className="study-card max-w-4xl mx-auto">
-                <CardContent className="p-8">
-                  <div className="grid md:grid-cols-2 gap-6 items-center">
-                    <div>
-                      <div className="space-y-4">
-                        <div className="flex items-start gap-3">
-                          <CheckCircle className="h-6 w-6 text-[#06b6d4] flex-shrink-0 mt-1" />
-                          <div>
-                            <h3 className="text-white font-semibold mb-1">Earn Points</h3>
-                            <p className="text-gray-300 text-sm">Get rewarded for every solution you provide</p>
-                          </div>
-                        </div>
-                        <div className="flex items-start gap-3">
-                          <CheckCircle className="h-6 w-6 text-[#06b6d4] flex-shrink-0 mt-1" />
-                          <div>
-                            <h3 className="text-white font-semibold mb-1">Help Others Learn</h3>
-                            <p className="text-gray-300 text-sm">Make a difference in students' academic journey</p>
-                          </div>
-                        </div>
-                        <div className="flex items-start gap-3">
-                          <CheckCircle className="h-6 w-6 text-[#06b6d4] flex-shrink-0 mt-1" />
-                          <div>
-                            <h3 className="text-white font-semibold mb-1">Build Your Portfolio</h3>
-                            <p className="text-gray-300 text-sm">Track all your contributions and achievements</p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="bg-gradient-to-br from-[#06b6d4]/10 to-[#0891b2]/10 rounded-xl p-8 border border-[#06b6d4]/20 relative overflow-hidden group hover:scale-105 transition-transform duration-300">
-                      <div className="absolute inset-0 bg-gradient-to-br from-[#06b6d4]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                      <div className="text-center relative z-10">
-                        <div className="relative inline-block mb-4">
-                          <div className="absolute inset-0 bg-[#06b6d4]/20 rounded-full blur-xl"></div>
-                          <div className="relative z-10 flex items-center justify-center">
-                            <BookOpen className="h-28 w-28 text-[#06b6d4] animate-pulse-slow" />
-                            <div className="absolute -top-2 -right-2">
-                              <CheckCircle className="h-8 w-8 text-[#4ade80] bg-white rounded-full" />
-                            </div>
-                          </div>
-                        </div>
-                        <div className="space-y-2">
-                          <div className="flex items-center justify-center gap-2">
-                            <Trophy className="h-4 w-4 text-yellow-400" />
-                            <span className="text-xs text-gray-300 font-medium">+Points</span>
-                          </div>
-                          <p className="text-gray-400 text-sm font-medium">Share your knowledge and help others</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </section>
-
-            {/* Leaderboard & Rankings Section */}
-            <section className="animate-slide-up" style={{ animationDelay: "1s" }}>
-              <div className="text-center mb-12">
-                <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-[#ec4899] to-[#db2777] rounded-2xl mb-6 shadow-lg shadow-pink-500/30">
-                  <Trophy className="h-10 w-10 text-white" />
-                </div>
-                <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-                  Leaderboard & Rankings
-                </h2>
-                <p className="text-lg text-gray-300 max-w-2xl mx-auto">
-                  Compete with other students on our leaderboard. Track your progress, earn badges, and 
-                  see how you rank among the top contributors in our educational community.
-                </p>
-              </div>
-              <Card className="study-card max-w-4xl mx-auto">
-                <CardContent className="p-8">
-                  <div className="grid md:grid-cols-2 gap-6 items-center">
-                    <div className="bg-gradient-to-br from-[#ec4899]/10 to-[#db2777]/10 rounded-xl p-8 border border-[#ec4899]/20 order-2 md:order-1 relative overflow-hidden group hover:scale-105 transition-transform duration-300">
-                      <div className="absolute inset-0 bg-gradient-to-br from-[#ec4899]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                      <div className="text-center relative z-10">
-                        <div className="relative inline-block mb-4">
-                          <div className="absolute inset-0 bg-[#ec4899]/20 rounded-full blur-xl"></div>
-                          <div className="relative z-10">
-                            <Trophy className="h-28 w-28 text-[#ec4899] mx-auto" />
-                            <div className="absolute -top-1 left-1/2 -translate-x-1/2">
-                              <TrendingUp className="h-6 w-6 text-[#4ade80]" />
-                            </div>
-                          </div>
-                        </div>
-                        <div className="space-y-2">
-                          <div className="flex items-center justify-center gap-2">
-                            <div className="text-xs font-bold text-white bg-gradient-to-r from-[#ec4899] to-[#db2777] px-2 py-1 rounded">#1</div>
-                            <span className="text-xs text-gray-300">Top Rank</span>
-                          </div>
-                          <p className="text-gray-400 text-sm font-medium">Climb the rankings</p>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="order-1 md:order-2">
-                      <div className="space-y-4">
-                        <div className="flex items-start gap-3">
-                          <CheckCircle className="h-6 w-6 text-[#ec4899] flex-shrink-0 mt-1" />
-                          <div>
-                            <h3 className="text-white font-semibold mb-1">Real-time Rankings</h3>
-                            <p className="text-gray-300 text-sm">See your position update as you earn points</p>
-                          </div>
-                        </div>
-                        <div className="flex items-start gap-3">
-                          <CheckCircle className="h-6 w-6 text-[#ec4899] flex-shrink-0 mt-1" />
-                          <div>
-                            <h3 className="text-white font-semibold mb-1">Achievement Badges</h3>
-                            <p className="text-gray-300 text-sm">Unlock badges for milestones and achievements</p>
-                          </div>
-                        </div>
-                        <div className="flex items-start gap-3">
-                          <CheckCircle className="h-6 w-6 text-[#ec4899] flex-shrink-0 mt-1" />
-                          <div>
-                            <h3 className="text-white font-semibold mb-1">Track Progress</h3>
-                            <p className="text-gray-300 text-sm">Monitor your growth and contributions</p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </section>
-          </div>
 
           {/* Testimonials Section */}
-          <section className="mt-32 animate-slide-up" style={{ animationDelay: "1.2s" }}>
-            <div className="text-center mb-12">
-              <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-yellow-400/20 to-yellow-500/20 rounded-2xl mb-6">
-                <Users className="h-8 w-8 text-yellow-400" />
-              </div>
-              <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-                What Students Are Saying
-              </h2>
-              <p className="text-lg text-gray-300 max-w-2xl mx-auto">
-                Join thousands of satisfied students who are getting help and helping others
-              </p>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+          <section className="py-16 sm:py-24 lg:py-32 overflow-hidden" id="testimonials">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8 sm:mb-12 lg:mb-16">
+                          <div>
+                <h2 className="text-3xl sm:text-4xl font-black mb-2 sm:mb-4 tracking-tight">Student Perspectives</h2>
+                <p className="text-white/40 text-sm sm:text-base">Trusted by over 50,000 university students worldwide.</p>
+                          </div>
+                        </div>
+            <div className="grid grid-cols-3 md:grid-cols-3 lg:flex lg:gap-8 lg:overflow-x-auto px-4 sm:px-6 lg:px-8 pb-8 sm:pb-12 lg:hide-scrollbar lg:snap-x lg:snap-mandatory gap-2 sm:gap-3 md:gap-4">
               {[
                 {
                   name: "Sarah Chen",
                   role: "Computer Science Student",
                   rating: 5,
                   text: "This platform saved my semester! I got help with my algorithms assignment and the solution was clear and well-explained. The anonymous feature makes it so comfortable to ask for help.",
-                  avatar: "SC",
+                  avatar: "https://lh3.googleusercontent.com/aida-public/AB6AXuBlT6BTkeun0U80Eohh37hW4fIy6I1wG6PwbBa36yCI8qtQIR2ovgVjuuW8RSKhcO4mbcXMAfXHIr6m-zjd2gncrUtAAaN-Cz8eJ6Bc2ix5SqREqTXZj4JF-faz7PrhdN5yu1nWWqRYEcSH9Jpj2eM4Pi4WjWQ3wVp-yg4BJt3e_awy9eb76rRfb5OTuQfXLoFZCY-aMTBZzl3Ei6dPeEVQpJzGbLKF9sJNaeWYo7KjYi9I6CDhxrqnxAOX-N9snup1AyBvmtT1B_A",
                 },
                 {
                   name: "Michael Rodriguez",
                   role: "Mathematics Major",
                   rating: 5,
                   text: "I love helping others while earning points. The peer review system is great and I've learned so much by reviewing different solution approaches. Highly recommend!",
-                  avatar: "MR",
+                  avatar: "https://lh3.googleusercontent.com/aida-public/AB6AXuCdr32S9Wj2FUuh_cuxxSpHbFV7D6t_UpKHPhf0idRmC8HuIZgrwiM1nxoqnyDPkGPS79nh5G_sDCj9cmLDp9q4aS6mnocVog24onFt8B-m8lhluGW-edF5RgH_-KYsMgDHlI67qIhxtDk_gK_afwwTlwkKbArjpaSa1z7nAA1USQxdV7orrBjnD_doCUPnEDkClJIQyHvcYWlQ72Q1pW9aNPV_siZ8ZOcoWP3SpaQjaDHm0Py7Qts03MFSrTmTkPJZksdiVMZczoA",
                 },
                 {
                   name: "Emily Johnson",
                   role: "Engineering Student",
                   rating: 5,
                   text: "The leaderboard feature is motivating! I've climbed from rank 200 to top 50 by consistently helping others. The community is supportive and the quality of solutions is excellent.",
-                  avatar: "EJ",
+                  avatar: "https://lh3.googleusercontent.com/aida-public/AB6AXuAItKgYq3k3Ko5GjMsfMBIpbP51UQbTFahuMWhxBoK725XjBAr0S1wscvaa13QcDrSgyDyBIUWU0a8LAPa1Dp-pfCqE4lu19zNKXj4Xw3aMP9bJROThZkLNSti-EdTIg-G_j91ZENLRc3pAdmecuzMrrzevJvgCkRO7obvv-gifcXse2Pm3i6FZcTCvTB_zRhr01t98sBnXVk5yUdAOklu2OSSeUQO-6ETZVdgkH2g3pjY1I12hKmq-dmQMPvxrFlnlm_XOSGP3cBc",
                 },
                 {
                   name: "David Kim",
                   role: "Physics Student",
-                  rating: 4,
+                  rating: 5,
                   text: "Great platform for getting quick help with assignments. The rating system ensures quality, and I've received some really helpful solutions. The anonymous aspect is a huge plus.",
-                  avatar: "DK",
+                  avatar: "https://lh3.googleusercontent.com/aida-public/AB6AXuC-AiSuf3pSB68aFnXJ6DOKrFtGlKDq6J97qAV0rOHJ8V0uzx4yKQ54mZRfRhLlLcee8ugwWYQ4mkC8Z2OmkVFwVHuBXYFzsqNQ4dh3Cno9JWBKEsW4laHk6uqvO59gd24w_XaAdl48njI86CMpHCpJzAONikyqKJKVCtgCSlvCWJWCLN3xvEKR6B38lRbRc-EckUOwiv2Rm55XhkcY-5W9cs8CNX_vkQE3_VeEkSFFCf1jj39DRuKfkYKK4vTxYO2hDuEh6Mqs-h0",
                 },
                 {
                   name: "Jessica Martinez",
                   role: "Chemistry Major",
                   rating: 5,
                   text: "I've uploaded several assignments and always got responses within hours. The solutions are detailed and the reviewers are knowledgeable. This is exactly what I needed!",
-                  avatar: "JM",
-                },
-                {
-                  name: "Alex Thompson",
-                  role: "Data Science Student",
-                  rating: 5,
-                  text: "Best educational platform I've used! The combination of getting help and helping others while tracking progress on the leaderboard is brilliant. 10/10 would recommend!",
-                  avatar: "AT",
+                  avatar: "https://lh3.googleusercontent.com/aida-public/AB6AXuAItKgYq3k3Ko5GjMsfMBIpbP51UQbTFahuMWhxBoK725XjBAr0S1wscvaa13QcDrSgyDyBIUWU0a8LAPa1Dp-pfCqE4lu19zNKXj4Xw3aMP9bJROThZkLNSti-EdTIg-G_j91ZENLRc3pAdmecuzMrrzevJvgCkRO7obvv-gifcXse2Pm3i6FZcTCvTB_zRhr01t98sBnXVk5yUdAOklu2OSSeUQO-6ETZVdgkH2g3pjY1I12hKmq-dmQMPvxrFlnlm_XOSGP3cBc",
                 },
               ].map((review, index) => (
-                <Card key={index} className="study-card card-hover group hover:border-[#4ade80]/50 transition-all duration-300">
-                  <CardContent className="p-6 relative overflow-hidden">
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-[#4ade80]/5 to-transparent rounded-bl-full opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                    <div className="relative z-10">
-                      <div className="flex items-center justify-between mb-4">
-                        <div className="flex items-center gap-1">
+                <div key={index} className="snap-center shrink-0 w-full lg:w-[450px] glass-morphism p-4 sm:p-6 md:p-8 lg:p-10 rounded-xl sm:rounded-2xl lg:rounded-[2.5rem] relative">
+                  <div className="absolute inset-0 testimonial-glow -z-10 rounded-xl sm:rounded-2xl lg:rounded-[2.5rem]"></div>
+                  <div className="flex gap-0.5 sm:gap-1 text-[#13ec9c] mb-3 sm:mb-4 md:mb-6 lg:mb-8">
                           {[...Array(review.rating)].map((_, i) => (
-                            <Star key={i} className="h-5 w-5 fill-yellow-400 text-yellow-400 group-hover:scale-110 transition-transform" style={{ transitionDelay: `${i * 0.1}s` }} />
+                      <Star key={i} className="w-2.5 h-2.5 sm:w-3 sm:h-3 md:w-4 md:h-4 lg:w-5 lg:h-5 fill-[#13ec9c] text-[#13ec9c]" />
                           ))}
                         </div>
-                        <div className="w-12 h-12 bg-gradient-to-br from-[#4ade80]/20 to-[#9333ea]/20 rounded-full flex items-center justify-center text-white font-bold text-sm group-hover:scale-110 transition-transform">
-                          {review.avatar}
+                  <p className="text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl text-white/80 italic mb-4 sm:mb-6 md:mb-8 lg:mb-10 leading-relaxed line-clamp-4 sm:line-clamp-none">"{review.text}"</p>
+                  <div className="flex flex-col sm:flex-row items-center sm:items-start gap-2 sm:gap-3 md:gap-4 lg:gap-5">
+                    <div className="size-8 sm:size-10 md:size-12 lg:size-16 rounded-full border-2 border-[#13ec9c]/50 overflow-hidden shadow-[0_0_20px_rgba(19,236,156,0.2)] flex-shrink-0">
+                      <img src={review.avatar} alt={review.name} className="w-full h-full object-cover" />
                         </div>
+                    <div className="text-center sm:text-left">
+                      <p className="text-xs sm:text-sm md:text-base lg:text-lg font-bold">{review.name}</p>
+                      <p className="text-[10px] sm:text-xs md:text-sm text-[#13ec9c] font-medium tracking-wide">{review.role}</p>
                       </div>
-                      <p className="text-gray-300 mb-4 leading-relaxed italic group-hover:text-white transition-colors">
-                        "{review.text}"
-                      </p>
-                      <div className="border-t border-gray-700 pt-4 group-hover:border-[#4ade80]/30 transition-colors">
-                        <p className="text-white font-semibold">{review.name}</p>
-                        <p className="text-gray-400 text-sm">{review.role}</p>
                       </div>
                     </div>
-                  </CardContent>
-                </Card>
               ))}
             </div>
           </section>
 
           {/* Final CTA Section */}
-          <section className="mt-32 mb-16 animate-slide-up" style={{ animationDelay: "1.4s" }}>
-            <Card className="study-card max-w-3xl mx-auto bg-gradient-to-br from-[#4ade80]/10 via-[#9333ea]/10 to-[#06b6d4]/10 border-2 border-[#4ade80]/30">
-              <CardContent className="p-8 text-center">
-                <GraduationCap className="h-12 w-12 text-[#4ade80] mx-auto mb-4" />
-                <h2 className="text-2xl sm:text-3xl font-bold text-white mb-3">
-                  Ready to Get Started?
-                </h2>
-                <p className="text-base text-gray-300 mb-6 max-w-2xl mx-auto">
-                  Join thousands of students who are already benefiting from our educational platform. 
-                  Get help, help others, and climb the leaderboard - all while staying anonymous and secure.
-                </p>
-                <Link href="/register">
-                  <Button className="duolingo-button px-6 py-3 h-auto font-semibold text-base group">
-                    <LogIn className="mr-2 h-4 w-4" />
-                    Register Now
-                    <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+          <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24 lg:py-32">
+            <div className="bg-gradient-to-r from-[#13ec9c] to-cyan-500 rounded-2xl sm:rounded-3xl lg:rounded-[3.5rem] p-6 sm:p-8 md:p-12 lg:p-20 text-center relative overflow-hidden">
+              <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10"></div>
+              <div className="relative z-10">
+                <h2 className="text-[#0a0f0d] text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-7xl font-black mb-4 sm:mb-6 md:mb-8 lg:mb-10 tracking-tighter px-2">Ready to boost your GPA?</h2>
+                <p className="text-[#0a0f0d]/70 text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl font-medium mb-6 sm:mb-8 md:mb-12 lg:mb-16 max-w-2xl mx-auto px-2 sm:px-4">Start your journey toward academic mastery today. Join the elite circle of top-performing students.</p>
+                <Link href="/register" className="inline-block w-full sm:w-auto max-w-full">
+                  <Button className="pulse-btn w-full sm:w-auto px-3 sm:px-6 md:px-8 lg:px-12 xl:px-16 py-3 sm:py-4 md:py-5 lg:py-6 xl:py-8 glass-morphism !bg-[#0a0f0d] text-white text-[10px] sm:text-xs md:text-sm lg:text-base xl:text-lg 2xl:text-2xl font-black rounded-lg sm:rounded-xl md:rounded-2xl lg:rounded-[2rem] hover:scale-105 transition-all shadow-2xl flex items-center justify-center gap-1.5 sm:gap-2 md:gap-3 lg:gap-4 mx-auto">
+                    <span className="text-center leading-tight">Claim Your First Solution Free</span>
+                    <Rocket className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 lg:w-6 lg:h-6 flex-shrink-0" />
                   </Button>
                 </Link>
-              </CardContent>
-            </Card>
+              </div>
+              <div className="absolute top-0 right-0 w-48 h-48 sm:w-64 sm:h-64 lg:w-96 lg:h-96 bg-white/20 rounded-full blur-[100px] -mr-24 sm:-mr-32 lg:-mr-48 -mt-24 sm:-mt-32 lg:-mt-48"></div>
+              <div className="absolute bottom-0 left-0 w-48 h-48 sm:w-64 sm:h-64 lg:w-96 lg:h-96 bg-[#0a0f0d]/10 rounded-full blur-[100px] -ml-24 sm:-ml-32 lg:-ml-48 -mb-24 sm:-mb-32 lg:-mb-48"></div>
+            </div>
           </section>
 
-        </div>
-      </div>
     </div>
   );
 }

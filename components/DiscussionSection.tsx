@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, MessageSquare, Send, Users } from "lucide-react";
 import { DiscussionComment as DiscussionCommentType } from "@/types/discussion";
@@ -262,130 +261,120 @@ export default function DiscussionSection({
   // Don't render until component is properly initialized
   if (!initialized || loading) {
     return (
-      <Card className="study-card mt-8">
-        <CardHeader>
-          <CardTitle className="text-white flex items-center gap-3">
-            <MessageSquare className="h-6 w-6 text-orange-400" />
-            Discussion
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
+      <div className="mt-8">
+        <div className="bg-[#1a2e26]/30 rounded-2xl border border-[#283933] p-8">
           <div className="flex flex-col justify-center items-center py-12">
-            <Loader2 className="h-8 w-8 animate-spin text-orange-500 mb-4" />
-            <p className="text-gray-400 text-sm">Loading discussion...</p>
+            <Loader2 className="h-8 w-8 animate-spin text-[#13ec9c] mb-4" />
+            <p className="text-[#9db9af] text-sm">Loading discussion...</p>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     );
   }
 
   return (
-    <Card className="study-card mt-8" data-discussion-section>
-      <CardHeader>
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <CardTitle className="text-white flex items-center gap-3">
-            <MessageSquare className="h-6 w-6 text-orange-400" />
-            Discussion
-            <Badge variant="outline" className="bg-gray-800/50 border-gray-600 text-gray-300">
+    <div className="mt-8">
+      {/* Sort Options */}
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-3">
+          <span className="material-symbols-outlined text-[#13ec9c] text-xl">forum</span>
+          <div className="flex items-center gap-2">
+            <span className="text-white text-lg font-bold">Discussion</span>
+            <Badge className="bg-[#13ec9c]/10 border border-[#13ec9c]/30 text-[#13ec9c] text-xs">
               <Users className="h-3 w-3 mr-1" />
               {totalComments} {totalComments === 1 ? 'comment' : 'comments'}
             </Badge>
             {isDemoMode && (
-              <Badge variant="outline" className="bg-yellow-500/20 border-yellow-500/30 text-yellow-400">
+              <Badge className="bg-yellow-500/20 border border-yellow-500/30 text-yellow-400 text-xs">
                 Demo Mode
               </Badge>
             )}
-          </CardTitle>
-          
-          {/* Sort Options */}
-          <div className="flex gap-2 flex-wrap">
-            {(['newest', 'oldest', 'top'] as const).map((option) => (
-              <Button
-                key={option}
-                variant={sortBy === option ? "default" : "outline"}
-                size="sm"
-                onClick={() => setSortBy(option)}
-                className={
-                  sortBy === option
-                    ? "bg-orange-500 hover:bg-orange-600 text-white"
-                    : "border-gray-600 text-gray-300 hover:bg-gray-700/50"
-                }
-              >
-                {option.charAt(0).toUpperCase() + option.slice(1)}
-              </Button>
-            ))}
           </div>
         </div>
-      </CardHeader>
-      
-      <CardContent className="space-y-6">
-        {/* New Comment Form */}
-        <div className="space-y-4 p-4 bg-gray-800/20 rounded-lg border border-gray-700/30">
-          <div className="flex items-center gap-2 text-sm text-gray-300">
-            <span>Comment as</span>
-            <span className="text-orange-400 font-medium">u/{currentUsername}</span>
-            {isDemoMode && (
-              <span className="text-xs text-yellow-400">(Demo Mode - Comments won't be saved)</span>
-            )}
-          </div>
-          
-          <Textarea
-            placeholder={isDemoMode ? "Demo Mode: Comments won't be saved to the server" : "What are your thoughts on this assignment?"}
-            value={newComment}
-            onChange={(e) => setNewComment(e.target.value)}
-            disabled={isDemoMode}
-            className="discussion-textarea min-h-24 bg-gray-900/50 border-gray-600 text-white placeholder:text-gray-400 focus:border-orange-500 focus:ring-orange-500/20 focus-visible:ring-orange-500/20 focus-visible:outline-orange-500 rounded-lg resize-none disabled:opacity-50 disabled:cursor-not-allowed"
-          />
-          
-          <div className="flex justify-end">
-            <Button
-              onClick={handleCreateComment}
-              disabled={isSubmitting || !newComment.trim() || isDemoMode}
-              className="bg-orange-500 hover:bg-orange-600 text-white rounded-full px-6 transition-all duration-200 w-full sm:w-auto disabled:opacity-50 disabled:cursor-not-allowed"
+        
+        <div className="flex gap-2">
+          {(['newest', 'oldest', 'top'] as const).map((option) => (
+            <button
+              key={option}
+              onClick={() => setSortBy(option)}
+              className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                sortBy === option
+                  ? "bg-[#13ec9c] text-[#10221b] shadow-[0_0_15px_rgba(19,236,156,0.3)]"
+                  : "bg-[#1a2e26] border border-[#283933] text-[#9db9af] hover:border-[#13ec9c]/50 hover:text-white"
+              }`}
             >
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Posting...
-                </>
-              ) : (
-                <>
-                  <Send className="mr-2 h-4 w-4" />
-                  {isDemoMode ? "Demo Mode" : "Post Comment"}
-                </>
-              )}
-            </Button>
-          </div>
+              {option.charAt(0).toUpperCase() + option.slice(1)}
+            </button>
+          ))}
         </div>
+      </div>
+      
+      {/* New Comment Form */}
+      <div className="bg-[#1a2e26]/30 rounded-2xl border border-[#283933] p-6 mb-6">
+        <div className="flex items-center gap-2 text-sm text-[#9db9af] mb-4">
+          <span>Comment as</span>
+          <span className="text-[#13ec9c] font-bold">{currentUsername}</span>
+          {isDemoMode && (
+            <span className="text-xs text-yellow-400">(Demo Mode - Comments won't be saved)</span>
+          )}
+        </div>
+        
+        <Textarea
+          placeholder={isDemoMode ? "Demo Mode: Comments won't be saved to the server" : "Share your thoughts, ask questions, or help others..."}
+          value={newComment}
+          onChange={(e) => setNewComment(e.target.value)}
+          disabled={isDemoMode}
+          className="min-h-28 bg-[#0d1612] border-[#283933] text-white placeholder:text-[#9db9af]/60 focus:border-[#13ec9c] focus:ring-1 focus:ring-[#13ec9c]/20 rounded-xl resize-none disabled:opacity-50 disabled:cursor-not-allowed mb-4"
+        />
+        
+        <div className="flex justify-end">
+          <button
+            onClick={handleCreateComment}
+            disabled={isSubmitting || !newComment.trim() || isDemoMode}
+            className="bg-[#13ec9c] hover:bg-[#10b981] text-[#10221b] font-bold px-6 py-2.5 rounded-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_0_20px_rgba(19,236,156,0.3)] hover:shadow-[0_0_25px_rgba(19,236,156,0.4)] flex items-center gap-2"
+          >
+            {isSubmitting ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Posting...
+              </>
+            ) : (
+              <>
+                <Send className="h-4 w-4" />
+                {isDemoMode ? "Demo Mode" : "Post Comment"}
+              </>
+            )}
+          </button>
+        </div>
+      </div>
 
-        {/* Comments List - Reddit Style */}
-        {topLevelComments.length === 0 ? (
-          <div className="text-center py-12 px-4">
-            <div className="inline-flex items-center justify-center w-20 h-20 bg-gray-800/30 rounded-full mb-6 border border-gray-700/50">
-              <MessageSquare className="h-10 w-10 text-gray-400" />
+      {/* Comments List */}
+      {topLevelComments.length === 0 ? (
+        <div className="text-center py-16 px-4 bg-[#1a2e26]/30 rounded-2xl border border-[#283933]">
+          <div className="inline-flex items-center justify-center w-20 h-20 bg-[#13ec9c]/10 rounded-full mb-6 border border-[#13ec9c]/20">
+            <span className="material-symbols-outlined text-[#13ec9c] text-4xl">forum</span>
+          </div>
+          <h3 className="text-white text-xl font-bold mb-2">No comments yet</h3>
+          <p className="text-[#9db9af] text-sm max-w-md mx-auto">
+            Be the first to start the discussion! Share your thoughts, ask questions, or help others with this assignment.
+          </p>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {sortComments(topLevelComments).map((comment) => (
+            <div
+              key={comment.id}
+              className="bg-[#1a2e26]/30 rounded-2xl border border-[#283933] p-6 hover:border-[#13ec9c]/50 hover:bg-[#1a2e26]/40 transition-all duration-200"
+            >
+              <DiscussionComment
+                comment={comment}
+                onReply={handleReply}
+                currentUserId={currentUserId}
+              />
             </div>
-            <h3 className="text-gray-300 text-xl font-semibold mb-2">No comments yet</h3>
-            <p className="text-gray-500 text-sm max-w-md mx-auto">
-              Be the first to start the discussion! Share your thoughts, ask questions, or help others with this assignment.
-            </p>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            {sortComments(topLevelComments).map((comment) => (
-              <div
-                key={comment.id}
-                className="p-5 bg-gray-800/20 rounded-xl border border-gray-700/30 hover:border-orange-500/50 hover:bg-gray-800/30 transition-all duration-200 shadow-sm"
-              >
-                <DiscussionComment
-                  comment={comment}
-                  onReply={handleReply}
-                  currentUserId={currentUserId}
-                />
-              </div>
-            ))}
-          </div>
-        )}
-      </CardContent>
-    </Card>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }

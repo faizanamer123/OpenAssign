@@ -9,5 +9,6 @@ export interface Assignment {
   createdByUsername: string;
   subject?: string;
   awsfileUrl?: string;
+  objectives?: string;
   createdAt: string;
 }

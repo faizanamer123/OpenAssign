@@ -19,6 +19,8 @@ export default {
     },
     extend: {
       fontFamily: {
+        display: ["var(--font-lexend)", "Lexend", "sans-serif"],
+        serif: ["var(--font-playfair)", "Playfair Display", "serif"],
         nunito: ["var(--font-nunito)", "Nunito", "sans-serif"],
       },
       colors: {
@@ -27,6 +29,13 @@ export default {
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
+        "primary-hex": "#13ec9c",
+        "emerald-dark": "#064e3b",
+        charcoal: "#050706",
+        "charcoal-light": "#0d1110",
+        "muted-cyan": "#80e1e1",
+        "cyan-accent": "#06b6d4",
+        "emerald-glow": "rgba(16, 185, 129, 0.4)",
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",

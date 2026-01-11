@@ -1,8 +1,6 @@
 "use client";
-
 import React from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { useAuth } from "@/context/AuthContext";
 
 interface LogoProps {
@@ -23,7 +21,7 @@ export default function Logo({
   variant = "default",
 }: LogoProps) {
   const { user } = useAuth();
-  
+
   // Always redirect to landing page (/) regardless of auth state
   const getHref = () => {
     if (href) return href; // If href is explicitly provided, use it
@@ -41,27 +39,46 @@ export default function Logo({
     }
   };
 
+  const iconSize =
+    variant === "large"
+      ? "text-3xl"
+      : variant === "compact"
+      ? "text-xl"
+      : "text-2xl";
+
+  const containerSize =
+    variant === "large"
+      ? "size-12"
+      : variant === "compact"
+      ? "size-8"
+      : "size-10";
+
   return (
     <Link
       href={getHref()}
-      className={`flex items-center text-white group transition-all duration-200 hover:scale-105 ${className}`}
-      aria-label="AssignDump Home"
+      className={`flex items-center gap-3 ${className}`}
     >
-      <div className="relative flex-shrink-0">
-        <Image
-          src="/OpenAssign.svg"
-          alt="AssignDump Logo"
-          width={logoSize}
-          height={logoSize}
-          className="block drop-shadow-sm group-hover:drop-shadow-md transition-all duration-200"
-          priority
-        />
+      {/* Glassmorphic UI Logo */}
+      <div
+        className={`${containerSize} flex items-center justify-center rounded-lg backdrop-blur-lg bg-white/10 border border-white/20 relative group transition-all hover:bg-white/15`}
+      >
+        {/* Hover glow effect */}
+        <div className="absolute inset-0 bg-[#13ec92]/5 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg"></div>
+        
+        {/* Diamond icon */}
+        <span
+          className={`material-symbols-outlined text-[#13ec92] ${iconSize} relative z-10`}
+          style={{ fontVariationSettings: '"FILL" 1, "wght" 400' }}
+        >
+          diamond
+        </span>
       </div>
+
       {showText && (
         <span
-          className={`-ml-1 font-bold study-vibe-text ${getTextSize()} ${textClassName}`}
+          className={`font-bold tracking-tight ${getTextSize()} ${textClassName}`}
         >
-          AssignDump
+          Assign<span className="text-[#80e1e1]">Dump</span>
         </span>
       )}
     </Link>

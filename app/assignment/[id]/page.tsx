@@ -119,8 +119,15 @@ export default function AssignmentDetailPage() {
     if (params.id) {
       loadAssignment(params.id as string);
       loadSubmissions(params.id as string);
+      loadLeaderboard();
+      // Set up polling for real-time updates (every 30 seconds)
+      const interval = setInterval(() => {
+        loadAssignment(params.id as string);
+        loadSubmissions(params.id as string);
+        loadLeaderboard();
+      }, 30000);
+      return () => clearInterval(interval);
     }
-    loadLeaderboard();
   }, [params.id]);
 
   useEffect(() => {
@@ -299,26 +306,64 @@ export default function AssignmentDetailPage() {
 
   if (!assignment) {
     return (
-      <div className="min-h-screen reddit-dark-bg">
+      <div className="min-h-screen bg-[#10221b]">
         <Header />
-        <div className="text-center py-20">
-          <p className="text-gray-300">Assignment not found.</p>
-                     <Button
-             onClick={() => router.back()}
-             className="mt-4 duolingo-button"
-           >
-             Go Back
-           </Button>
+        <div className="flex flex-col items-center justify-center min-h-[calc(100vh-112px)] px-4">
+          <div className="text-center space-y-6 max-w-md">
+            <div className="inline-flex items-center justify-center w-20 h-20 bg-[#1a2e26]/50 rounded-full mb-4 border border-[#283933]">
+              <span className="material-symbols-outlined text-[#13ec9c] text-4xl">error_outline</span>
+            </div>
+            <h1 className="text-2xl font-bold text-white">Assignment not found</h1>
+            <p className="text-[#9db9af]">The assignment you're looking for doesn't exist or has been removed.</p>
+            <button
+              onClick={() => router.back()}
+              className="mt-6 bg-[#13ec9c] hover:bg-[#10b981] text-[#10221b] font-bold px-8 py-3 rounded-xl transition-all duration-200 shadow-[0_0_20px_rgba(19,236,156,0.3)] hover:shadow-[0_0_25px_rgba(19,236,156,0.4)] flex items-center gap-2 mx-auto"
+            >
+              <span className="material-symbols-outlined">arrow_back</span>
+              Go Back
+            </button>
+          </div>
         </div>
       </div>
     );
   }
 
   const isExpired = new Date(assignment.deadline) < new Date();
+  const now = new Date();
+  const deadlineDate = new Date(assignment.deadline);
+  const hoursPastDeadline = (now.getTime() - deadlineDate.getTime()) / (1000 * 60 * 60);
+  const isRemoved = hoursPastDeadline >= 8; // Removed if 8+ hours past deadline
+  const isWithinRemovalWindow = isExpired && hoursPastDeadline < 8; // Expired but within 8-hour window
+  
   const canSubmit =
     assignment.status !== "solved" &&
     !isExpired &&
     assignment.createdBy !== user.id;
+
+  // Don't show assignment if it's been removed (8+ hours past deadline)
+  if (isRemoved) {
+    return (
+      <div className="min-h-screen bg-[#10221b]">
+        <Header />
+        <div className="flex flex-col items-center justify-center min-h-[calc(100vh-112px)] px-4">
+          <div className="text-center space-y-6 max-w-md">
+            <div className="inline-flex items-center justify-center w-20 h-20 bg-[#1a2e26]/50 rounded-full mb-4 border border-[#283933]">
+              <span className="material-symbols-outlined text-[#ef4444] text-4xl">delete_forever</span>
+            </div>
+            <h1 className="text-2xl font-bold text-white">Assignment Removed</h1>
+            <p className="text-[#9db9af]">This assignment has been automatically removed 8 hours after its deadline.</p>
+            <button
+              onClick={() => router.back()}
+              className="mt-6 bg-[#13ec9c] hover:bg-[#10b981] text-[#10221b] font-bold px-8 py-3 rounded-xl transition-all duration-200 shadow-[0_0_20px_rgba(19,236,156,0.3)] hover:shadow-[0_0_25px_rgba(19,236,156,0.4)] flex items-center gap-2 mx-auto"
+            >
+              <span className="material-symbols-outlined">arrow_back</span>
+              Go Back
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   async function handleDownload(
     url: string,
@@ -397,308 +442,263 @@ export default function AssignmentDetailPage() {
   };
 
   return (
-    <div className="min-h-screen reddit-dark-bg">
+    <div className="min-h-screen bg-[#10221b]">
       <Header />
+      <div className="pt-28">
 
-      <div className="px-4 py-8 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-4xl">
-          {/* Breadcrumb */}
-          <div className="flex items-center gap-2 text-sm text-gray-300 mb-6">
+      <main className="max-w-[1280px] mx-auto px-6 py-8">
+        {/* Breadcrumbs */}
+        <div className="flex flex-wrap gap-2 mb-6">
             <button
               onClick={() => router.back()}
-              className="hover:text-white"
+            className="text-[#9db9af] text-sm font-medium hover:text-[#13ec9c] transition-colors"
             >
-              Assignments
+            Courses
             </button>
-            <span>/</span>
-            <span className="text-white">Assignment Details</span>
+          <span className="text-[#283933] text-sm">/</span>
+          <button
+            onClick={() => router.back()}
+            className="text-[#9db9af] text-sm font-medium hover:text-[#13ec9c] transition-colors"
+          >
+            {assignment.subject || 'Assignments'}
+          </button>
+          <span className="text-[#283933] text-sm">/</span>
+          <span className="text-white text-sm font-medium">{assignment.title}</span>
           </div>
 
-          {/* Assignment Header */}
-          <Card className="study-card mb-8">
-            <CardHeader>
-              <div className="flex flex-wrap items-start justify-between gap-4">
-                <div className="flex-1">
-                  <div className="flex flex-wrap items-center gap-2 mb-3">
-                    <Badge className={getStatusColor(assignment.status)}>
-                      {assignment.status.replace("_", " ")}
-                    </Badge>
-                    <Badge
-                      className={getDifficultyColor(assignment.difficulty)}
-                    >
-                      {assignment.difficulty}
-                    </Badge>
-                    {isExpired && (
-                      <Badge className="bg-red-500/20 text-red-400 border border-red-500/30">Expired</Badge>
-                    )}
-                    <div className="ml-auto">
-                      {assignment.createdBy === user.id && (
-                        <DropdownMenu
-                          open={dropdownOpen}
-                          onOpenChange={setDropdownOpen}
-                        >
-                          <DropdownMenuTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="w-8 h-8 p-0"
-                              aria-label="More options"
-                            >
-                              <MoreVertical className="w-5 h-5" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem
-                              onClick={() => {
-                                /* handle edit */
-                                if (assignment) {
-                                  setEditDescription(assignment.description);
-                                }
-                                setDropdownOpen(false);
-                                setShowSubmitDialog(true);
-                              }}
-                            >
-                              Edit
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() => {
-                                /* handle delete */
-                              }}
-                              className="text-red-600"
-                            >
-                              Delete
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      )}
-                      <Dialog
-                        open={showSubmitDialog}
-                        onOpenChange={setShowSubmitDialog}
-                      >
-                        <DialogContent className="max-w-2xl">
-                          <DialogHeader>
-                            <DialogTitle>Edit Assignment</DialogTitle>
-                            <DialogDescription>Cute Pie</DialogDescription>
-                          </DialogHeader>
-                          <div className="space-y-6">
-                            <div className="space-y-2">
-                              <Label htmlFor="solution">Edit Explanation</Label>
-                              <Textarea
-                                id="solution"
-                                placeholder="Explain your solution here..."
-                                value={editDescription}
-                                onChange={(e) => {
-                                  setEditDescription(e.target.value);
-                                }}
-                                className="min-h-32 border-[#e9e2ce] bg-[#fcfbf8] focus:border-[#fac638]"
-                              />
+        {/* Warning Banner - Expired but within 8-hour window */}
+        {isWithinRemovalWindow && (
+          <div className="mb-6 bg-yellow-500/10 border border-yellow-500/30 rounded-2xl p-6">
+            <div className="flex items-start gap-4">
+              <div className="flex-shrink-0 w-10 h-10 bg-yellow-500/20 rounded-full flex items-center justify-center">
+                <span className="material-symbols-outlined text-yellow-400 text-xl">warning</span>
+              </div>
+              <div className="flex-1">
+                <h3 className="text-yellow-400 font-bold text-lg mb-2">Assignment Expired - Removal Warning</h3>
+                <p className="text-white/90 text-sm leading-relaxed mb-3">
+                  This assignment has passed its deadline and will be <strong className="text-yellow-400">automatically removed in {Math.max(0, Math.floor(8 - hoursPastDeadline))} hours</strong> (8 hours after the deadline).
+                </p>
+                <p className="text-white/80 text-sm leading-relaxed">
+                  <strong className="text-yellow-400">Important:</strong> Please download any solutions, resources, or materials you need before the assignment is removed. Once removed, the assignment and all associated data will no longer be accessible.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Page Heading */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10 border-b border-[#283933] pb-8">
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center gap-3 mb-1">
+              <span className="bg-[#13ec9c]/20 text-[#13ec9c] text-[10px] uppercase font-black px-2 py-0.5 rounded tracking-widest">Premium Content</span>
+              <span className="text-[#9db9af] text-xs">{formatTimeLeft(assignment.deadline)}</span>
+            </div>
+            <h1 className="text-white text-4xl font-black leading-tight tracking-[-0.033em]">{assignment.title}</h1>
+            <p className="text-[#9db9af] text-lg font-normal">Module 4: Practical Applications of BFS and DFS</p>
+          </div>
+          <div className="flex gap-3">
+            <button className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#1a2e26] text-white text-sm font-bold border border-[#283933] hover:bg-[#283933] transition-all">
+              <span className="material-symbols-outlined text-sm">bookmark</span> Save
+            </button>
+            {canSubmit && (
+              <button 
+                onClick={() => setShowSubmitDialog(true)}
+                className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#13ec9c] text-[#10221b] text-sm font-bold hover:brightness-110 transition-all shadow-[0_0_20px_rgba(19,236,156,0.2)]"
+              >
+                <span className="truncate">Submit Solution</span>
+              </button>
+            )}
+            {assignment.status === "solved" && (
+              <button className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#13ec9c] text-[#10221b] text-sm font-bold hover:brightness-110 transition-all shadow-[0_0_20px_rgba(19,236,156,0.2)]">
+                <span className="truncate">Mark as Complete</span>
+              </button>
+            )}
+          </div>
                             </div>
 
-                            <div className="space-y-2">
-                              <Label htmlFor="file">Edit File</Label>
-                              <div className="border-2 border-dashed border-[#e9e2ce] rounded-lg p-6 text-center">
-                                <Upload className="mx-auto h-8 w-8 text-[#9e8747] mb-2" />
-                                <p className="text-sm text-[#1c180d] mb-2">
-                                  Upload your solution file
-                                </p>
-                                <p className="text-xs text-[#9e8747] mb-4">
-                                  PDF, DOC, DOCX, TXT (Max 10MB)
-                                </p>
-                                <Input
-                                  id="file"
-                                  type="file"
-                                  onChange={(e) =>
-                                    setSolutionFile(e.target.files?.[0] || null)
-                                  }
-                                  className="border-[#e9e2ce] bg-[#fcfbf8]"
-                                />
-                              </div>
-                              {solutionFile && (
-                                <p className="text-sm text-[#1c180d]">
-                                  Selected: {solutionFile.name}
-                                </p>
-                              )}
-                            </div>
-
-                            <div className="flex gap-4">
-                              <Button
-                                variant="outline"
-                                onClick={() => setShowSubmitDialog(false)}
-                                className="flex-1 border-[#e9e2ce] text-[#1c180d] hover:bg-[#f4f0e6]"
-                              >
-                                Cancel
-                              </Button>
-                              <Button
-                                onClick={() => console.log("Edited")}
-                                disabled={submitting}
-                                className="flex-1 bg-[#fac638] text-[#1c180d] hover:bg-[#fac638]/90"
-                              >
-                                {submitting ? (
-                                  <>
-                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                    Processing...
-                                  </>
-                                ) : (
-                                  "Edited"
-                                )}
-                              </Button>
-                            </div>
-                          </div>
-                        </DialogContent>
-                      </Dialog>
-                    </div>
+        {/* Two Column Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-16">
+          {/* Left Column: Assignment Detail */}
+          <div className="lg:col-span-7 flex flex-col gap-8">
+            <section className="bg-[#1a2e26]/30 p-8 rounded-2xl border border-[#283933]">
+              <h2 className="text-white text-2xl font-bold mb-4 flex items-center gap-2">
+                <span className="material-symbols-outlined text-[#13ec9c]">description</span> Problem Statement
+              </h2>
+              <div className="space-y-4 text-[#d1dfd9] leading-relaxed">
+                <p>{assignment.description}</p>
+                {assignment.objectives && (
+                  <div className="bg-[#10221b] p-4 rounded-xl border-l-4 border-[#13ec9c] mt-6">
+                    <h4 className="text-sm font-bold text-white mb-1 uppercase tracking-wider">Objectives</h4>
+                    <ul className="list-disc list-inside space-y-2 text-sm text-[#d1dfd9]">
+                      {assignment.objectives.split('\n').filter((line: string) => line.trim()).map((objective: string, index: number) => (
+                        <li key={index}>{objective.trim()}</li>
+                      ))}
+                    </ul>
                   </div>
-                  <CardTitle className="text-2xl text-white mb-2">
-                    {assignment.title}
-                  </CardTitle>
-                  <CardDescription className="text-gray-300 text-base">
-                    {assignment.description}
-                  </CardDescription>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                <div className="flex items-center gap-2 text-gray-300">
-                  <BookOpen className="h-4 w-4" />
-                  <span>{assignment.subject || "General"}</span>
-                </div>
-                <div className="flex items-center gap-2 text-gray-300">
-                  <Clock className="h-4 w-4" />
-                  <span>{formatTimeLeft(assignment.deadline)}</span>
-                </div>
-                <div className="flex items-center gap-2 text-gray-300">
-                  <User className="h-4 w-4" />
-                  <span>Posted by {assignment.createdByUsername}</span>
-                </div>
-              </div>
-              <div className="h-8"></div>
-              {/* Assignment File Download */}
-              {assignment?.awsfileUrl && (
-                                 <Button
-                   type="button"
-                   onClick={() =>
-                     handleDownload(
-                       `${BASE_API}/assignments/download`,
-                       new URLSearchParams({
-                         email: user.email,
-                         fileId: assignment.id,
-                       })
-                     )
-                   }
-                   className="inline-flex items-center gap-2 px-4 py-2 duolingo-button mb-4"
-                 >
-                  {downloadLoader ? (
-                    <Loader2 className="h-5 w-5 animate-spin" />
-                  ) : (
-                    <>
-                      <Download className="h-5 w-5" />
-                      Download Assignment File
-                    </>
-                  )}
-                </Button>
-              )}
-            </CardContent>
-          </Card>
+                )}
+                            </div>
+            </section>
 
-          {/* Action Section */}
-          <Card className="study-card">
-            <CardHeader>
-              <CardTitle className="text-white">
-                {assignment.status === "solved"
-                  ? "Solution Submitted"
-                  : "Submit Your Solution"}
-              </CardTitle>
-              <CardDescription className="text-gray-300">
-                {assignment.status === "solved"
-                  ? "This assignment has been solved and submitted."
-                  : canSubmit
-                  ? "Help solve this assignment and earn points!"
-                  : isExpired
-                  ? "This assignment has expired."
-                  : assignment.createdBy === user.id
-                  ? "This is your assignment."
-                  : "Submission not available."}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {canSubmit ? (
+            {/* Resource Files */}
+            {assignment?.awsfileUrl && (
+              <section>
+                <h3 className="text-white text-lg font-bold mb-4 px-2">Resource Files</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div 
+                    onClick={() => {
+                      if (assignment.awsfileUrl) {
+                        window.open(assignment.awsfileUrl, '_blank');
+                      }
+                    }}
+                    className="flex items-center justify-between p-4 bg-[#1a2e26] rounded-xl border border-[#283933] hover:border-[#13ec9c]/50 cursor-pointer transition-colors"
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="material-symbols-outlined text-[#13ec9c]">description</span>
+                      <div>
+                        <p className="text-sm font-bold text-white truncate max-w-[200px]">
+                          {assignment.awsfileUrl.split('/').pop() || 'Resource File'}
+                        </p>
+                        <p className="text-xs text-[#9db9af]">Click to download</p>
+                      </div>
+                    </div>
+                    <span className="material-symbols-outlined text-[#9db9af]">download</span>
+                  </div>
+                </div>
+              </section>
+            )}
+                            </div>
+
+          {/* Right Column: Partial Solution Preview */}
+          <div className="lg:col-span-5">
+            <div className="sticky top-24">
+              <div className="relative rounded-2xl overflow-hidden border border-[#283933] bg-[#0d1612]">
+                <div className="p-4 border-b border-[#283933] flex justify-between items-center bg-[#1a2e26]">
+                  <span className="text-xs font-bold uppercase tracking-widest text-[#9db9af]">Solution Preview: solution.py</span>
+                  <span className="text-[10px] bg-[#13ec9c]/10 text-[#13ec9c] border border-[#13ec9c]/20 px-2 py-0.5 rounded-full">Python 3.10</span>
+                          </div>
+                {/* Blurred Content */}
+                <div className="p-6 h-[480px] overflow-hidden relative">
+                  <pre className="text-sm leading-6 mask-gradient font-mono text-white">
+                    <span className="text-purple-400">import</span> collections{'\n\n'}
+                    <span className="text-gray-500"># Function to detect cycles in directed graph</span>{'\n'}
+                    <span className="text-blue-400">def</span> <span className="text-yellow-400">is_cyclic</span>(graph, V):{'\n'}
+                    {'    '}in_degree = [<span className="text-orange-400">0</span>] * V{'\n\n'}
+                    {'    '}<span className="text-blue-400">for</span> u <span className="text-blue-400">in</span> <span className="text-yellow-400">range</span>(V):{'\n'}
+                    {'        '}<span className="text-blue-400">for</span> v <span className="text-blue-400">in</span> graph[u]:{'\n'}
+                    {'            '}in_degree[v] += <span className="text-orange-400">1</span>{'\n            '}
+                    {'            '}<span className="text-gray-400 blur-sm">while queue:</span>{'\n'}
+                    {'            '}<span className="text-gray-400 blur-md">    u = queue.popleft()</span>{'\n'}
+                    {'            '}<span className="text-gray-400 blur-lg">    top_order.append(u)</span>{'\n'}
+                    {'            '}<span className="text-gray-400 blur-xl">    for v in graph[u]:</span>{'\n'}
+                    {'            '}<span className="text-gray-400 blur-2xl">        in_degree[v] -= 1</span>{'\n'}
+                    {'            '}<span className="text-gray-400 blur-3xl">        if in_degree[v] == 0:</span>
+                  </pre>
+                  {/* Glassmorphic Paywall */}
+                  <div className="absolute inset-0 flex items-center justify-center p-6">
+                    <div className="glass-overlay w-full max-w-sm p-8 rounded-2xl text-center shadow-2xl flex flex-col items-center bg-[#1a2e26]/40 backdrop-blur-md border border-white/10">
+                      <div className="size-16 bg-[#13ec9c]/20 rounded-full flex items-center justify-center mb-6">
+                        <span className="material-symbols-outlined text-[#13ec9c] text-3xl">lock</span>
+                    </div>
+                      <h3 className="text-xl font-bold mb-2 text-white">Unlock Full Solution</h3>
+                      <p className="text-sm text-[#9db9af] mb-8 leading-relaxed">
+                        Get step-by-step explanations, time complexity analysis, and 5 alternative approaches.
+                      </p>
+                      <button className="w-full py-4 rounded-xl bg-[#13ec9c] text-[#10221b] font-black text-base hover:scale-[1.02] transition-transform shadow-[0_10px_30px_rgba(19,236,156,0.3)] mb-4">
+                        UNLOCK NOW — $4.99
+                      </button>
+                      <p className="text-[10px] text-[#9db9af] uppercase tracking-widest font-bold">Included in Pro Subscription</p>
+                  </div>
+                </div>
+              </div>
+                <div className="p-4 bg-[#1a2e26] border-t border-[#283933] flex items-center justify-center gap-4">
+                  <div className="flex items-center gap-1">
+                    <span className="material-symbols-outlined text-[#13ec9c] text-sm">verified_user</span>
+                    <span className="text-[11px] text-[#9db9af]">Verified by Experts</span>
+                </div>
+                  <div className="w-1 h-1 rounded-full bg-[#283933]"></div>
+                  <div className="flex items-center gap-1">
+                    <span className="material-symbols-outlined text-[#13ec9c] text-sm">trending_up</span>
+                    <span className="text-[11px] text-[#9db9af]">98% Success Rate</span>
+                </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Comments / Reviews Section */}
+        <section className="max-w-4xl">
+          {/* Discussion Component */}
+          <DiscussionSection
+            assignmentId={assignment.id}
+            currentUserId={user.id}
+            currentUsername={user.username}
+          />
+
+          {/* Submit Solution Dialog */}
+          {canSubmit && (
                 <Dialog
                   open={showSubmitDialog}
                   onOpenChange={setShowSubmitDialog}
                 >
-                                     <DialogTrigger asChild>
-                     <Button className="duolingo-button">
-                       <Send className="h-4 w-4 mr-2" />
-                       Submit Solution
-                     </Button>
-                   </DialogTrigger>
-                  <DialogContent className="max-w-2xl">
+              <DialogContent className="max-w-2xl bg-[#1a2e26] border-[#283933]">
                     <DialogHeader>
-                      <DialogTitle>Submit Your Solution</DialogTitle>
-                      <DialogDescription>
-                        Provide your solution to help solve this assignment. You
-                        can submit text, upload a file, or both.
+                  <DialogTitle className="text-white">Submit Your Solution</DialogTitle>
+                  <DialogDescription className="text-[#9db9af]">
+                    Provide your solution to help solve this assignment. You can submit text, upload a file, or both.
                       </DialogDescription>
                     </DialogHeader>
                     <div className="space-y-6">
                       <div className="space-y-2">
-                        <Label htmlFor="solution">Solution Explanation</Label>
+                    <Label htmlFor="solution" className="text-white">Solution Explanation</Label>
                         <Textarea
                             id="solution"
                             placeholder="Explain your solution here..."
                             value={solution}
                             onChange={(e) => setSolution(e.target.value)}
-                            className="min-h-32 w-full rounded-lg border border-[#4ade80]/30 bg-[#1a1a1b]/50 px-4 py-3 text-sm text-white placeholder:text-gray-400 focus:border-[#4ade80] focus:ring-1 focus:ring-[#4ade80] focus:outline-none transition-all duration-200"
+                      className="min-h-32 w-full rounded-lg border border-[#283933] bg-[#0d1612] px-4 py-3 text-sm text-white placeholder:text-[#9db9af] focus:border-[#13ec9c] focus:ring-1 focus:ring-[#13ec9c] focus:outline-none transition-all"
                           />
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="file">
-                          Upload Solution File (Optional)
-                        </Label>
-                        <div 
-                          className={`border-2 border-dashed rounded-lg p-6 text-center transition-all duration-200 ${
-                            isDragOver 
-                              ? 'border-[#4ade80] bg-[#4ade80]/5' 
-                              : 'border-[#4ade80]/30'
+                    <Label htmlFor="file" className="text-white">Upload Solution File (Optional)</Label>
+                    <div 
+                      className={`border-2 border-dashed rounded-lg p-6 text-center transition-all ${
+                        isDragOver ? 'border-[#13ec9c] bg-[#13ec9c]/5' : 'border-[#283933]'
                           }`}
                           onDragOver={handleDragOver}
                           onDragLeave={handleDragLeave}
                           onDrop={handleDrop}
                         >
-                          <Upload className={`mx-auto h-8 w-8 mb-2 transition-colors ${
-                            isDragOver ? 'text-[#4ade80]' : 'text-gray-300'
-                          }`} />
+                      <Upload className={`mx-auto h-8 w-8 mb-2 transition-colors ${isDragOver ? 'text-[#13ec9c]' : 'text-[#9db9af]'}`} />
                           <p className="text-sm text-white mb-2">
                             {isDragOver ? 'Drop your file here' : 'Drag & drop or click to upload'}
                           </p>
-                          <p className="text-xs text-gray-300 mb-4">
-                            All file types supported (Max 10MB)
-                          </p>
+                      <p className="text-xs text-[#9db9af] mb-4">All file types supported (Max 10MB)</p>
                           <Input
                             id="file"
                             type="file"
-                            onChange={(e) =>
-                              setSolutionFile(e.target.files?.[0] || null)
-                            }
-                            className="border-[#4ade80]/30 bg-[#1a1a1b]/50"
-                          />
+                        onChange={(e) => setSolutionFile(e.target.files?.[0] || null)}
+                        className="hidden"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => document.getElementById('file')?.click()}
+                        className="text-[#13ec9c] hover:text-[#10b981] text-sm font-medium"
+                      >
+                        Browse Files
+                      </button>
                         </div>
                         {solutionFile && (
-                          <div className="flex items-center gap-2 p-3 bg-green-500/10 border border-green-500/30 rounded-lg">
-                            <Upload className="h-4 w-4 text-green-400" />
-                            <p className="text-sm text-green-400 font-medium">
-                              {solutionFile.name}
-                            </p>
-                            <Button
-                              variant="ghost"
-                              size="sm"
+                      <div className="flex items-center gap-2 p-3 bg-[#13ec9c]/10 border border-[#13ec9c]/30 rounded-lg">
+                        <Upload className="h-4 w-4 text-[#13ec9c]" />
+                        <p className="text-sm text-[#13ec9c] font-medium flex-1">{solutionFile.name}</p>
+                        <button
                               onClick={() => setSolutionFile(null)}
-                              className="ml-auto h-6 w-6 p-0 text-green-400 hover:text-green-300"
+                          className="text-[#9db9af] hover:text-red-400"
                             >
                               ×
-                            </Button>
+                        </button>
                           </div>
                         )}
                       </div>
@@ -707,14 +707,14 @@ export default function AssignmentDetailPage() {
                                                  <Button
                            variant="outline"
                            onClick={() => setShowSubmitDialog(false)}
-                           className="flex-1 duolingo-button-secondary"
+                      className="flex-1 border-[#283933] text-white hover:bg-[#283933]"
                          >
                            Cancel
                          </Button>
                          <Button
                            onClick={handleSubmitSolution}
                            disabled={submitting}
-                           className="flex-1 duolingo-button"
+                      className="flex-1 bg-[#13ec9c] text-[#10221b] hover:brightness-110"
                          >
                           {submitting ? (
                             <>
@@ -729,175 +729,8 @@ export default function AssignmentDetailPage() {
                     </div>
                   </DialogContent>
                 </Dialog>
-              ) : assignment.status === "solved" ? (
-                <div className="text-center py-8">
-                  <div className="inline-flex items-center justify-center w-16 h-16 bg-green-500/20 rounded-full mb-4">
-                    <Star className="h-8 w-8 text-green-400" />
-                  </div>
-                  <p className="text-white font-medium">
-                    Solution has been submitted!
-                  </p>
-                  <p className="text-gray-300 text-sm mt-1">
-                    The assignment creator will be notified.
-                  </p>
-                </div>
-              ) : (
-                <div className="text-center py-8">
-                  <p className="text-gray-300">
-                    {isExpired
-                      ? "This assignment has expired."
-                      : "Submission not available."}
-                  </p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {submissions.length > 0 && (
-            <Card className="study-card mt-8">
-              <CardHeader>
-                <CardTitle className="text-white">
-                  Submitted Solutions
-                </CardTitle>
-                <CardDescription className="text-gray-300">
-                  All solutions submitted for this assignment.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {submissions.map((submission) => (
-                    <Card
-                      key={submission.id}
-                      className="study-card"
-                    >
-                      <CardContent className="p-6">
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-2">
-                              {submission.rating ? (
-                                <Badge className="bg-green-500/20 text-green-400 border border-green-500/30">
-                                  Rated
-                                </Badge>
-                              ) : (
-                                <Badge className="bg-yellow-500/20 text-yellow-400 border border-yellow-500/30">
-                                  Under Review
-                                </Badge>
-                              )}
-                            </div>
-                            <h3 className="font-semibold text-white mb-2">
-                              Solution
-                            </h3>
-                            <p className="text-gray-300 text-sm mb-3 line-clamp-2">
-                              {submission.explanation}
-                            </p>
-                            <div className="flex items-center gap-4 text-sm text-gray-300">
-                              <span>
-                                Submitted{" "}
-                                {new Date(
-                                  submission.submittedAt
-                                ).toLocaleDateString()}
-                              </span>
-                              {submission.rating ? (
-                                <div className="flex items-center gap-2">
-                                 <div className="flex items-center gap-1">
-                                    <Star className="h-4 w-4 text-yellow-500 fill-current" />
-                                    <span className="font-medium">
-                                      {submission.rating}/5
-                                    </span>
-                                  </div>
-                                   {(() => {
-                                     const badge = getRatingBadge(submission.rating);
-                                     return (
-                                       <div className={badge.className}>
-                                         <span className="text-xs font-bold">{badge.displayText}</span>
-                                        <span className="text-xs flex items-center gap-1">
-                                          {badge.emeralds > 0 ? (
-                                            <>
-                                              {badge.emeralds} <GemIcon type="emerald" size={12} />
-                                            </>
-                                          ) : (
-                                            <>
-                                              {badge.rubies} <GemIcon type="ruby" size={12} />
-                                            </>
-                                          )}
-                                        </span>
-                                       </div>
-                                     );
-                                   })()}
-                                 </div>
-                              ) : (
-                                <div className="flex items-center gap-2">
-                                  <span className="text-gray-400">Not rated yet</span>
-                                  <Badge variant="outline" className="text-xs">
-                                    Needs Rating
-                                  </Badge>
-                                </div>
-                               )}
-                            </div>
-                            {/* Rating button for assignment creator */}
-                            {user &&
-                              assignment &&
-                              assignment.createdBy === user.id &&
-                              !submission.rating && (
-                                                                 <Button
-                                   className="mt-4 duolingo-button"
-                                   onClick={() =>
-                                     setRatingDialog({
-                                       open: true,
-                                       submissionId: submission.id,
-                                     })
-                                   }
-                                 >
-                                   Rate Solution
-                                 </Button>
-                              )}
-                            <div className="h-8"></div>
-                            {/* Submission File Download */}
-                            {submission.fileUrl && (
-                                                             <Button
-                                 type="button"
-                                 onClick={() =>
-                                   handleDownload(
-                                     `${BASE_API}/submissions/download`,
-                                     new URLSearchParams({
-                                       email: user.email,
-                                       fileId: submission.id,
-                                     })
-                                   )
-                                 }
-                                 className="inline-flex items-center gap-2 px-4 py-2 duolingo-button mb-4"
-                               >
-                                {downloadLoader ? (
-                                  <Loader2 className="h-5 w-5 animate-spin" />
-                                ) : (
-                                  <>
-                                    <Download className="h-5 w-5" />
-                                    Download Solution
-                                  </>
-                                )}
-                              </Button>
-                            )}
-                          </div>
-                          <div className="ml-4">
-                            <Badge className="bg-blue-500/20 text-blue-400 border border-blue-500/30">
-                              {submission.submittedByUsername}
-                            </Badge>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
           )}
 
-          {/* Discussion Section */}
-          <DiscussionSection
-            assignmentId={assignment.id}
-            currentUserId={user.id}
-            currentUsername={user.username}
-          />
 
           {/* Rating Dialog */}
           <Dialog
@@ -954,15 +787,15 @@ export default function AssignmentDetailPage() {
                 })}
               </div>
               <div className="text-center mb-4">
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-white/70">
                   Selected Rating: <span className="font-semibold">{selectedRating}/5</span>
                 </p>
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-white/50 mt-1">
                   💎 1 Emerald = 10 Rubies | 🔴 Rubies for lower tiers, 💎 Emeralds for higher tiers
                 </p>
                 {selectedRating >= 3.0 && (
-                  <div className="mt-3 p-3 bg-gray-50 rounded-lg">
-                    <p className="text-xs text-gray-600 mb-2">This rating will give the solution:</p>
+                  <div className="mt-3 p-3 bg-white/5 rounded-lg border border-white/10">
+                    <p className="text-xs text-white/70 mb-2">This rating will give the solution:</p>
                     {(() => {
                       const badge = getRatingBadge(selectedRating);
                       return (
@@ -1004,7 +837,8 @@ export default function AssignmentDetailPage() {
               </div>
             </DialogContent>
           </Dialog>
-        </div>
+        </section>
+      </main>
       </div>
     </div>
   );

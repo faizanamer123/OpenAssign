@@ -1,17 +1,26 @@
 import type React from "react"
 import type { Metadata } from "next"
-import { Nunito } from "next/font/google"
+import { Lexend, Playfair_Display } from "next/font/google"
 import "./globals.css"
 import { AuthProvider } from "@/context/AuthContext"
 import { Toaster } from "@/components/ui/toaster"
 import { Analytics } from '@vercel/analytics/next';
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import Chatbot from "@/components/Chatbot";
+import Logo from "@/components/ui/Logo";
+import ConditionalFooter from "@/components/ConditionalFooter";
 
-const nunito = Nunito({ 
+const lexend = Lexend({ 
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700", "800", "900"],
-  variable: "--font-nunito"
+  variable: "--font-lexend"
+})
+
+const playfair = Playfair_Display({ 
+  subsets: ["latin"],
+  weight: ["700"],
+  style: ["normal", "italic"],
+  variable: "--font-playfair"
 })
 
 export const metadata: Metadata = {
@@ -28,22 +37,16 @@ export default function RootLayout({
     <html lang="en">
       <head>
         <link rel="icon" href="/OpenAssign.png"  type="image/png" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
+          rel="stylesheet"
+        />
+
       </head>
-      <body className={`${nunito.variable} font-nunito`}>
+      <body className={`${lexend.variable} ${playfair.variable} font-display`}>
         <AuthProvider>
           {children}
-          <footer className="w-full mt-12 py-8 reddit-dark-bg border-t border-[#4ade80]/20 text-center text-gray-300 text-sm shadow-inner">
-            <div className="flex flex-col sm:flex-row justify-center items-center gap-2">
-              <span className="flex items-center gap-1">
-                <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="inline-block text-[#4ade80] mr-1"><circle cx="12" cy="12" r="10" strokeWidth="2" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 12l2 2 4-4" /></svg>
-                All rights reserved.
-              </span>
-              <span className="hidden sm:inline">|</span>
-              <a href="/privacy-policy" className="hover:underline hover:text-white transition-colors mx-2 font-medium">Privacy Policy</a>
-              <span className="hidden sm:inline">|</span>
-              <a href="/terms" className="hover:underline hover:text-white transition-colors mx-2 font-medium">Terms &amp; Conditions</a>
-            </div>
-          </footer>
+          <ConditionalFooter />
           <Toaster />
           <Chatbot />
         </AuthProvider>
