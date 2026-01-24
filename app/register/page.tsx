@@ -14,12 +14,14 @@ import { sendOtpEmail } from "@/lib/sendOtpEmail";
 import { checkEmailVerified, sendOTP, verifyOTP } from "@/utils/api";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import Image from "next/image";
 
 export default function Register() {
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
   const [emailError, setEmailError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
 
   const [otpVerified, setOtpVerified] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -31,6 +33,14 @@ export default function Register() {
   const router = useRouter();
 
   const [countdown, setCountdown] = useState(0);
+
+  // Preload the image
+  useEffect(() => {
+    const img = new window.Image();
+    img.src = "AI_Academic_Focus.png";
+    img.onload = () => setImageLoaded(true);
+    img.onerror = () => setImageLoaded(true); // Still show something if image fails
+  }, []);
 
   // Countdown timer for resend OTP
   useEffect(() => {
@@ -250,26 +260,37 @@ export default function Register() {
               </div>
             </div>
             <h1 className="text-white text-6xl font-extrabold leading-[1.1] tracking-tight mb-6">
-              Elevate your <br/><span className="bg-gradient-to-r from-[#10b981] to-[#06b6d4] bg-clip-text text-transparent">academic success.</span>
+              Access Premium <br/><span className="bg-gradient-to-r from-[#10b981] to-[#06b6d4] bg-clip-text text-transparent">datasets & research.</span>
             </h1>
             <p className="text-white/60 text-xl max-w-lg font-light leading-relaxed">
-              Connect with our advanced Academic Robot and unlock a world of cinematic learning and expert insights.
+              Download research papers, exam materials, job prep guides, and exclusive datasets including satellite imagery and sensitive data.
             </p>
           </div>
           <div className="relative flex-1 flex items-center justify-center py-10 scale-110">
             <div className="relative group flex items-center justify-center">
               <div className="absolute inset-0 bg-[#10b981]/20 rounded-full blur-[100px] scale-150 group-hover:bg-[#06b6d4]/20 transition-all duration-700"></div>
               <div className="relative z-10 w-96 h-96 flex items-center justify-center">
-                <img 
-                  alt="Academic Robot Cinematic Illustration" 
-                  className="w-full h-full object-contain drop-shadow-[0_20px_50px_rgba(0,0,0,0.5)] transform hover:scale-105 transition-transform duration-1000" 
-                  // src="https://lh3.googleusercontent.com/aida-public/AB6AXuDek5bSoiHsLpgzdSL-owQw_-tbI3xVpzgg_ihDZoL6fqFq7IeUWf3UaYX-BCw0C4ucp0PbK3e4D6rOmFw9xXX4yL2DuQAh7xsFRFL0td9eQAecyP4bxTcj5PHhsu2Tssj5msRUcxFRaxdf1tmKXQcHTobtl5cSnALav0Gywz5lLYz7FFdk-ISwPQsIsBW9xOeEw7QSegjL41Mtz-cwpAH4jGE83Uk0uYSrs7r6nqRAvb4oRLpM_kyiTvNwJUB4c7aCThIqNrfx1SQ"
-                  src="AI_Academic_Focus.png"
-                />
+                {imageLoaded ? (
+                  <Image
+                    alt="Academic Robot Cinematic Illustration"
+                    className="w-full h-full object-contain drop-shadow-[0_20px_50px_rgba(0,0,0,0.5)] transform hover:scale-105 transition-transform duration-1000"
+                    src="AI_Academic_Focus.png"
+                    width={384}
+                    height={384}
+                    priority
+                    placeholder="blur"
+                    blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwA/8A8A"
+                  />
+                ) : (
+                  // Loading placeholder
+                  <div className="w-full h-full bg-slate-800 rounded-lg animate-pulse flex items-center justify-center">
+                    <div className="w-16 h-16 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
+                  </div>
+                )}
                 <div className="absolute -bottom-4 -right-10 w-48 h-24 bg-white/5 border border-white/20 backdrop-blur-2xl rounded-2xl shadow-2xl flex flex-col p-4 rotate-[-6deg] group-hover:rotate-0 transition-all duration-700">
                   <div className="flex items-center gap-2 mb-2">
                     <div className="size-2 rounded-full bg-[#10b981] animate-pulse"></div>
-                    <span className="text-[10px] text-[#10b981] font-bold uppercase tracking-widest">Knowledge Core Active</span>
+                    <span className="text-[10px] text-[#10b981] font-bold uppercase tracking-widest">Dataset Hub Active</span>
                   </div>
                   <div className="space-y-1.5">
                     <div className="w-full h-1 bg-white/10 rounded-full overflow-hidden">

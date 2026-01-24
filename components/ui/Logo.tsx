@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 
@@ -21,6 +21,35 @@ export default function Logo({
   variant = "default",
 }: LogoProps) {
   const { user } = useAuth();
+  const [iconLoaded, setIconLoaded] = useState(false);
+
+  // Preload the Material Symbols font immediately
+  useEffect(() => {
+    // Create and inject font link if not already present
+    if (!document.querySelector('link[href*="Material+Symbols+Outlined"]')) {
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = 'https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap';
+      document.head.appendChild(link);
+    }
+
+    // Check if font is already loaded
+    if (document.fonts && document.fonts.load) {
+      document.fonts.load('400 24px "Material Symbols Outlined"')
+        .then(() => {
+          // Small delay to ensure font is fully rendered
+          setTimeout(() => setIconLoaded(true), 50);
+        })
+        .catch(() => {
+          // Fallback if font loading fails
+          setIconLoaded(true);
+        });
+    } else {
+      // Fallback for older browsers
+      const timer = setTimeout(() => setIconLoaded(true), 100);
+      return () => clearTimeout(timer);
+    }
+  }, []);
 
   // Always redirect to landing page (/) regardless of auth state
   const getHref = () => {
@@ -65,13 +94,34 @@ export default function Logo({
         {/* Hover glow effect */}
         <div className="absolute inset-0 bg-[#13ec92]/5 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg"></div>
         
-        {/* Diamond icon */}
-        <span
-          className={`material-symbols-outlined text-[#13ec92] ${iconSize} relative z-10`}
-          style={{ fontVariationSettings: '"FILL" 1, "wght" 400' }}
-        >
-          diamond
-        </span>
+        {/* Diamond icon - always show SVG fallback first, then Material Symbols when loaded */}
+        <div className="relative z-10">
+          {!iconLoaded ? (
+            // SVG Fallback - shows immediately
+            <svg 
+              viewBox="0 0 24 24" 
+              fill="currentColor" 
+              className={`${iconSize} text-[#13ec92]`}
+              style={{ 
+                width: variant === "large" ? "1.5rem" : variant === "compact" ? "1.25rem" : "1.5rem",
+                height: variant === "large" ? "1.5rem" : variant === "compact" ? "1.25rem" : "1.5rem"
+              }}
+            >
+              <path d="M6 3h12l4 6-10 12L2 9z" fill="currentColor"/>
+            </svg>
+          ) : (
+            // Material Symbols - shows after font loads
+            <span
+              className={`material-symbols-outlined text-[#13ec92] ${iconSize}`}
+              style={{ 
+                fontVariationSettings: '"FILL" 1, "wght" 400',
+                display: 'block'
+              }}
+            >
+              diamond
+            </span>
+          )}
+        </div>
       </div>
 
       {showText && (

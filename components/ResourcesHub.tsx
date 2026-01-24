@@ -1,12 +1,56 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Logo from "@/components/ui/Logo";
+import DownloadButton from "@/components/DownloadButton";
+import { fetchDatasets, searchDatasets, getDatasetsByCategory, type Dataset } from "@/utils/datasets";
+import { useAuth } from "@/context/AuthContext";
 
 export default function ResourcesHub() {
+  const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState("All");
+  const [datasets, setDatasets] = useState<Dataset[]>([]);
+  const [filteredDatasets, setFilteredDatasets] = useState<Dataset[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadDatasets = async () => {
+      try {
+        setLoading(true);
+        const data = await fetchDatasets();
+        setDatasets(data);
+        setFilteredDatasets(data);
+      } catch (error) {
+        console.error('Failed to load datasets:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadDatasets();
+  }, []);
+
+  useEffect(() => {
+    let filtered = datasets;
+
+    // Apply filter
+    if (activeFilter !== "All") {
+      filtered = filtered.filter(dataset => dataset.category === activeFilter);
+    }
+
+    // Apply search
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(dataset => 
+        dataset.title.toLowerCase().includes(query) ||
+        dataset.author.toLowerCase().includes(query)
+      );
+    }
+
+    setFilteredDatasets(filtered);
+  }, [datasets, activeFilter, searchQuery]);
 
   const filters = ["All", "Free", "Premium", "Popular", "Latest"];
   
@@ -49,44 +93,7 @@ export default function ResourcesHub() {
     }
   ];
 
-  const featuredResources = [
-    {
-      title: "AI Ethics: A 2024 Comprehensive Framework",
-      author: "Dr. Julian Thorne • Computer Science",
-      category: "Premium",
-      rating: 4.9,
-      downloads: "8.4k",
-      reviews: "1.2k",
-      image: "https://lh3.googleusercontent.com/aida-public/AB6AXuAuHSKZsVdgmXS6AHXBKV7pMITS1Rfzx3cfnAShUzMLMXbPRe41-E6OE1rN-ptlEoNbOyz8qtP5JQ3raHgJ6-NlSvXq_1xOK2D015f6UJP4fvP9VhkG8QgD3BfpOsfjMs6nZqTIFDm48M4iiNXSmJc2OZbe_k97OSiChNZX50kTpEF_G4SmNpzzGE6lbR-mA37zuVWiHsd0lOnZnke-PDe5clvBmXKWOF1zk4eaOhMD6BgwwwKIgASKXBJMwuGVGFsv2KSi9tMq1e8"
-    },
-    {
-      title: "FAANG Technical Interview Mastery Guide",
-      author: "AssignDump Team • Careers",
-      category: "Popular",
-      rating: 5.0,
-      downloads: "22k",
-      reviews: "3.5k",
-      image: "https://lh3.googleusercontent.com/aida-public/AB6AXuDJPcLzQsNHMbo7X4CL9iUfAVr8j_IImU9UyBjVtsWftDZeoBZ1z_GxeQ7Tu-G6q36U9oGKuQudPxaSJ3m3TkqgvZhDZEcaxRhFig34pqrVX01pKO79LUX-kxYk5rNYh-bDusif18ixZ-wosWaLBU_OPne0enLYJnbu4NxMdp3bX-ftaZwsboXl87mf-96hGhbKAcS_kUP-B8Ugou0k7VKkaQlCOksTnljPXbpDlO11Veq82BMLrf9uqFq1Rlkms48YRCYE4feVc0M"
-    },
-    {
-      title: "Global Climate Patterns (1990-2023) Dataset",
-      author: "OpenScience Org • Environment",
-      category: "Free",
-      rating: 4.7,
-      downloads: "4.1k",
-      reviews: "842",
-      image: "https://lh3.googleusercontent.com/aida-public/AB6AXuDrMFHggqsdu3bSqE1BYTPlU7cUXrPTXGFX5vqzXCb6ZiBUAWMeNi0aO6ePhPFvEmjaufMea7yLMhxRnUqGWjpmHJOy6zORBwgPblqRnIGMzHrfQnigkCRSYo-g1Q5r9AaV0oi9kthUoXBCi1ryJrHg_8o6Muko9Xu220ikXQYtvUNLgjDSUfmqbTVdWBBAQ57_LGwfhx87TO2HDiOVWadoCa-WpkWSGdlRHXj7rqfGfFfo4lIIacniAersi77MZaNMVTDWpvVOQ6g"
-    },
-    {
-      title: "Organic Chemistry II: Reaction Mechanisms",
-      author: "Sarah Jenkins • Chemistry",
-      category: "Premium",
-      rating: 4.8,
-      downloads: "2.5k",
-      reviews: "621",
-      image: "https://lh3.googleusercontent.com/aida-public/AB6AXuCxrNoFNxqCW3Hyc4Y25HJubigU7mRcsPzHoCukJllkg7z3ZW4kVsnlJlp0oYENUIZmO4OsmA6VOoQeewQfIRSFaclDnF-PitjRdlz8Dk7g2fSz9XO6dKiS2EjbYr51GtinA9CD7lIrJyX-UP-pkHk8Fw6sqsGOwri9_RNIC8INWgHuI22AVaHZfFcNq2kR7jZA4n-oFMUY0Zo_MTcym8D9ajwX1Gtp3X2aLLMYHd6zSB2DnUr9tsXkYnXvFo1iuvVJLQAyC75jOzU"
-    }
-  ];
+  // Use real datasets instead of dummy data
 
   const getCategoryColor = (color: string) => {
     const colors: { [key: string]: string } = {
@@ -225,33 +232,64 @@ export default function ResourcesHub() {
             </div>
           </div>
           <div className="flex gap-6 overflow-x-auto pb-4 custom-scrollbar snap-x">
-            {featuredResources.map((resource, index) => (
-              <div key={index} className="min-w-[300px] snap-start glass-card rounded-2xl overflow-hidden flex flex-col">
-                <div className="h-40 bg-slate-800 relative" 
-                     style={{ 
-                       backgroundImage: `url('${resource.image}')`,
-                       backgroundSize: 'cover'
-                     }}>
-                  <div className={`absolute top-3 right-3 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider ${getCategoryBadgeColor(resource.category)}`}>
-                    {resource.category}
-                  </div>
-                </div>
-                <div className="p-5 flex-1 flex flex-col">
-                  <h4 className="font-bold text-lg mb-1 leading-tight">{resource.title}</h4>
-                  <p className="text-slate-400 text-xs mb-4">{resource.author}</p>
-                  <div className="mt-auto flex items-center justify-between">
-                    <div className="flex items-center gap-1 text-yellow-500">
-                      <span className="material-symbols-outlined text-sm fill-1">star</span>
-                      <span className="text-sm font-bold">{resource.rating}</span>
-                      <span className="text-slate-500 text-[10px] font-medium">({resource.reviews})</span>
+            {loading ? (
+              // Loading skeleton
+              Array.from({ length: 4 }).map((_, index) => (
+                <div key={index} className="min-w-[300px] snap-start glass-card rounded-2xl overflow-hidden flex flex-col">
+                  <div className="h-40 bg-slate-800 animate-pulse"></div>
+                  <div className="p-5 flex-1 flex flex-col">
+                    <div className="h-6 bg-slate-700 rounded animate-pulse mb-2"></div>
+                    <div className="h-4 bg-slate-700 rounded animate-pulse mb-4 w-3/4"></div>
+                    <div className="mt-auto flex items-center justify-between">
+                      <div className="h-4 bg-slate-700 rounded animate-pulse w-1/3"></div>
+                      <div className="h-4 bg-slate-700 rounded animate-pulse w-1/4"></div>
                     </div>
-                    <span className="text-slate-500 text-xs font-medium flex items-center gap-1">
-                      <span className="material-symbols-outlined text-sm">download</span> {resource.downloads}
-                    </span>
                   </div>
                 </div>
+              ))
+            ) : filteredDatasets.length > 0 ? (
+              filteredDatasets.slice(0, 8).map((resource: Dataset, index: number) => (
+                <div key={resource.id} className="min-w-[300px] snap-start glass-card rounded-2xl overflow-hidden flex flex-col">
+                  <div className="h-40 bg-slate-800 relative" 
+                       style={{ 
+                         backgroundImage: `url('${resource.image}')`,
+                         backgroundSize: 'cover'
+                       }}>
+                    <div className={`absolute top-3 right-3 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider ${getCategoryBadgeColor(resource.category)}`}>
+                      {resource.category}
+                    </div>
+                  </div>
+                  <div className="p-5 flex-1 flex flex-col">
+                    <h4 className="font-bold text-lg mb-1 leading-tight">{resource.title}</h4>
+                    <p className="text-slate-400 text-xs mb-4">{resource.author}</p>
+                    <div className="mt-auto flex items-center justify-between">
+                      <div className="flex items-center gap-1 text-yellow-500">
+                        <span className="material-symbols-outlined text-sm fill-1">star</span>
+                        <span className="text-sm font-bold">{resource.rating}</span>
+                        <span className="text-slate-500 text-[10px] font-medium">({resource.reviews})</span>
+                      </div>
+                      <span className="text-slate-500 text-xs font-medium flex items-center gap-1">
+                        <span className="material-symbols-outlined text-sm">download</span> {resource.downloads}
+                      </span>
+                    </div>
+                    <div className="mt-4">
+                      <DownloadButton
+                        fileId={resource.fileId}
+                        fileName={resource.fileName}
+                        fileType={resource.fileType}
+                        variant="outline"
+                        size="sm"
+                        className="w-full"
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="w-full text-center py-12">
+                <p className="text-slate-400">No datasets found. Try adjusting your filters or search query.</p>
               </div>
-            ))}
+            )}
           </div>
         </section>
       </main>

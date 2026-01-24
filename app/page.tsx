@@ -646,9 +646,11 @@ export default function LandingPage() {
         <div className="navbar-glass max-w-7xl w-full h-16 sm:h-20 rounded-full flex items-center justify-center sm:justify-between px-4 sm:px-6 lg:px-10 transition-all duration-500">
           <Logo href="/" variant="default" logoSize={32} />
           <div className="hidden sm:flex items-center gap-4 sm:gap-6 lg:gap-8 ml-auto">
-            <Link href="/register" className="glossy-pill px-6 sm:px-8 py-2.5 sm:py-3 text-xs sm:text-sm font-black text-[#0a0f0d] rounded-full hover:scale-105 active:scale-95 transition-all relative">
-              <span className="relative z-10">JOIN FREE</span>
-          </Link>
+            <Link href="/register">
+              <button className="glossy-pill px-8 py-3 text-sm font-black text-[#0a0f0d] rounded-full hover:scale-105 active:scale-95 transition-all">
+                JOIN FREE
+              </button>
+            </Link>
           </div>
         </div>
       </header>
@@ -659,27 +661,24 @@ export default function LandingPage() {
           <div className="relative z-10 text-left">
             <div className="inline-flex items-center gap-2 px-3 sm:px-5 py-1.5 sm:py-2 rounded-full bg-white/5 border border-white/10 text-[#13ec9c] text-[10px] sm:text-xs font-bold uppercase tracking-[0.2em] mb-6 sm:mb-10">
               <Sparkles className="w-3 h-3 sm:w-4 sm:h-4" />
-              The Future of Learning
+              Ultimate Dataset Hub
             </div>
             <h1 className="text-4xl sm:text-6xl md:text-8xl font-black leading-[0.95] mb-6 sm:mb-10 tracking-tight">
-              <span className="font-serif italic font-bold">Master</span> Your Assignments with <br/>
-              <span className="text-[#13ec9c] hero-glow-text">Confidence</span>
+              <span className="font-serif italic font-bold">Access</span> Premium Datasets & <br/>
+              <span className="text-[#13ec9c] hero-glow-text">Research Resources</span>
             </h1>
             <p className="text-base sm:text-xl text-white/60 max-w-xl mb-8 sm:mb-12 leading-relaxed font-light">
-              Redefining academic excellence through glass-clear solutions and intelligent progress tracking for the modern student.
+              Download research papers, exam materials, job prep guides, and exclusive datasets including satellite imagery and sensitive data. Free and premium resources for every need.
             </p>
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 sm:gap-6">
               <Link href="/register" className="w-full sm:w-auto">
-                <Button className="w-full sm:w-auto px-8 sm:px-12 py-4 sm:py-6 bg-[#13ec9c] text-[#0a0f0d] text-base sm:text-lg font-black rounded-2xl flex items-center justify-center gap-3 hover:scale-105 transition-transform shadow-2xl">
-                  <LogIn className="w-4 h-4 sm:w-5 sm:h-5" />
+                <button className="glossy-pill w-full sm:w-auto px-12 py-6 text-lg font-black text-[#0a0f0d] rounded-full flex items-center justify-center gap-3 transition-all">
+                  <LogIn className="w-5 h-5" />
                   Register
-                </Button>
+                </button>
               </Link>
-              <Button variant="outline" className="w-full sm:w-auto px-8 sm:px-12 py-4 sm:py-6 bg-white/5 border border-white/10 text-white text-base sm:text-lg font-bold rounded-2xl hover:bg-white/10 transition-all">
-                Explore Demo
-              </Button>
-                  </div>
-                  </div>
+            </div>
+          </div>
           <div className="relative flex justify-center items-center h-[300px] sm:h-[400px] lg:h-[500px] mt-8 lg:mt-0">
             <div className="absolute inset-0 bg-[#13ec9c]/10 blur-[150px] rounded-full"></div>
             <div className="relative floating-3d">
@@ -704,7 +703,7 @@ export default function LandingPage() {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <div className="text-center mb-12 sm:mb-16 lg:mb-24">
                 <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black mb-4 sm:mb-8 tracking-tighter">Engineered for Success</h2>
-                <p className="text-white/40 max-w-2xl mx-auto text-base sm:text-lg lg:text-xl font-light px-4">A seamless three-step workflow designed to elevate your academic performance instantly.</p>
+                <p className="text-white/40 max-w-2xl mx-auto text-base sm:text-lg lg:text-xl font-light px-4">A seamless three-step workflow designed to access premium datasets and research resources instantly.</p>
                 </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 lg:gap-10">
                 <div className="hover-card glass-morphism p-6 sm:p-8 lg:p-12 rounded-xl sm:rounded-2xl transition-all duration-500 group relative overflow-hidden">
@@ -712,8 +711,8 @@ export default function LandingPage() {
                   <div className="size-16 sm:size-20 rounded-xl sm:rounded-2xl bg-[#13ec9c]/10 border border-[#13ec9c]/20 flex items-center justify-center text-[#13ec9c] mb-6 sm:mb-10 group-hover:scale-110 transition-transform">
                     <CloudUpload className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12" />
               </div>
-                  <h3 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6">Upload</h3>
-                  <p className="text-white/50 leading-relaxed text-sm sm:text-base lg:text-lg font-light">Submit your complex prompts or documents via our ultra-secure encrypted portal.</p>
+                  <h3 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6">Browse</h3>
+                  <p className="text-white/50 leading-relaxed text-sm sm:text-base lg:text-lg font-light">Explore our extensive collection of research papers, exam materials, and premium datasets including satellite imagery and sensitive data.</p>
                   <div className="mt-6 sm:mt-10 flex items-center text-[#13ec9c] font-bold text-xs sm:text-sm gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                     LEARN MORE <ArrowRight className="w-3 h-3" />
                           </div>
@@ -723,8 +722,8 @@ export default function LandingPage() {
                   <div className="size-16 sm:size-20 rounded-xl sm:rounded-2xl bg-[#13ec9c]/10 border border-[#13ec9c]/20 flex items-center justify-center text-[#13ec9c] mb-6 sm:mb-10 group-hover:scale-110 transition-transform">
                     <Brain className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12" />
                           </div>
-                  <h3 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6">Solve</h3>
-                  <p className="text-white/50 leading-relaxed text-sm sm:text-base lg:text-lg font-light">Our proprietary AI and top-tier academic experts synthesize crystal-clear solutions.</p>
+                  <h3 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6">Download</h3>
+                  <p className="text-white/50 leading-relaxed text-sm sm:text-base lg:text-lg font-light">Get instant access to free and premium datasets. Download research papers, exam materials, job prep guides, and exclusive leaked data.</p>
                   <div className="mt-6 sm:mt-10 flex items-center text-[#13ec9c] font-bold text-xs sm:text-sm gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                     LEARN MORE <ArrowRight className="w-3 h-3" />
                         </div>
@@ -734,8 +733,8 @@ export default function LandingPage() {
                   <div className="size-16 sm:size-20 rounded-xl sm:rounded-2xl bg-[#13ec9c]/10 border border-[#13ec9c]/20 flex items-center justify-center text-[#13ec9c] mb-6 sm:mb-10 group-hover:scale-110 transition-transform">
                     <BarChart3 className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12" />
                         </div>
-                  <h3 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6">Succeed</h3>
-                  <p className="text-white/50 leading-relaxed text-sm sm:text-base lg:text-lg font-light">Review, master the concepts, and track your rising GPA through your live dashboard.</p>
+                  <h3 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6">Excel</h3>
+                  <p className="text-white/50 leading-relaxed text-sm sm:text-base lg:text-lg font-light">Leverage premium datasets for your projects and career. Access satellite imagery, sensitive data, and exclusive research materials to excel in your field.</p>
                   <div className="mt-6 sm:mt-10 flex items-center text-[#13ec9c] font-bold text-xs sm:text-sm gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                     LEARN MORE <ArrowRight className="w-3 h-3" />
                       </div>
@@ -748,45 +747,31 @@ export default function LandingPage() {
           <section className="py-16 sm:py-24 lg:py-32 overflow-hidden" id="testimonials">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8 sm:mb-12 lg:mb-16">
                           <div>
-                <h2 className="text-3xl sm:text-4xl font-black mb-2 sm:mb-4 tracking-tight">Student Perspectives</h2>
-                <p className="text-white/40 text-sm sm:text-base">Trusted by over 50,000 university students worldwide.</p>
+                <h2 className="text-3xl sm:text-4xl font-black mb-2 sm:mb-4 tracking-tight">Dataset User Reviews</h2>
+                <p className="text-white/40 text-sm sm:text-base">Trusted by researchers and students worldwide for premium datasets.</p>
                           </div>
                         </div>
             <div className="grid grid-cols-3 md:grid-cols-3 lg:flex lg:gap-8 lg:overflow-x-auto px-4 sm:px-6 lg:px-8 pb-8 sm:pb-12 lg:hide-scrollbar lg:snap-x lg:snap-mandatory gap-2 sm:gap-3 md:gap-4">
               {[
                 {
-                  name: "Sarah Chen",
-                  role: "Computer Science Student",
+                  name: "Dr. Alex Thompson",
+                  role: "Data Science Researcher",
                   rating: 5,
-                  text: "This platform saved my semester! I got help with my algorithms assignment and the solution was clear and well-explained. The anonymous feature makes it so comfortable to ask for help.",
+                  text: "The satellite datasets are incredible! High-resolution imagery with proper metadata. The premium datasets including sensitive user information have been invaluable for my ML research projects.",
                   avatar: "https://lh3.googleusercontent.com/aida-public/AB6AXuBlT6BTkeun0U80Eohh37hW4fIy6I1wG6PwbBa36yCI8qtQIR2ovgVjuuW8RSKhcO4mbcXMAfXHIr6m-zjd2gncrUtAAaN-Cz8eJ6Bc2ix5SqREqTXZj4JF-faz7PrhdN5yu1nWWqRYEcSH9Jpj2eM4Pi4WjWQ3wVp-yg4BJt3e_awy9eb76rRfb5OTuQfXLoFZCY-aMTBZzl3Ei6dPeEVQpJzGbLKF9sJNaeWYo7KjYi9I6CDhxrqnxAOX-N9snup1AyBvmtT1B_A",
                 },
                 {
-                  name: "Michael Rodriguez",
-                  role: "Mathematics Major",
+                  name: "Maria Rodriguez",
+                  role: "Job Seeker",
                   rating: 5,
-                  text: "I love helping others while earning points. The peer review system is great and I've learned so much by reviewing different solution approaches. Highly recommend!",
+                  text: "Found amazing job preparation materials here! The interview guides and leaked datasets helped me land my dream job at a top tech company. Worth every penny for the premium resources.",
                   avatar: "https://lh3.googleusercontent.com/aida-public/AB6AXuCdr32S9Wj2FUuh_cuxxSpHbFV7D6t_UpKHPhf0idRmC8HuIZgrwiM1nxoqnyDPkGPS79nh5G_sDCj9cmLDp9q4aS6mnocVog24onFt8B-m8lhluGW-edF5RgH_-KYsMgDHlI67qIhxtDk_gK_afwwTlwkKbArjpaSa1z7nAA1USQxdV7orrBjnD_doCUPnEDkClJIQyHvcYWlQ72Q1pW9aNPV_siZ8ZOcoWP3SpaQjaDHm0Py7Qts03MFSrTmTkPJZksdiVMZczoA",
                 },
                 {
-                  name: "Emily Johnson",
-                  role: "Engineering Student",
+                  name: "James Liu",
+                  role: "Computer Science Student",
                   rating: 5,
-                  text: "The leaderboard feature is motivating! I've climbed from rank 200 to top 50 by consistently helping others. The community is supportive and the quality of solutions is excellent.",
-                  avatar: "https://lh3.googleusercontent.com/aida-public/AB6AXuAItKgYq3k3Ko5GjMsfMBIpbP51UQbTFahuMWhxBoK725XjBAr0S1wscvaa13QcDrSgyDyBIUWU0a8LAPa1Dp-pfCqE4lu19zNKXj4Xw3aMP9bJROThZkLNSti-EdTIg-G_j91ZENLRc3pAdmecuzMrrzevJvgCkRO7obvv-gifcXse2Pm3i6FZcTCvTB_zRhr01t98sBnXVk5yUdAOklu2OSSeUQO-6ETZVdgkH2g3pjY1I12hKmq-dmQMPvxrFlnlm_XOSGP3cBc",
-                },
-                {
-                  name: "David Kim",
-                  role: "Physics Student",
-                  rating: 5,
-                  text: "Great platform for getting quick help with assignments. The rating system ensures quality, and I've received some really helpful solutions. The anonymous aspect is a huge plus.",
-                  avatar: "https://lh3.googleusercontent.com/aida-public/AB6AXuC-AiSuf3pSB68aFnXJ6DOKrFtGlKDq6J97qAV0rOHJ8V0uzx4yKQ54mZRfRhLlLcee8ugwWYQ4mkC8Z2OmkVFwVHuBXYFzsqNQ4dh3Cno9JWBKEsW4laHk6uqvO59gd24w_XaAdl48njI86CMpHCpJzAONikyqKJKVCtgCSlvCWJWCLN3xvEKR6B38lRbRc-EckUOwiv2Rm55XhkcY-5W9cs8CNX_vkQE3_VeEkSFFCf1jj39DRuKfkYKK4vTxYO2hDuEh6Mqs-h0",
-                },
-                {
-                  name: "Jessica Martinez",
-                  role: "Chemistry Major",
-                  rating: 5,
-                  text: "I've uploaded several assignments and always got responses within hours. The solutions are detailed and the reviewers are knowledgeable. This is exactly what I needed!",
+                  text: "The past exam papers and research papers saved my academic life! Free resources are great, but the premium datasets including satellite imagery took my projects to the next level.",
                   avatar: "https://lh3.googleusercontent.com/aida-public/AB6AXuAItKgYq3k3Ko5GjMsfMBIpbP51UQbTFahuMWhxBoK725XjBAr0S1wscvaa13QcDrSgyDyBIUWU0a8LAPa1Dp-pfCqE4lu19zNKXj4Xw3aMP9bJROThZkLNSti-EdTIg-G_j91ZENLRc3pAdmecuzMrrzevJvgCkRO7obvv-gifcXse2Pm3i6FZcTCvTB_zRhr01t98sBnXVk5yUdAOklu2OSSeUQO-6ETZVdgkH2g3pjY1I12hKmq-dmQMPvxrFlnlm_XOSGP3cBc",
                 },
               ].map((review, index) => (
@@ -817,13 +802,13 @@ export default function LandingPage() {
             <div className="bg-gradient-to-r from-[#13ec9c] to-cyan-500 rounded-2xl sm:rounded-3xl lg:rounded-[3.5rem] p-6 sm:p-8 md:p-12 lg:p-20 text-center relative overflow-hidden">
               <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10"></div>
               <div className="relative z-10">
-                <h2 className="text-[#0a0f0d] text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-7xl font-black mb-4 sm:mb-6 md:mb-8 lg:mb-10 tracking-tighter px-2">Ready to boost your GPA?</h2>
-                <p className="text-[#0a0f0d]/70 text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl font-medium mb-6 sm:mb-8 md:mb-12 lg:mb-16 max-w-2xl mx-auto px-2 sm:px-4">Start your journey toward academic mastery today. Join the elite circle of top-performing students.</p>
+                <h2 className="text-[#0a0f0d] text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-7xl font-black mb-4 sm:mb-6 md:mb-8 lg:mb-10 tracking-tighter px-2">Ready to access premium datasets?</h2>
+                <p className="text-[#0a0f0d]/70 text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl font-medium mb-6 sm:mb-8 md:mb-12 lg:mb-16 max-w-2xl mx-auto px-2 sm:px-4">Start downloading research papers, exam materials, and exclusive datasets today. Access both free and premium resources including satellite data and sensitive information.</p>
                 <Link href="/register" className="inline-block w-full sm:w-auto max-w-full">
-                  <Button className="pulse-btn w-full sm:w-auto px-3 sm:px-6 md:px-8 lg:px-12 xl:px-16 py-3 sm:py-4 md:py-5 lg:py-6 xl:py-8 glass-morphism !bg-[#0a0f0d] text-white text-[10px] sm:text-xs md:text-sm lg:text-base xl:text-lg 2xl:text-2xl font-black rounded-lg sm:rounded-xl md:rounded-2xl lg:rounded-[2rem] hover:scale-105 transition-all shadow-2xl flex items-center justify-center gap-1.5 sm:gap-2 md:gap-3 lg:gap-4 mx-auto">
-                    <span className="text-center leading-tight">Claim Your First Solution Free</span>
-                    <Rocket className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 lg:w-6 lg:h-6 flex-shrink-0" />
-                  </Button>
+                  <button className="pulse-btn w-full sm:w-auto px-16 py-8 glass-morphism !bg-[#0a0f0d] text-white text-2xl font-black rounded-[2rem] hover:scale-105 transition-all shadow-2xl flex items-center gap-4 mx-auto">
+                    Download Your First Dataset Free
+                    <span className="material-symbols-outlined">download</span>
+                  </button>
                 </Link>
               </div>
               <div className="absolute top-0 right-0 w-48 h-48 sm:w-64 sm:h-64 lg:w-96 lg:h-96 bg-white/20 rounded-full blur-[100px] -mr-24 sm:-mr-32 lg:-mr-48 -mt-24 sm:-mt-32 lg:-mt-48"></div>
