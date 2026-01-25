@@ -19,40 +19,64 @@ export default function ResourcesHub() {
   const [filteredDatasets, setFilteredDatasets] = useState<Dataset[]>([]);
   const [loading, setLoading] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [displayCount, setDisplayCount] = useState(8); // Initially show 8 datasets
   const carouselRef = useRef<HTMLDivElement>(null);
+  const hasLoadedRef = useRef(false);
 
   const handleLogout = () => {
     signOut();
     router.push("/");
   };
 
+  const handleShowMore = () => {
+    setDisplayCount(prev => prev + 8); // Show 8 more datasets each time
+  };
+
+  const handleShowLess = () => {
+    setDisplayCount(8); // Reset to initial 8 datasets
+  };
+
+  const displayedDatasets = filteredDatasets.slice(0, displayCount);
+  const hasMoreDatasets = filteredDatasets.length > displayCount;
+
   useEffect(() => {
+    let isMounted = true;
+    
+    if (hasLoadedRef.current) {
+      return;
+    }
+    
     const loadDatasets = async () => {
+      if (!isMounted || hasLoadedRef.current) return;
+      
       try {
         setLoading(true);
         const data = await fetchDatasets();
-        setDatasets(data);
-        setFilteredDatasets(data);
+        if (isMounted) {
+          setDatasets(data);
+          setFilteredDatasets(data);
+          hasLoadedRef.current = true;
+        }
       } catch (error) {
         console.error('Failed to load datasets:', error);
-        // Set empty datasets to prevent infinite loading
-        setDatasets([]);
-        setFilteredDatasets([]);
+        if (isMounted) {
+          setDatasets([]);
+          setFilteredDatasets([]);
+          hasLoadedRef.current = true;
+        }
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     };
 
-    // Add a flag to prevent multiple calls
-    let isMounted = true;
-    if (isMounted) {
-      loadDatasets();
-    }
+    loadDatasets();
 
     return () => {
-      isMounted = false; // Cleanup flag
+      isMounted = false;
     };
-  }, []); // Empty dependency array to run only once
+  }, []); // Empty dependency array
 
   useEffect(() => {
     let filtered = datasets;
@@ -71,7 +95,11 @@ export default function ResourcesHub() {
       );
     }
 
-    setFilteredDatasets(filtered);
+    // Only update if the filtered result is different (using length and first item as simple check)
+    if (filtered.length !== filteredDatasets.length || 
+        (filtered.length > 0 && filteredDatasets.length > 0 && filtered[0].id !== filteredDatasets[0].id)) {
+      setFilteredDatasets(filtered);
+    }
   }, [datasets, activeFilter, searchQuery]); // Proper dependencies
 
   const filters = ["All", "Free", "Premium", "Popular", "Latest"];
@@ -203,7 +231,8 @@ export default function ResourcesHub() {
                  style={{ 
                    backgroundImage: `linear-gradient(135deg, rgba(17, 33, 27, 0.7), rgba(17, 33, 27, 0.8), rgba(10, 15, 13, 0.75)), url('https://lh3.googleusercontent.com/aida-public/AB6AXuBYCgWXyadinN6al8OG-uAlhKM7j_O5oWeUWY-s__jTww5gARpyWflNcfROR_84cy5H-o8nuZdZdvwqC-KXLlal1ozpW-42Vn5HRrjpQU1z6gvd9aJ_5eV88s-gBwdbJp1xtP0Xfdsx_GOXmBFTY7SvOYvqI121V4IIa-h0pAZ__NUZTJJxZmY84gfR5gbTbz9tjGNrIW6UWGbTMaCpvC9BhYUIaCNtlpqW-T4VKuEsI46MuEQWudX5K7YYbqvrxOj48ElqmkQ5goo')`,
                    backgroundSize: 'cover',
-                   backgroundPosition: 'center'
+                   backgroundPosition: 'center',
+                   backgroundRepeat: 'no-repeat'
                  }}>
           {/* Animated background elements */}
           <div className="absolute inset-0">
@@ -306,33 +335,22 @@ export default function ResourcesHub() {
           </div>
         </section>
 
-        {/* Featured Resources Carousel */}
+        {/* Featured Resources Grid */}
         <section className="space-y-8 pb-20 animate-fadeInUp" style={{ animationDelay: '1s' }}>
           <div className="flex items-center justify-between">
-            <h2 className="text-3xl font-black tracking-tight text-white">Featured Datasets</h2>
-            <div className="flex gap-3">
-              <button 
-                onClick={scrollLeft}
-                className="p-3 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 hover:bg-white/10 transition-all hover-lift"
-              >
-                <span className="material-symbols-outlined">chevron_left</span>
-              </button>
-              <button 
-                onClick={scrollRight}
-                className="p-3 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 hover:bg-white/10 transition-all hover-lift"
-              >
-                <span className="material-symbols-outlined">chevron_right</span>
-              </button>
-            </div>
+            <h2 className="text-3xl font-black tracking-tight text-white">
+              Featured Datasets 
+              <span className="text-lg font-normal text-slate-400 ml-3">
+                ({displayedDatasets.length} of {filteredDatasets.length})
+              </span>
+            </h2>
           </div>
-          <div 
-            ref={carouselRef}
-            className="flex gap-8 overflow-x-auto pb-6 custom-scrollbar snap-x scroll-smooth"
-          >
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {loading ? (
               // Enhanced loading skeleton with stagger
-              Array.from({ length: 6 }).map((_, index) => (
-                <div key={index} className="min-w-[350px] snap-start glass-card rounded-3xl overflow-hidden flex flex-col border border-white/5 animate-scaleIn" style={{ animationDelay: `${index * 0.1}s` }}>
+              Array.from({ length: 8 }).map((_, index) => (
+                <div key={index} className="glass-card rounded-2xl overflow-hidden flex flex-col border border-white/5 animate-scaleIn" style={{ animationDelay: `${index * 0.1}s` }}>
                   <div className="h-48 bg-slate-800 loading-skeleton relative">
                     <div className="absolute top-3 right-3 px-3 py-1 rounded-full bg-slate-700 loading-skeleton w-16 h-6"></div>
                   </div>
@@ -349,13 +367,13 @@ export default function ResourcesHub() {
                   </div>
                 </div>
               ))
-            ) : filteredDatasets.length > 0 ? (
-              filteredDatasets.slice(0, 8).map((resource: Dataset, index: number) => (
-                <div key={resource.id} className={`min-w-[350px] md:min-w-[380px] lg:min-w-[400px] snap-start glass-card rounded-2xl flex flex-col p-5 relative hover-lift gpu-accelerated group animate-scaleIn ${
+            ) : displayedDatasets.length > 0 ? (
+              displayedDatasets.map((resource: Dataset, index: number) => (
+                <div key={resource.id} className={`glass-card rounded-2xl flex flex-col p-5 relative hover-lift gpu-accelerated group animate-scaleIn transition-all duration-300 hover:scale-105 ${
                   !(resource.category === "Premium" || (resource.price && resource.price > 0)) ? 'border-primary/20 hover:border-primary/40' : ''
                 }`} style={{ animationDelay: `${index * 0.15}s` }}>
                   {/* Enhanced Status Badge */}
-                  <div className={`absolute top-4 right-4 text-[10px] font-black uppercase px-3 py-1.5 rounded-full border tracking-widest flex items-center gap-1 shadow-lg backdrop-blur-md transition-all duration-300 ${
+                  <div className={`absolute top-4 right-4 text-[10px] font-black uppercase px-3 py-1.5 rounded-full border tracking-widest flex items-center gap-1 shadow-lg backdrop-blur-md transition-all duration-300 z-10 ${
                     resource.category === "Premium" || (resource.price && resource.price > 0)
                       ? "bg-red-500/20 text-red-500 border-red-500/30 hover:bg-red-500/30"
                       : "bg-gradient-to-r from-primary/20 to-primary/30 text-primary border-primary/40 hover:from-primary/30 hover:to-primary/40 shadow-primary/30"
@@ -367,12 +385,12 @@ export default function ResourcesHub() {
                   </div>
                   
                   {/* Enhanced Icon with Glow */}
-                  <div className={`size-14 sm:size-16 rounded-2xl flex items-center justify-center mb-5 transition-all duration-300 group-hover:scale-110 group-hover:rotate-3 ${
+                  <div className={`size-14 rounded-2xl flex items-center justify-center mb-5 transition-all duration-300 group-hover:scale-110 group-hover:rotate-3 ${
                     resource.category === "Premium" || (resource.price && resource.price > 0)
                       ? "bg-gradient-to-br from-red-500/20 to-red-600/10 text-red-500 shadow-red-500/20"
                       : "bg-gradient-to-br from-primary/20 to-primary/10 text-primary shadow-primary/20"
                   }`}>
-                    <span className="material-symbols-outlined text-3xl sm:text-4xl">
+                    <span className="material-symbols-outlined text-3xl">
                       {resource.fileType === "dataset" ? "database" : 
                        resource.fileType === "assignment" ? "description" : "forum"}
                     </span>
@@ -385,17 +403,17 @@ export default function ResourcesHub() {
                   </div>
                   
                   {/* Enhanced Title */}
-                  <h3 className="text-white font-bold text-xl sm:text-lg lg:text-xl mb-3 leading-tight group-hover:text-primary transition-all duration-300 group-hover:translate-x-1">
+                  <h3 className="text-white font-bold text-lg mb-3 leading-tight group-hover:text-primary transition-all duration-300 group-hover:translate-x-1 line-clamp-2">
                     {resource.title}
                   </h3>
                   
                   {/* Enhanced Description */}
-                  <p className="text-slate-300 text-sm sm:text-xs lg:text-sm mb-5 line-clamp-2 leading-relaxed group-hover:text-slate-200 transition-colors duration-300">
+                  <p className="text-slate-300 text-sm mb-5 line-clamp-2 leading-relaxed group-hover:text-slate-200 transition-colors duration-300 flex-1">
                     {resource.publication || `High-quality dataset for ${resource.fileType === "dataset" ? "machine learning and research" : "academic projects and assignments"}.`}
                   </p>
                   
                   {/* Enhanced Tags */}
-                  <div className="flex flex-wrap gap-2 mb-6 mt-auto">
+                  <div className="flex flex-wrap gap-2 mb-6">
                     <span className="px-3 py-1.5 bg-gradient-to-r from-slate-700/50 to-slate-600/50 text-slate-300 text-[11px] font-medium rounded-lg uppercase tracking-wider border border-slate-600/30 hover:border-primary/30 transition-all duration-300">
                       {resource.fileType === "dataset" ? "DATA" : 
                        resource.fileType === "assignment" ? "ASSIGN" : "SOLUTION"}
@@ -432,12 +450,46 @@ export default function ResourcesHub() {
                 </div>
               ))
             ) : (
-              <div className="w-full text-center py-16">
+              <div className="col-span-full w-full text-center py-16">
                 <span className="material-symbols-outlined text-6xl text-slate-600 mb-4">search_off</span>
                 <p className="text-slate-400 text-lg">No datasets found. Try adjusting your filters or search query.</p>
               </div>
             )}
           </div>
+
+          {/* Show More/Less Buttons */}
+          {!loading && filteredDatasets.length > 8 && (
+            <div className="flex justify-center mt-8">
+              <div className="flex items-center gap-4 p-1 bg-white/5 backdrop-blur-md rounded-2xl border border-white/10">
+                {displayCount > 8 && (
+                  <button
+                    onClick={handleShowLess}
+                    className="px-6 py-3 text-white font-medium rounded-xl hover:bg-white/10 transition-all duration-300 flex items-center gap-2"
+                  >
+                    <span className="material-symbols-outlined">expand_less</span>
+                    Show Less
+                  </button>
+                )}
+                
+                <div className="px-4 py-2 text-slate-400 text-sm">
+                  {displayedDatasets.length} of {filteredDatasets.length}
+                </div>
+                
+                {hasMoreDatasets && (
+                  <button
+                    onClick={handleShowMore}
+                    className="px-6 py-3 bg-gradient-to-r from-primary/20 to-primary/30 text-primary font-medium rounded-xl hover:from-primary/30 hover:to-primary/40 transition-all duration-300 flex items-center gap-2 border border-primary/30 hover:border-primary/50"
+                  >
+                    <span className="material-symbols-outlined">expand_more</span>
+                    Show More
+                    <span className="px-2 py-1 bg-primary/20 rounded-lg text-xs">
+                      +{Math.min(8, filteredDatasets.length - displayCount)}
+                    </span>
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
         </section>
       </main>
     </div>

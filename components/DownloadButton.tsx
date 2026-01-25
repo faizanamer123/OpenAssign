@@ -25,7 +25,9 @@ export default function DownloadButton({
   const { user } = useAuth();
   const [isDownloading, setIsDownloading] = useState(false);
 
-  const handleDownload = async () => {
+  const handleDownload = async (e: React.MouseEvent) => {
+    e.preventDefault(); // Prevent any form submission or page refresh
+    
     if (!user?.email) {
       alert("Please sign in to download files");
       return;
@@ -43,7 +45,18 @@ export default function DownloadButton({
       }
     } catch (error) {
       console.error("Download error:", error);
-      alert(`Download failed: ${error instanceof Error ? error.message : "Unknown error"}`);
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      
+      // More user-friendly error messages
+      if (errorMessage.includes('empty')) {
+        alert('The file could not be downloaded. Please try again later.');
+      } else if (errorMessage.includes('404')) {
+        alert('File not found. It may have been removed.');
+      } else if (errorMessage.includes('403')) {
+        alert('You do not have permission to download this file.');
+      } else {
+        alert(`Download failed: ${errorMessage}`);
+      }
     } finally {
       setIsDownloading(false);
     }

@@ -5,17 +5,21 @@ import Logo from "@/components/ui/Logo"
 
 const pagesWithFooter = [
   "/",
-  "/home",
+  "/resources-hub",
   "/register",
   "/privacy-policy",
   "/terms",
+]
+
+const pagesWithoutFooter = [
+  "/home",
 ]
 
 export default function ConditionalFooter() {
   const pathname = usePathname()
   
   // Check if current page should show footer
-  const shouldShowFooter = pagesWithFooter.includes(pathname)
+  const shouldShowFooter = pagesWithFooter.includes(pathname) && !pagesWithoutFooter.includes(pathname)
 
   if (!shouldShowFooter) return null
 

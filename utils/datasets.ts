@@ -17,12 +17,10 @@ export interface Dataset {
   publication?: string | null;
 }
 
-// New API function to fetch datasets from the dataset endpoint
 export async function fetchDatasetAPI(): Promise<any[]> {
   try {
-    // Add timeout to prevent hanging
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
 
     const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/dataset`, {
       signal: controller.signal,
@@ -45,7 +43,6 @@ export async function fetchDatasetAPI(): Promise<any[]> {
   }
 }
 
-// New function to download dataset files
 export async function downloadDatasetFile(email: string, fileId: string): Promise<void> {
   try {
     const response = await fetch(
@@ -56,12 +53,14 @@ export async function downloadDatasetFile(email: string, fileId: string): Promis
       throw new Error(`Download failed! status: ${response.status}`);
     }
     
-    // Get the blob from response
     const blob = await response.blob();
     
-    // Extract filename from Content-Disposition header or use fallback
+    if (blob.size === 0) {
+      throw new Error('Downloaded file is empty');
+    }
+    
     const contentDisposition = response.headers.get('Content-Disposition');
-    let filename = `dataset_${fileId}`;
+    let filename = `dataset_${fileId}.csv`;
     
     if (contentDisposition) {
       const filenameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
@@ -70,15 +69,22 @@ export async function downloadDatasetFile(email: string, fileId: string): Promis
       }
     }
     
-    // Create download link and trigger download
+    if (!filename.includes('.')) {
+      filename += '.csv';
+    }
+    
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
     link.download = filename;
+    link.style.display = 'none';
     document.body.appendChild(link);
     link.click();
-    document.body.removeChild(link);
-    window.URL.revokeObjectURL(url);
+    
+    setTimeout(() => {
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    }, 100);
     
   } catch (error) {
     console.error('Error downloading dataset file:', error);
@@ -88,19 +94,16 @@ export async function downloadDatasetFile(email: string, fileId: string): Promis
 
 export async function fetchDatasets(): Promise<Dataset[]> {
   try {
-    // Fetch datasets from the new API
     const apiDatasets = await fetchDatasetAPI();
     
-    // Also fetch existing assignments and submissions for compatibility
     const [users, assignments, submissions] = await Promise.all([
-      getUsers().catch(() => []), // Add error handling for each API call
+      getUsers().catch(() => []),
       getAssignments().catch(() => []),
       getSubmissions().catch(() => [])
     ]);
 
     const datasets: Dataset[] = [];
 
-    // Process new API datasets
     if (Array.isArray(apiDatasets)) {
       apiDatasets.forEach((dataset: any) => {
         try {
@@ -109,9 +112,9 @@ export async function fetchDatasets(): Promise<Dataset[]> {
             title: dataset.title,
             author: dataset.author,
             category: dataset.price > 0 ? "Premium" : "Free",
-            rating: 4.5, // Default rating for new datasets
-            downloads: Math.floor(Math.random() * 5000 + 100).toString(), // Random downloads for demo
-            reviews: Math.floor(Math.random() * 200 + 10).toString(), // Random reviews for demo
+            rating: 4.5,
+            downloads: "1000",
+            reviews: "50",
             image: "https://via.placeholder.com/300x200/30e8a5/11211b?text=Dataset",
             fileType: "dataset",
             fileId: dataset.id,
@@ -126,7 +129,6 @@ export async function fetchDatasets(): Promise<Dataset[]> {
       });
     }
 
-    // Process assignments (existing functionality)
     if (Array.isArray(assignments)) {
       assignments.forEach((assignment: any) => {
         try {
@@ -154,7 +156,6 @@ export async function fetchDatasets(): Promise<Dataset[]> {
       });
     }
 
-    // Process submissions (existing functionality)
     if (Array.isArray(submissions)) {
       submissions.forEach((submission: any) => {
         try {
@@ -182,47 +183,10 @@ export async function fetchDatasets(): Promise<Dataset[]> {
       });
     }
 
-    // Sort by downloads and rating for featured section
-    return datasets.sort((a, b) => {
-      const aScore = parseFloat(a.downloads) * a.rating;
-      const bScore = parseFloat(b.downloads) * b.rating;
-      return bScore - aScore;
-    }).slice(0, 12); // Return top 12 for featured section
+    return datasets.sort((a, b) => a.id.localeCompare(b.id)).slice(0, 12);
 
   } catch (error) {
     console.error('Error fetching datasets:', error);
-    // Return empty array if API fails
-    return [];
-  }
-}
-
-export async function searchDatasets(query: string): Promise<Dataset[]> {
-  try {
-    const datasets = await fetchDatasets();
-    
-    if (!query.trim()) return datasets;
-    
-    const lowercaseQuery = query.toLowerCase();
-    return datasets.filter(dataset => 
-      dataset.title.toLowerCase().includes(lowercaseQuery) ||
-      dataset.author.toLowerCase().includes(lowercaseQuery) ||
-      dataset.category.toLowerCase().includes(lowercaseQuery)
-    );
-  } catch (error) {
-    console.error('Error searching datasets:', error);
-    return [];
-  }
-}
-
-export async function getDatasetsByCategory(category: string): Promise<Dataset[]> {
-  try {
-    const datasets = await fetchDatasets();
-    
-    if (category === "All") return datasets;
-    
-    return datasets.filter(dataset => dataset.category === category);
-  } catch (error) {
-    console.error('Error getting datasets by category:', error);
     return [];
   }
 }
