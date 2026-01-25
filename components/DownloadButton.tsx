@@ -3,12 +3,12 @@
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { downloadAssignmentFile, downloadSubmissionFile } from "@/utils/downloads";
-import { Button } from "@/components/ui/button";
+import { downloadDatasetFile } from "@/utils/datasets";
 
 interface DownloadButtonProps {
   fileId: string;
   fileName?: string;
-  fileType: "assignment" | "submission";
+  fileType: "assignment" | "submission" | "dataset";
   className?: string;
   variant?: "default" | "outline" | "ghost" | "secondary";
   size?: "default" | "sm" | "lg" | "icon";
@@ -36,8 +36,10 @@ export default function DownloadButton({
     try {
       if (fileType === "assignment") {
         await downloadAssignmentFile(user.email, fileId);
-      } else {
+      } else if (fileType === "submission") {
         await downloadSubmissionFile(user.email, fileId);
+      } else if (fileType === "dataset") {
+        await downloadDatasetFile(user.email, fileId);
       }
     } catch (error) {
       console.error("Download error:", error);
@@ -47,25 +49,55 @@ export default function DownloadButton({
     }
   };
 
+  const baseClasses = "relative overflow-hidden group transition-all duration-300 hover-lift gpu-accelerated";
+  
+  const variants = {
+    default: "glossy-pill px-6 py-3 text-sm font-black text-[#0a0f0d] rounded-full",
+    outline: "px-6 py-3 bg-white/5 backdrop-blur-md border border-white/20 text-white font-bold rounded-2xl hover:bg-white/10 hover:border-primary/50 hover:text-primary hover:shadow-lg hover:shadow-primary/20",
+    ghost: "px-6 py-3 text-white font-bold rounded-2xl hover:bg-white/10 transition-colors",
+    secondary: "px-6 py-3 bg-slate-700 text-white font-bold rounded-2xl hover:bg-slate-600 transition-colors"
+  };
+
+  const sizes = {
+    default: "text-base",
+    sm: "text-sm",
+    lg: "text-lg",
+    icon: "p-3"
+  };
+
+  const buttonClasses = `
+    ${baseClasses}
+    ${variants[variant]}
+    ${sizes[size]}
+    ${className}
+    ${isDownloading ? "opacity-50 cursor-not-allowed" : ""}
+  `;
+
   return (
-    <Button
+    <button
       onClick={handleDownload}
       disabled={isDownloading}
-      variant={variant}
-      size={size}
-      className={`${className} ${isDownloading ? "opacity-50 cursor-not-allowed" : ""}`}
+      className={buttonClasses}
     >
-      {isDownloading ? (
-        <>
-          <span className="material-symbols-outlined animate-spin mr-2">downloading</span>
-          Downloading...
-        </>
-      ) : (
-        <>
-          <span className="material-symbols-outlined mr-2">download</span>
-          {fileName || "Download"}
-        </>
-      )}
-    </Button>
+      {/* Hover effect overlay */}
+      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
+      
+      <span className="relative z-10 flex items-center justify-center gap-2">
+        {isDownloading ? (
+          <>
+            <span className="material-symbols-outlined animate-spin">downloading</span>
+            <span>Downloading...</span>
+          </>
+        ) : (
+          <>
+            <span className="material-symbols-outlined">download</span>
+            <span>{fileName || "Download"}</span>
+          </>
+        )}
+      </span>
+      
+      {/* Subtle glow effect */}
+      <div className="absolute inset-0 rounded-inherit bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+    </button>
   );
 }

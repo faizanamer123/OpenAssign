@@ -596,12 +596,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import {
   Trophy,
   Sparkles,
-  Upload,
-  Star,
-  Users,
-  CheckCircle,
-  ArrowRight,
-  FileCheck,
+  Shield,
+  Zap,
   BookOpen,
   TrendingUp,
   LogIn,
@@ -610,13 +606,29 @@ import {
   CloudUpload,
   BarChart3,
   Brain,
+  LogOut,
+  Menu,
+  X,
+  FileCheck,
+  CheckCircle,
+  ArrowRight,
+  Star,
 } from "lucide-react";
 import Logo from "@/components/ui/Logo";
-import { Button } from "@/components/ui/button";
+import { useAuth } from "@/context/AuthContext";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 export default function LandingPage() {
   const [isScrolled, setIsScrolled] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { user, signOut } = useAuth();
+  const router = useRouter();
+
+  const handleLogout = () => {
+    signOut();
+    router.push("/");
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -642,17 +654,40 @@ export default function LandingPage() {
       </div>
 
       {/* Header */}
-      <header className={`fixed top-6 left-0 right-0 z-50 flex justify-center px-4 transition-all duration-500 ${isScrolled ? 'lg:-translate-y-24 lg:opacity-0' : 'lg:translate-y-0 lg:opacity-100'}`}>
-        <div className="navbar-glass max-w-7xl w-full h-16 sm:h-20 rounded-full flex items-center justify-center sm:justify-between px-4 sm:px-6 lg:px-10 transition-all duration-500">
-          <Logo href="/" variant="default" logoSize={32} />
-          <div className="hidden sm:flex items-center gap-4 sm:gap-6 lg:gap-8 ml-auto">
+      <header className={`fixed top-4 left-0 right-0 z-50 flex justify-center px-4 transition-all duration-500 ${isScrolled ? 'lg:-translate-y-24 lg:opacity-0' : 'lg:translate-y-0 lg:opacity-100'}`}>
+        <div className="navbar-glass max-w-7xl w-full h-14 sm:h-16 lg:h-20 rounded-full flex items-center justify-between px-3 sm:px-4 lg:px-6 transition-all duration-500">
+          <Logo href="/" variant="default" logoSize={28} disableHover={true} />
+          
+          {/* Desktop Navigation */}
+          <div className="hidden sm:flex items-center gap-3 sm:gap-4 lg:gap-6 ml-auto">
             <Link href="/register">
-              <button className="glossy-pill px-8 py-3 text-sm font-black text-[#0a0f0d] rounded-full hover:scale-105 active:scale-95 transition-all">
+              <button className="glossy-pill px-4 sm:px-6 lg:px-8 py-2 sm:py-3 text-xs sm:text-sm font-black text-[#0a0f0d] rounded-full hover:scale-105 active:scale-95 transition-all">
                 JOIN FREE
               </button>
             </Link>
           </div>
+
+          {/* Mobile Menu Button */}
+          <button 
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="sm:hidden text-white/60 hover:text-white transition-colors p-2"
+          >
+            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          </button>
         </div>
+
+        {/* Mobile Menu */}
+        {mobileMenuOpen && (
+          <div className="absolute top-full left-0 right-0 mt-2 mx-4 navbar-glass rounded-xl p-3 sm:hidden animate-scaleIn">
+            <div className="flex flex-col gap-3">
+              <Link href="/register" onClick={() => setMobileMenuOpen(false)}>
+                <button className="glossy-pill w-full px-4 py-2 text-xs font-black text-[#0a0f0d] rounded-full hover:scale-105 active:scale-95 transition-all">
+                  JOIN FREE
+                </button>
+              </Link>
+            </div>
+          </div>
+        )}
       </header>
 
       {/* Hero Section */}

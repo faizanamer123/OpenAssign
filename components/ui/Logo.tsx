@@ -10,6 +10,7 @@ interface LogoProps {
   href?: string;
   showText?: boolean;
   variant?: "default" | "compact" | "large";
+  disableHover?: boolean;
 }
 
 export default function Logo({
@@ -19,6 +20,7 @@ export default function Logo({
   href,
   showText = true,
   variant = "default",
+  disableHover = false,
 }: LogoProps) {
   const { user } = useAuth();
   const [iconLoaded, setIconLoaded] = useState(false);
@@ -85,23 +87,25 @@ export default function Logo({
   return (
     <Link
       href={getHref()}
-      className={`flex items-center gap-3 ${className}`}
+      className={`flex items-center gap-3 ${disableHover ? 'hover:!no-underline' : ''} ${className}`}
     >
       {/* Glassmorphic UI Logo */}
       <div
-        className={`${containerSize} flex items-center justify-center rounded-lg backdrop-blur-lg bg-white/10 border border-white/20 relative group transition-all hover:bg-white/15`}
+        className={`${containerSize} flex items-center justify-center rounded-lg backdrop-blur-lg bg-white/10 border border-white/20 relative ${disableHover ? '' : 'group transition-all hover:bg-white/15'} ${disableHover ? 'hover:!bg-white/10 hover:!border-white/20 hover:!transform-none' : ''}`}
       >
-        {/* Hover glow effect */}
-        <div className="absolute inset-0 bg-[#13ec92]/5 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg"></div>
+        {/* Hover glow effect - only show if hover is enabled */}
+        {!disableHover && (
+          <div className="absolute inset-0 bg-[#13ec92]/5 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg"></div>
+        )}
         
         {/* Diamond icon - always show SVG fallback first, then Material Symbols when loaded */}
-        <div className="relative z-10">
+        <div className={`relative z-10 ${disableHover ? 'hover:!transform-none' : ''}`}>
           {!iconLoaded ? (
             // SVG Fallback - shows immediately
             <svg 
               viewBox="0 0 24 24" 
               fill="currentColor" 
-              className={`${iconSize} text-[#13ec92]`}
+              className={`${iconSize} text-[#13ec92] ${disableHover ? 'hover:!text-[#13ec92]' : ''}`}
               style={{ 
                 width: variant === "large" ? "1.5rem" : variant === "compact" ? "1.25rem" : "1.5rem",
                 height: variant === "large" ? "1.5rem" : variant === "compact" ? "1.25rem" : "1.5rem"
@@ -112,7 +116,7 @@ export default function Logo({
           ) : (
             // Material Symbols - shows after font loads
             <span
-              className={`material-symbols-outlined text-[#13ec92] ${iconSize}`}
+              className={`material-symbols-outlined text-[#13ec92] ${iconSize} ${disableHover ? 'hover:!text-[#13ec92]' : ''}`}
               style={{ 
                 fontVariationSettings: '"FILL" 1, "wght" 400',
                 display: 'block'
