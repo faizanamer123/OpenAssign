@@ -183,7 +183,7 @@ export async function fetchDatasets(): Promise<Dataset[]> {
       });
     }
 
-    return datasets.sort((a, b) => a.id.localeCompare(b.id)).slice(0, 12);
+    return datasets.sort((a, b) => a.id.localeCompare(b.id));
 
   } catch (error) {
     console.error('Error fetching datasets:', error);
